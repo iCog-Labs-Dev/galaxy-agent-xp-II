@@ -1,0 +1,8 @@
+# Environment variable loader
+python-dotenv>=1.0.0
+
+# Galaxy API client
+bioblend>=0.16.0
+
+# Sentence-BERT (SBERT)
+sentence-transformers>=2.2.2

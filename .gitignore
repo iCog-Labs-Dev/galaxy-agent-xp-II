@@ -1,0 +1,24 @@
+# Ignore environment files
+.env
+__pycache__/
+# Ignore other unimportant files
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+*.log.*
+*.tmp.*
+*.bak.*
+*.swp.*
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+node_modules/
+dist/
+build/
+coverage/
+.idea/
+.vscode/
+*.iml
