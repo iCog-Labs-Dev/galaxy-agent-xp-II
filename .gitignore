@@ -22,3 +22,4 @@ coverage/
 .idea/
 .vscode/
 *.iml
+tool_suggestion_model/fine_tuned_sbert_for_galaxy_v1/
