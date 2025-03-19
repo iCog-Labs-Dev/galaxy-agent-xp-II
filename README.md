@@ -46,7 +46,7 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
     ```
     python fetch_tools.py
     ```
-# Galaxy Tools Fetcher using BioBlend
+# Galaxy Tools Suggestion RAG
  ```
 cd galaxy_tool_suggestion/tool_suggestion_model
 ```
