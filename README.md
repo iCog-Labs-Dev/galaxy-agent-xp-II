@@ -46,5 +46,26 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
     ```
     python fetch_tools.py
     ```
+# Galaxy Tools Fetcher using BioBlend
+ ```
+cd galaxy_tool_suggestion/tool_suggestion_model
+```
+## Training and Fine Tuning
+1. Make sure requirements are upto date ore once again run
+   ```
+   pip install -r requirements.txt
+   ```
+2.  Open Notebook and run all the blocks
+   The fine tuned model should appear in your current directory.
+## Usage 
+1. Add data and model path to .env (Enviroment Variables)
+   ```
+   MODEL_PATH = '/home/john/galaxy_tool_suggestion/tool_suggestion_model/fine_tuned_E5_for_galaxy_v'
+   DATA_PATH = '/home/john/galaxy_tool_suggestion/tool_suggestion_model/dataset.json'
+   ```
+2. Run python file
+   ```
+   python main.py
+   ```
 
-   
+
