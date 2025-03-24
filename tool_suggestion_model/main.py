@@ -9,7 +9,7 @@ import os
 dotenv.load_dotenv()
 
 # Load the fine-tuned model
-version = 1 # Change this to the version of the model you want to use
+version = 2 # Change this to the version of the model you want to use
 model_path = f'{os.getenv("MODEL_PATH")}{version}' # Path to the model this need to be set in enviroment variable
 model = SentenceTransformer(model_path)
 
@@ -21,7 +21,7 @@ tools_descriptions = [f"{name} - {help_text}" for name, help_text in tools_data]
 
 tool_embeddings = model.encode(tools_descriptions)
 
-new_task_description = "I want to the tool to convert a sorted BED file into a bigBed file"
+new_task_description = "I’d like to run the 'Generic Variation Analysis on WGS PE Data, which workflow should I use?"
 new_task_embedding = model.encode([new_task_description])
 
 similarities = cosine_similarity(new_task_embedding, tool_embeddings)
