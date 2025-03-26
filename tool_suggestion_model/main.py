@@ -30,5 +30,7 @@ top_3_indices = np.argsort(similarities[0])[::-1][:3]
 
 top_3_tools = [(tools_data[i][0], similarities[0][i]) for i in top_3_indices]
 
+print("user prompt: \n ", new_task_description)
+print("Top 3 model suggestions for the task:")
 for rank, (tool_name, score) in enumerate(top_3_tools, 1):
     print(f"Rank {rank}: {tool_name} (Similarity Score: {score:.4f})")
