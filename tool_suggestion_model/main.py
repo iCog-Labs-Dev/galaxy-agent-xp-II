@@ -9,7 +9,7 @@ import os
 dotenv.load_dotenv()
 
 # Load the fine-tuned model
-version = 1 # Change this to the version of the model you want to use
+version = 2 # Change this to the version of the model you want to use
 model_path = f'{os.getenv("MODEL_PATH")}{version}' # Path to the model this need to be set in enviroment variable
 model = SentenceTransformer(model_path)
 
@@ -21,7 +21,7 @@ tools_descriptions = [f"{name} - {help_text}" for name, help_text in tools_data]
 
 tool_embeddings = model.encode(tools_descriptions)
 
-new_task_description = "I want to the tool to convert a sorted BED file into a bigBed file"
+new_task_description = "I’d like to run the 'Generic Variation Analysis on WGS PE Data, which workflow should I use?"
 new_task_embedding = model.encode([new_task_description])
 
 similarities = cosine_similarity(new_task_embedding, tool_embeddings)
@@ -30,5 +30,7 @@ top_3_indices = np.argsort(similarities[0])[::-1][:3]
 
 top_3_tools = [(tools_data[i][0], similarities[0][i]) for i in top_3_indices]
 
+print("user prompt: \n ", new_task_description)
+print("Top 3 model suggestions for the task:")
 for rank, (tool_name, score) in enumerate(top_3_tools, 1):
     print(f"Rank {rank}: {tool_name} (Similarity Score: {score:.4f})")
