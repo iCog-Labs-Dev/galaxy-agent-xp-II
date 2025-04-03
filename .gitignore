@@ -23,4 +23,7 @@ coverage/
 .vscode/
 *.iml
 tool_suggestion_model/fine_tuned_sbert_for_galaxy_v1/
-tool_suggestion_model/fine_tuned_E5_for_galaxy_v1/
+tool_suggestion_model/fine_tuned_E5_for_galaxy_v1
+tool_suggestion_model/fine_tuned_E5_for_galaxy_v2/
+tool_suggestion_model/fine_tuned_E5_for_galaxy_v3/
+
