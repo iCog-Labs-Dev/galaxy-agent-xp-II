@@ -3,3 +3,8 @@ output:
 processing:
   max_workers: 5
   tool_limit: 10
+
+comparison:
+  eu_json_file: "galaxy_tools.json"
+  bizon_server_json_file: "galaxy_tools_bizon.json"
+  output_excel: "galaxy_tools_comparison.xlsx"
