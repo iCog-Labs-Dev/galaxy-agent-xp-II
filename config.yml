@@ -1,0 +1,18 @@
+output:
+  file: "galaxy_tools.json"
+processing:
+  max_workers: 5
+  tool_limit: 100
+
+categories:
+  Get Data:
+    percentage: 0.2 
+  Astronomy:
+    percentage: 1 
+  # Other categories not listed will fetch 100% of tools
+
+comparison:
+  eu_json_file: "galaxy_tools.json"
+  bizon_server_json_file: "galaxy_tools_bizon.json"
+  output_excel: "galaxy_tools_comparison.xlsx"
+
