@@ -7,6 +7,7 @@ from tqdm import tqdm
 import requests
 from dotenv import load_dotenv
 import yaml
+import random
 
 # Load environment variables from .env
 load_dotenv()
@@ -26,10 +27,11 @@ api_key = os.getenv("GALAXY_API_KEY")
 output_file = config["output"]["file"]
 max_workers = config["processing"]["max_workers"]
 tool_limit = config["processing"].get("tool_limit", None)
+categories = config.get("categories", {})  # Default to empty dict if not specified
 
 # Validate sensitive data
 if not galaxy_url or not api_key:
-    raise ValueError("GALAXY_URL and GALAXY_API_KEY must be set in the .env file")
+    raise ValueError("GALAXY_URL_B and GALAXY_API_KEY_B must be set in the .env file")
 
 # Initialize Galaxy instance
 gi = GalaxyInstance(url=galaxy_url, key=api_key)
@@ -40,9 +42,34 @@ if os.path.exists(output_file):
 else:
     print("Fetching tools from Galaxy...")
     tools = gi.tools.get_tools()
-    print(f"Found {len(tools)} tools. Fetching details for all tools...")
+    print(f"Found {len(tools)} tools.")
+
+    # Group tools by category
+    tools_by_category = {}
+    for tool in tools:
+        category = tool.get("panel_section_name", "Uncategorized")
+        if category not in tools_by_category:
+            tools_by_category[category] = []
+        tools_by_category[category].append(tool)
+
+    # Apply category percentage filtering
+    filtered_tools = []
+    for category, cat_tools in tools_by_category.items():
+        percentage = categories.get(category, {}).get("percentage", 1)  # Default to 100%
+        if not isinstance(percentage, (int, float)) or percentage < 0:
+            print(f"Invalid percentage for {category}: {percentage}. Using 100%.")
+            percentage = 1
+        percentage = min(percentage, 1)  # Cap at 100%
+        num_tools = int(len(cat_tools) * percentage)
+        if num_tools == 0 and percentage > 0:
+            num_tools = 1  # Ensure at least one tool if percentage is positive
+        print(f"Selecting {num_tools} of {len(cat_tools)} tools from {category} ({percentage*100:.1f}%)")
+        selected_tools = random.sample(cat_tools, num_tools) if num_tools < len(cat_tools) else cat_tools
+        filtered_tools.extend(selected_tools)
+
+    print(f"Fetching details for {len(filtered_tools)} tools...")
     if tool_limit:
-        tools = tools[:tool_limit]
+        filtered_tools = filtered_tools[:tool_limit]
 
     def fetch_tool_details(tool):
         tool_id = tool.get("id", "")
@@ -65,6 +92,7 @@ else:
                 "name": tool.get("name", ""),
                 "description": tool.get("description", ""),
                 "category": tool.get("panel_section_name", ""),
+                "version": tool.get("version", ""),
                 "help": help_text
             }
         except Exception as e:
@@ -73,10 +101,10 @@ else:
 
     tools_json = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_tool = {executor.submit(fetch_tool_details, tool): tool for tool in tools}
+        future_to_tool = {executor.submit(fetch_tool_details, tool): tool for tool in filtered_tools}
         for future in tqdm(
             as_completed(future_to_tool),
-            total=len(tools),
+            total=len(filtered_tools),
             desc="Processing tools",
             bar_format="{l_bar}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]"
         ):
