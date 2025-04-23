@@ -48,7 +48,7 @@ comparison_data = {
     "Tool ID": [],
     "Description": [],
     "Galaxy EU": [],
-    "Galaxy My Server": []
+    "Galaxy Bizon Server": []
 }
 
 print("Comparing tools by name...")
@@ -58,7 +58,7 @@ for tool_name, tool_id, tool_desc in all_tools:
     comparison_data["Tool ID"].append(tool_id)
     comparison_data["Description"].append(tool_desc)
     comparison_data["Galaxy EU"].append("✅" if (tool_name, tool_id, tool_desc) in eu_tools_list else "❌")
-    comparison_data["Galaxy My Server"].append("✅" if (tool_name, tool_id, tool_desc) in my_server_tools_list else "❌")
+    comparison_data["Galaxy Bizon Server"].append("✅" if (tool_name, tool_id, tool_desc) in my_server_tools_list else "❌")
 
 # Create DataFrame and save to Excel
 print(f"Generating Excel report '{OUTPUT_EXCEL}'...")
