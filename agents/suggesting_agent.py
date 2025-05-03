@@ -3,17 +3,19 @@ import numpy as np
 from sentence_transformers import SentenceTransformer, util
 
 class ToolSuggestionAgent:
-    def __init__(self, model_path='intfloat/e5-base-v2', embedding_path='agents/embeddings/galaxy_embeddings.npy',
-                 metadata_path='agents/embeddings/galaxy_metadata.json'):
-        # Load model
+    def __init__(self, model_path='intfloat/e5-base-v2', embeddings_path=None, metadata_path=None):
+        # If not provided, use default paths
+        self.embeddings_path = embeddings_path or 'embeddings/galaxy_embeddings.npy'
+        self.metadata_path = metadata_path or 'embeddings/galaxy_metadata.json'
+        
+        # Load the model and data
         self.model = SentenceTransformer(model_path)
-        # Load precomputed embeddings
-        self.embeddings = np.load(embedding_path)
-        # Load tool metadata
-        with open(metadata_path, "r", encoding="utf-8") as f:
+        self.embeddings = np.load(self.embeddings_path)
+        with open(self.metadata_path, "r", encoding="utf-8") as f:
             self.metadata = json.load(f)
     
-    def suggest_tools(self, query, top_k=5):
+    
+    def suggest_tools(self, query, top_k=5, score_threshold=0.05):
         # Encode the query
         query_embedding = self.model.encode(query, convert_to_numpy=True)
         
@@ -25,15 +27,25 @@ class ToolSuggestionAgent:
 
         # Build suggestion list
         suggestions = []
+        seen_tools = {}  # Dictionary to store tool names and their highest similarity score
+
         for idx in top_results:
             tool_info = self.metadata[idx]
-            suggestions.append({
-                "name": tool_info["name"],
-                "description": tool_info["description"],
-                "help": tool_info["help"],
-                "category": tool_info["category"],
-                "score": float(similarities[idx])
-            })
+            tool_name = tool_info["name"]
+            score = float(similarities[idx])
+
+            # If the tool is not in the seen_tools dictionary or the score difference is large enough, add it
+            if tool_name not in seen_tools or abs(seen_tools[tool_name] - score) > score_threshold:
+                suggestions.append({
+                    "name": tool_name,
+                    "description": tool_info["description"],
+                    "help": tool_info["help"],
+                    "category": tool_info["category"],
+                    "score": score
+                })
+
+                # Update the seen_tools dictionary with the highest score for this tool
+                seen_tools[tool_name] = score
 
         return suggestions
 
