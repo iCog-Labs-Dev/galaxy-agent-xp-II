@@ -46,26 +46,75 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
     ```
     python fetch_tools.py
     ```
-# Galaxy Tools Suggestion RAG
- ```
-cd galaxy_tool_suggestion/tool_suggestion_model
-```
-## Training and Fine Tuning
-1. Make sure requirements are upto date ore once again run
-   ```
-   pip install -r requirements.txt
-   ```
-2.  Open Notebook and run all the blocks
-   The fine tuned model should appear in your current directory.
-## Usage 
-1. Add data and model path to .env (Enviroment Variables)
-   ```
-   MODEL_PATH = '/home/john/galaxy_tool_suggestion/tool_suggestion_model/fine_tuned_E5_for_galaxy_v'
-   DATA_PATH = '/home/john/galaxy_tool_suggestion/tool_suggestion_model/dataset.json'
-   ```
-2. Run python file
-   ```
-   python main.py
-   ```
+# Galaxy Tools Suggestion Using intfloat/e5-large 
+A FastAPI-powered AI agent for suggesting relevant Galaxy tools based on natural language queries using sentence embeddings and cosine similarity.
 
+## Usage of the agent 
+After cloning this repository go to agents
+```
+cd agents
+```
+## 📌 1️⃣ Configure Paths
+Open configs/config.py and set the following paths:
+```
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    data_to_encode_path: str = "data/tools_metadata.json"  # raw data (JSON format)
+    embeddings_path: str = "embeddings/galaxy_embeddings.npy"
+    metadata_path: str = "embeddings/galaxy_metadata.json"
+```
+## 📌 2️⃣ Encode Your Data
+After setting your config, run the embedding script to encode your tools' metadata JSON into embeddings (.npy) and save metadata as a JSON file for lookup.
+```
+python agents/text_embedding.py
+
+```
+This will:
+
+-  Load your raw JSON metadata
+-  Generate sentence embeddings
+-  Save embeddings to embeddings/galaxy_embeddings.npy
+-  Save clean metadata to embeddings/galaxy_metadata.json
+
+## 📌 3️⃣ Run the FastAPI Backend
+Start your API server with:
+```
+uvicorn app:app --reload
+```
+## 📌 4️⃣ Test the API
+🔍 Health Check
+```
+GET http://127.0.0.1:8000/health
+```
+Response
+```
+{"status": "ok"}
+```
+## 🎯 Tool Suggestion
+```
+POST http://127.0.0.1:8000/suggest
+```
+Request Body
+```
+{
+  "query": "align sequences to a reference genome",
+  "top_k": 5
+}
+```
+Response
+
+```
+{
+  "results": [
+    {
+      "name": "Tool A",
+      "description": "Performs sequence alignment",
+      "help": "long help section",
+      "category": "Alignment",
+      "score": 0.92
+    }
+  ]
+}
+```
 
