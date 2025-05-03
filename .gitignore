@@ -29,3 +29,5 @@ tool_suggestion_model/fine_tuned_E5_for_galaxy_v3/
 venv
 galaxy_tools.json
 *.xlsx*
+galaxy_embeddings.npy
+galaxy_metadata.json
