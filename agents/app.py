@@ -22,6 +22,9 @@ agent = ToolSuggestionAgent(
     embeddings_path=settings.embeddings_path,
     metadata_path=settings.metadata_path
 )
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Galaxy Tool Suggestion API!"}
 
 @app.get("/health")
 def health_check():
