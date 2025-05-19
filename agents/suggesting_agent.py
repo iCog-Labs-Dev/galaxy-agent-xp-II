@@ -37,11 +37,11 @@ class ToolSuggestionAgent:
             # If the tool is not in the seen_tools dictionary or the score difference is large enough, add it
             if tool_name not in seen_tools or abs(seen_tools[tool_name] - score) > score_threshold:
                 suggestions.append({
-                    "name": tool_name,
+                    "name": tool_info["name"],
                     "description": tool_info["description"],
                     "help": tool_info["help"],
-                    "category": tool_info["category"],
-                    "score": score
+                    "category": tool_info.get("category", "Uncategorized") or "Uncategorized",
+                    "score": float(similarities[idx])
                 })
 
                 # Update the seen_tools dictionary with the highest score for this tool
