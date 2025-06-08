@@ -1,0 +1,18 @@
+[
+  {
+    "prompt": "I want tool to add columns to existing datasets",
+    "expected_tool": "Add column"
+  },
+  {
+    "prompt": "I want the tool to filter and normalize mass spectrometry data",
+    "expected_tool": "matchms filtering"
+  },
+  {
+    "prompt": "I want tool suggestion for Principal Component Analysis for tracer metabolomics data",
+    "expected_tool": "dimet pca plot"
+  },
+{
+    "prompt": "I want tool to join two datasets",
+    "expected_tool": "Join two Datasets"
+  }
+]
