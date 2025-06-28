@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Load workflow metadata
-with open("Agents/data/iwc_workflows_summary_june20_2025.json", "r", encoding="utf-8") as f:
+with open("agents/data/iwc_workflows_summary_june20_2025.json", "r", encoding="utf-8") as f: 
     data = json.load(f)
 
 # Structure texts for embedding
