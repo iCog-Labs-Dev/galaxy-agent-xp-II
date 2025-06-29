@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "Galaxy workflow data",
+  "description": "Schema for a single Galaxy workflow object",
+  "type": "object",
+    "properties": {
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "owner", "url", "tags", "source_metadata"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique ID of the workflow"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the workflow"
+          },
+          "annotation": {
+            "type": "string",
+            "description": "Short description of the workflow"
+          },
+          "annotations": {
+            "type": ["null", "string", "array"],
+            "description": "Extended annotations (if any)"
+          },
+          "importable": {
+            "type": "boolean"
+          },
+          "number_of_steps": {
+            "type": ["integer", "null"]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "email_hash": {
+            "type": "string"
+          },
+          "model_class": {
+            "type": "string"
+          },
+          "latest_workflow_uuid": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "show_in_tool_panel": {
+            "type": ["boolean", "null"]
+          },
+          "steps": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "inputs": {
+            "type": "object"
+          },
+          "owner": {
+            "type": "string"
+          },
+            "": {
+            "type": "string"
+          },
+          "availableGalaxyServer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/AvailableGalaxyServer"
+            },
+            "description": "Galaxy servers that "
+          },
+          "creator": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "class": { "type": "string" },
+                "name": { "type": "string" },
+                "address": { "type": ["string", "null"] },
+                "alternateName": { "type": ["string", "null"] },
+                "email": { "type": ["string", "null"] }
+              },
+              "required": ["class", "name"]
+            }
+          },
+          "source_metadata": {
+            "type": "object",
+            "properties": {
+              "trs_server": { "type": "string" },
+              "trs_tool_id": { "type": "string" }
+            },
+            "required": ["trs_server", "trs_tool_id"]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/WorkFlowCategory"
+            }
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+  "additionalProperties": false
+  }
+  }
+},
+  "$defs": {
+    "AvailableGalaxyServer": {
+        "type": "array",
+        "anyOf": [
+          "https://usegalaxy.eu",
+          "https://usegalaxy.org",
+          "https://usegalaxy.fr",
+          "https://usegalaxy.org.au"
+        ],
+        "description": "Avaliable in Galaxy server base URLs"
+    },
+    "WorkFlowCategory": {
+      "type": "array",
+      "manyOf": [
+        {
+          "const": "VGP-assembly-v2",
+          "description": "Tools related to Vertebrate Genome Project assembly version 2"
+        },
+        {
+          "const": "amplicon",
+          "description": "Tools for amplicon sequencing data"
+        },
+        {
+          "const": "bacterial_genomics",
+          "description": "Tools for bacterial genome analysis"
+        },
+        {
+          "const": "computational-chemistry",
+          "description": "Tools for computational chemistry workflows"
+        },
+        {
+          "const": "data-fetching",
+          "description": "Tools for fetching or acquiring datasets"
+        },
+        {
+          "const": "epigenetics",
+          "description": "Tools related to epigenetics research"
+        },
+        {
+          "const": "genome-assembly",
+          "description": "Tools for genome assembly tasks"
+        },
+        {
+          "const": "genome_annotation",
+          "description": "Tools for annotating genomes"
+        },
+        {
+          "const": "imaging",
+          "description": "Tools supporting imaging data analysis"
+        },
+        {
+          "const": "metabolomics",
+          "description": "Tools for metabolomics studies"
+        },
+        {
+          "const": "microbiome",
+          "description": "Tools for microbiome research and analysis"
+        },
+        {
+          "const": "proteomics",
+          "description": "Tools for proteomic data analysis"
+        },
+        {
+          "const": "repeatmasking",
+          "description": "Tools for identifying and masking repetitive sequences"
+        },
+        {
+          "const": "sars-cov-2-variant-calling",
+          "description": "Tools for variant calling in SARS-CoV-2 data"
+        },
+        {
+          "const": "scRNAseq",
+          "description": "Tools for single-cell RNA sequencing analysis"
+        },
+        {
+          "const": "transcriptomics",
+          "description": "Tools for transcriptomics studies"
+        },
+        {
+          "const": "variant-calling",
+          "description": "Tools for identifying genetic variants"
+        },
+        {
+          "const": "virology",
+          "description": "Tools for studying viruses and viral genomics"
+        }
+      ]
+    }
+  }
+  }

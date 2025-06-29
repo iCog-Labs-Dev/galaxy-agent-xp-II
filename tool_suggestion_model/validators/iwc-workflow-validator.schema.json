@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "Galaxy workflow data",
+  "description": "Schema for Galaxy workflow data",
+  "type": "object",
+  "properties": {
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "category", "owner", "json", "longDescription"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tool"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Short description of the tool (may be empty)"
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/WorkFlowCategory"
+            },
+            "description": "Tool categories (can include multiple)"
+          },
+          "json": {
+            "type": "object",
+            "description": ".ga file that defines the inputs and outputs for workflows in galaxy"
+          },
+          "longDescription":{
+            "type":"string",
+            "description":"README.md content obtained from the github page"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "WorkFlowCategory": {
+      "type": "string",
+      "anyOf": [
+        {
+          "const": "VGP-assembly-v2",
+          "description": "Tools related to Vertebrate Genome Project assembly version 2"
+        },
+        {
+          "const": "amplicon",
+          "description": "Tools for amplicon sequencing data"
+        },
+        {
+          "const": "bacterial_genomics",
+          "description": "Tools for bacterial genome analysis"
+        },
+        {
+          "const": "computational-chemistry",
+          "description": "Tools for computational chemistry workflows"
+        },
+        {
+          "const": "data-fetching",
+          "description": "Tools for fetching or acquiring datasets"
+        },
+        {
+          "const": "epigenetics",
+          "description": "Tools related to epigenetics research"
+        },
+        {
+          "const": "genome-assembly",
+          "description": "Tools for genome assembly tasks"
+        },
+        {
+          "const": "genome_annotation",
+          "description": "Tools for annotating genomes"
+        },
+        {
+          "const": "imaging",
+          "description": "Tools supporting imaging data analysis"
+        },
+        {
+          "const": "metabolomics",
+          "description": "Tools for metabolomics studies"
+        },
+        {
+          "const": "microbiome",
+          "description": "Tools for microbiome research and analysis"
+        },
+        {
+          "const": "proteomics",
+          "description": "Tools for proteomic data analysis"
+        },
+        {
+          "const": "repeatmasking",
+          "description": "Tools for identifying and masking repetitive sequences"
+        },
+        {
+          "const": "sars-cov-2-variant-calling",
+          "description": "Tools for variant calling in SARS-CoV-2 data"
+        },
+        {
+          "const": "scRNAseq",
+          "description": "Tools for single-cell RNA sequencing analysis"
+        },
+        {
+          "const": "transcriptomics",
+          "description": "Tools for transcriptomics studies"
+        },
+        {
+          "const": "variant-calling",
+          "description": "Tools for identifying genetic variants"
+        },
+        {
+          "const": "virology",
+          "description": "Tools for studying viruses and viral genomics"
+        }
+      ]
+    }
+}
+}

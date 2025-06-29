@@ -1,0 +1,1863 @@
+[
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "assembly-hifi-hic-phasing-vgp4",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome Assembly from Hifi reads with HiC phasing - VGP4",
+        "number_of_steps": 69,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.5+galaxy0",
+          "Cut1",
+          "__FILTER_EMPTY_DATASETS__",
+          "Convert characters1",
+          "param_value_from_file",
+          "__UNZIP_COLLECTION__",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/hifiasm/hifiasm/0.25.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/2022.09+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/9.5+galaxy0",
+          "join1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/merqury/merqury/1.3+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/9.5+galaxy0",
+          "__EXTRACT_DATASET__",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_uniq_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0"
+        ],
+        "file_name": "Assembly-Hifi-HiC-phasing-VGP4.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Assembly-Hifi-HiC-phasing-VGP4-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "assembly-hifi-trio-phasing-vgp5",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome Assembly with Pacbio Hifi reads and Trio data for phasing - VGP5",
+        "number_of_steps": 64,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.5+galaxy0",
+          "param_value_from_file",
+          "Convert characters1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/hifiasm/hifiasm/0.25.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/2022.09+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/merqury/merqury/1.3+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "__EXTRACT_DATASET__",
+          "join1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0"
+        ],
+        "file_name": "Assembly-Hifi-Trio-phasing-VGP5.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Assembly-Hifi-Trio-phasing-VGP5-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "assembly-hifi-only-vgp3",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome Assembly from Hifi reads - VGP3",
+        "number_of_steps": 55,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.5+galaxy0",
+          "Cut1",
+          "Convert characters1",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/hifiasm/hifiasm/0.25.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/2022.09+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/merqury/merqury/1.3+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "__EXTRACT_DATASET__",
+          "join1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0"
+        ],
+        "file_name": "Assembly-Hifi-only-VGP3.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Assembly-Hifi-only-VGP3-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "assembly-decontamination-vgp9",
+    "workflow_files": [
+      {
+        "workflow_name": "Assembly-decontamination-VGP9",
+        "number_of_steps": 12,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/devteam/ncbi_blast_plus/ncbi_dustmasker_wrapper/2.16.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/kraken2/kraken2/2.1.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/ncbi_blast_plus/ncbi_blastn_wrapper/2.16.0+galaxy0",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/parse_mito_blast/parse_mito_blast/1.0.2+galaxy0",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cat/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0"
+        ],
+        "file_name": "Assembly-decontamination-VGP9.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Assembly-decontamination-VGP9-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "mitogenome-assembly-vgp0",
+    "workflow_files": [
+      {
+        "workflow_name": "Mitogenome Assembly VGP0",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/mitohifi/mitohifi/3.2.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compress_file/compress_file/0.1.0"
+        ],
+        "file_name": "Mitogenome-Assembly-VGP0.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Mitogenome-Assembly-VGP0-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "plot-nx-size",
+    "workflow_files": [
+      {
+        "workflow_name": "Generate Nx and Size plots for multiple assemblies",
+        "number_of_steps": 15,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "sort1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/datamash_ops/datamash_ops/1.8+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/add_value/addValue/1.0.1",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/mvdbeek/add_input_name_as_column/addName/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ggplot2_point/ggplot2_point/3.5.1+galaxy2"
+        ],
+        "file_name": "Generate-Nx-and-Size-plots-for-multiple-assemblies.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Generate-Nx-and-Size-plots-for-multiple-assemblies-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "purge-duplicate-contigs-vgp6",
+    "workflow_files": [
+      {
+        "workflow_name": "Purge duplicate contigs from a diploid assembly VGP6",
+        "number_of_steps": 61,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.28+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/purge_dups/purge_dups/1.2.6+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "param_value_from_file",
+          "Cut1",
+          "cat1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/merqury/merqury/1.3+galaxy4",
+          "__EXTRACT_DATASET__",
+          "join1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0"
+        ],
+        "file_name": "Purge-duplicate-contigs-VGP6.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Purge-duplicate-contigs-VGP6-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "purge-duplicates-one-haplotype-vgp6b",
+    "workflow_files": [
+      {
+        "workflow_name": "Purging duplicates in one haplotype VGP6b",
+        "number_of_steps": 52,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.28+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/purge_dups/purge_dups/1.2.6+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "param_value_from_file",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/merqury/merqury/1.3+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "__EXTRACT_DATASET__",
+          "join1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0"
+        ],
+        "file_name": "Purging-duplicates-one-haplotype-VGP6b.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Purging-duplicates-one-haplotype-VGP6b-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "scaffolding-bionano-vgp7",
+    "workflow_files": [
+      {
+        "workflow_name": "Scaffolding-BioNano-VGP7",
+        "number_of_steps": 17,
+        "tools_used": [
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.6+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/bionano_scaffold/bionano_scaffold/3.7.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.3+galaxy1",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ggplot2_point/ggplot2_point/3.4.0+galaxy1"
+        ],
+        "file_name": "Scaffolding-BioNano-VGP7.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Scaffolding-BioNano-VGP7-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "scaffolding-hic-vgp8",
+    "workflow_files": [
+      {
+        "workflow_name": "Scaffolding with Hi-C data VGP8",
+        "number_of_steps": 46,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_merge/samtools_merge/1.20+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/yahs/yahs/1.2a.2+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.5",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pretext_map/pretext_map/0.1.9+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pretext_snapshot/pretext_snapshot/0.0.4+galaxy0",
+          "__EXTRACT_DATASET__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bwa_mem2/bwa_mem2/2.2.1+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compleasm/compleasm/0.2.6+galaxy2",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ggplot2_point/ggplot2_point/3.5.1+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3"
+        ],
+        "file_name": "Scaffolding-HiC-VGP8.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Scaffolding-HiC-VGP8-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "hi-c-contact-map-for-assembly-manual-curation",
+    "workflow_files": [
+      {
+        "workflow_name": "PretextMap Generation from 1 or 2 haplotypes",
+        "number_of_steps": 32,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cat/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/gfastats/gfastats/1.3.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/seqtk/seqtk_telo/1.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.28+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pretext_map/pretext_map/0.1.9+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bam_coverage/deeptools_bam_coverage/3.5.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pretext_graph/pretext_graph/0.0.7+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pretext_snapshot/pretext_snapshot/0.0.4+galaxy0",
+          "__EXTRACT_DATASET__"
+        ],
+        "file_name": "hi-c-map-for-assembly-manual-curation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "hi-c-map-for-assembly-manual-curation-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "kmer-profiling-hifi-vgp1",
+    "workflow_files": [
+      {
+        "workflow_name": "K-mer profiling and reads statistics VGP1",
+        "number_of_steps": 19,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_count_kmers/meryl_count_kmers/1.3+galaxy7",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_groups_kmers/meryl_groups_kmers/1.3+galaxy7",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_histogram_kmers/meryl_histogram_kmers/1.3+galaxy7",
+          "toolshed.g2.bx.psu.edu/repos/iuc/genomescope/genomescope/2.0.1+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/richard-burhans/rdeval/rdeval/0.0.7+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/richard-burhans/rdeval/rdeval_report/0.0.7+galaxy4"
+        ],
+        "file_name": "kmer-profiling-hifi-VGP1.ga"
+      }
+    ],
+    "planemo_tests": [
+      "kmer-profiling-hifi-VGP1-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "vgp-assembly-v2",
+    "workflow_repository": "kmer-profiling-hifi-trio-vgp2",
+    "workflow_files": [
+      {
+        "workflow_name": "kmer-profiling-hifi-trio-VGP2",
+        "number_of_steps": 16,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_count_kmers/meryl_count_kmers/1.3+galaxy7",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl/meryl/1.3+galaxy6",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_groups_kmers/meryl_groups_kmers/1.3+galaxy7",
+          "toolshed.g2.bx.psu.edu/repos/iuc/genomescope/genomescope/2.0.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/meryl_histogram_kmers/meryl_histogram_kmers/1.3+galaxy7"
+        ],
+        "file_name": "kmer-profiling-hifi-trio-VGP2.ga"
+      }
+    ],
+    "planemo_tests": [
+      "kmer-profiling-hifi-trio-VGP2-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "amplicon",
+    "workflow_repository": "amplicon-mgnify",
+    "workflow_files": [],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_readme": true,
+    "has_changelog": false
+  },
+  {
+    "category": "amplicon",
+    "workflow_repository": "dada2",
+    "workflow_files": [
+      {
+        "workflow_name": "dada2 amplicon analysis pipeline - for paired end data",
+        "number_of_steps": 19,
+        "tools_used": [
+          "__APPLY_RULES__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_plotqualityprofile/dada2_plotQualityProfile/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_filterandtrim/dada2_filterAndTrim/1.34.0+galaxy0",
+          "__UNZIP_COLLECTION__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_learnerrors/dada2_learnErrors/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_dada/dada2_dada/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_mergepairs/dada2_mergePairs/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_makesequencetable/dada2_makeSequenceTable/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_removebimeradenovo/dada2_removeBimeraDenovo/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_seqcounts/dada2_seqCounts/1.34.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dada2_assigntaxonomyaddspecies/dada2_assignTaxonomyAddspecies/1.34.0+galaxy0"
+        ],
+        "file_name": "dada2_paired.ga"
+      }
+    ],
+    "planemo_tests": [
+      "dada2_paired-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "amplicon",
+    "workflow_repository": "qiime2",
+    "workflow_files": [],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_readme": true,
+    "has_changelog": false
+  },
+  {
+    "category": "bacterial_genomics",
+    "workflow_repository": "amr_gene_detection",
+    "workflow_files": [
+      {
+        "workflow_name": "amr_gene_detection",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/nml/staramr/staramr_search/0.10.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/amrfinderplus/amrfinderplus/3.12.8+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/abricate/abricate/1.0.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator/tooldistillator/0.9.1+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator_summarize/tooldistillator_summarize/0.9.1+galaxy1"
+        ],
+        "file_name": "amr_gene_detection.ga"
+      }
+    ],
+    "planemo_tests": [
+      "amr_gene_detection-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "bacterial_genomics",
+    "workflow_repository": "bacterial_genome_annotation",
+    "workflow_files": [
+      {
+        "workflow_name": "bacterial_genome_annotation",
+        "number_of_steps": 10,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/isescan/isescan/1.7.2.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/integron_finder/integron_finder/2.0.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/plasmidfinder/plasmidfinder/2.1.6+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bakta/bakta/1.9.4+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator/tooldistillator/0.9.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator_summarize/tooldistillator_summarize/0.9.2+galaxy0"
+        ],
+        "file_name": "bacterial_genome_annotation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "bacterial_genome_annotation-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "computational-chemistry",
+    "workflow_repository": "fragment-based-docking-scoring",
+    "workflow_files": [
+      {
+        "workflow_name": "Fragment-based virtual screening using rDock for docking and SuCOS for pose scoring",
+        "number_of_steps": 18,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/openbabel_compound_convert/openbabel_compound_convert/3.1.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/ctb_frankenstein_ligand/ctb_frankenstein_ligand/2013.1-0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/enumerate_charges/enumerate_charges/2020.03.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/rxdock_rbcavity/rxdock_rbcavity/2013.1.1_148c5bd1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/rxdock_rbdock/rxdock_rbdock/2013.1.1_148c5bd1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/4.2",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/sucos_docking_scoring/sucos_docking_scoring/2020.03.4+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/rdock_sort_filter/rdock_sort_filter/2013.1-0+galaxy0"
+        ],
+        "file_name": "fragment-based-docking-scoring.ga"
+      }
+    ],
+    "planemo_tests": [
+      "fragment-based-docking-scoring-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "computational-chemistry",
+    "workflow_repository": "gromacs-dctmd",
+    "workflow_files": [
+      {
+        "workflow_name": "dcTMD calculations with GROMACS",
+        "number_of_steps": 36,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/get_online_data/ctb_online_data_fetch/0.4",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_solvate/gmx_solvate/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/add_line_to_file/add_line_to_file/0.1.0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_em/gmx_em/2022+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_makendx/gmx_makendx/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_sim/gmx_sim/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/1.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cat/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/biomd_neqgamma/biomd_neqgamma/0.1.5.2+galaxy1"
+        ],
+        "file_name": "gromacs-dctmd.ga"
+      }
+    ],
+    "planemo_tests": [
+      "gromacs-dctmd-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "computational-chemistry",
+    "workflow_repository": "gromacs-mmgbsa",
+    "workflow_files": [
+      {
+        "workflow_name": "MMGBSA calculations with GROMACS",
+        "number_of_steps": 28,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_editconf/gmx_editconf/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.1",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_solvate/gmx_solvate/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_em/gmx_em/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/parmconv/parmconv/21.10+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_sim/gmx_sim/2022+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/md_converter/md_converter/1.9.6+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/mmpbsa_mmgbsa/mmpbsa_mmgbsa/21.10+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/1.1.1",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "Cut1",
+          "Summary_Statistics1"
+        ],
+        "file_name": "gromacs-mmgbsa.ga"
+      }
+    ],
+    "planemo_tests": [
+      "gromacs-mmgbsa-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "computational-chemistry",
+    "workflow_repository": "protein-ligand-complex-parameterization",
+    "workflow_files": [
+      {
+        "workflow_name": "Create GRO and TOP complex files",
+        "number_of_steps": 14,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/openbabel_compound_convert/openbabel_compound_convert/3.1.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/ctb_rdkit_descriptors/ctb_rdkit_descriptors/2020.03.4+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_setup/gmx_setup/2021.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/1.1.1",
+          "Cut1",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/ambertools_antechamber/ambertools_antechamber/21.10+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/ambertools_acpype/ambertools_acpype/21.10+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/chemteam/gmx_merge_topology_files/gmx_merge_topology_files/3.4.3+galaxy0"
+        ],
+        "file_name": "protein-ligand-complex-parameterization.ga"
+      }
+    ],
+    "planemo_tests": [
+      "protein-ligand-complex-parameterization-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "data-fetching",
+    "workflow_repository": "parallel-accession-download",
+    "workflow_files": [
+      {
+        "workflow_name": "Parallel Accession Download",
+        "number_of_steps": 5,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/3.1.1+galaxy0",
+          "__APPLY_RULES__"
+        ],
+        "file_name": "parallel-accession-download.ga"
+      }
+    ],
+    "planemo_tests": [
+      "parallel-accession-download-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "data-fetching",
+    "workflow_repository": "sra-manifest-to-concatenated-fastqs",
+    "workflow_files": [
+      {
+        "workflow_name": "sra_manifest_to_concatenated_fastqs_parallel",
+        "number_of_steps": 16,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/3.1.1+galaxy0",
+          "__RELABEL_FROM_FILE__",
+          "__APPLY_RULES__",
+          "toolshed.g2.bx.psu.edu/repos/artbio/concatenate_multiple_datasets/cat_multi_datasets/1.4.3"
+        ],
+        "file_name": "sra-manifest-to-concatenated-fastqs.ga"
+      }
+    ],
+    "planemo_tests": [
+      "sra-manifest-to-concatenated-fastqs-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "atacseq",
+    "workflow_files": [
+      {
+        "workflow_name": "ATAC-seq Analysis: Chromatin Accessibility Profiling",
+        "number_of_steps": 31,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/4.9+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bamtools_filter/bamFilter/2.5.2+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_idxstats/samtools_idxstats/2.0.5",
+          "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/3.1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_bamtobed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pe_histogram/pe_histogram/1.0.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.20+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_slopbed/2.31.1+galaxy0",
+          "param_value_from_file",
+          "__APPLY_RULES__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_mergebed/2.31.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_coveragebed/2.31.1+galaxy0",
+          "cat1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.24.1+galaxy0"
+        ],
+        "file_name": "atacseq.ga"
+      }
+    ],
+    "planemo_tests": [
+      "atacseq-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "average-bigwig-between-replicates",
+    "workflow_files": [
+      {
+        "workflow_name": "BigWig Replicates Averaging Workflow",
+        "number_of_steps": 4,
+        "tools_used": [
+          "__APPLY_RULES__",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0"
+        ],
+        "file_name": "average-bigwig-between-replicates.ga"
+      }
+    ],
+    "planemo_tests": [
+      "average-bigwig-between-replicates-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "chipseq-pe",
+    "workflow_files": [
+      {
+        "workflow_name": "ChIP-seq Analysis: Paired-End Read Processing",
+        "number_of_steps": 13,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3"
+        ],
+        "file_name": "chipseq-pe.ga"
+      }
+    ],
+    "planemo_tests": [
+      "chipseq-pe-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "chipseq-sr",
+    "workflow_files": [
+      {
+        "workflow_name": "ChIP-seq Analysis: Single-End Read Processing",
+        "number_of_steps": 12,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.5+galaxy0",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3"
+        ],
+        "file_name": "chipseq-sr.ga"
+      }
+    ],
+    "planemo_tests": [
+      "chipseq-sr-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "consensus-peaks",
+    "workflow_files": [
+      {
+        "workflow_name": "Consensus Peak Calling for ATAC-seq and CUT&RUN Replicates",
+        "number_of_steps": 28,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_bamtobed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.20+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_multiintersectbed/2.31.1",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/table_compute/table_compute/1.2.4+galaxy0",
+          "wc_gnu",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy0",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sorted_uniq/9.3+galaxy1"
+        ],
+        "file_name": "consensus-peaks-atac-cutandrun.ga"
+      },
+      {
+        "workflow_name": "Consensus Peak Calling for ChIP-seq Paired-End Replicates",
+        "number_of_steps": 26,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.20+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_multiintersectbed/2.31.1",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/table_compute/table_compute/1.2.4+galaxy0",
+          "wc_gnu",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy0",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sorted_uniq/9.3+galaxy1"
+        ],
+        "file_name": "consensus-peaks-chip-pe.ga"
+      },
+      {
+        "workflow_name": "Consensus Peak Calling for ChIP-seq Single-End Replicates",
+        "number_of_steps": 26,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.20+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_multiintersectbed/2.31.1",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/table_compute/table_compute/1.2.4+galaxy0",
+          "wc_gnu",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/deeptools_bigwig_average/deeptools_bigwig_average/3.5.4+galaxy0",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy0",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sorted_uniq/9.3+galaxy1"
+        ],
+        "file_name": "consensus-peaks-chip-sr.ga"
+      }
+    ],
+    "planemo_tests": [
+      "consensus-peaks-atac-cutandrun-tests.yml",
+      "consensus-peaks-chip-pe-tests.yml",
+      "consensus-peaks-chip-sr-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "cutandrun",
+    "workflow_files": [
+      {
+        "workflow_name": "CUT&RUN/CUT&TAG Analysis: Protein-DNA Interaction Mapping",
+        "number_of_steps": 15,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/4.9+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/3.1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_bamtobed/2.31.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/macs2/macs2_callpeak/2.2.9.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/9.3+galaxy1",
+          "wig_to_bigWig",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy0"
+        ],
+        "file_name": "cutandrun.ga"
+      }
+    ],
+    "planemo_tests": [
+      "cutandrun-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "epigenetics",
+    "workflow_repository": "hic-hicup-cooler",
+    "workflow_files": [
+      {
+        "workflow_name": "Capture Hi-C Processing: FASTQ to Balanced Cool Files",
+        "number_of_steps": 17,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/lldelisle/cooler_csort_tabix/cooler_csort_tabix/0.9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pygenometracks/pygenomeTracks/3.8+galaxy2"
+        ],
+        "file_name": "chic-fastq-to-cool-hicup-cooler.ga"
+      },
+      {
+        "workflow_name": "Hi-C Processing: FASTQ to Balanced Cool Files",
+        "number_of_steps": 12,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lldelisle/cooler_csort_tabix/cooler_csort_tabix/0.9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pygenometracks/pygenomeTracks/3.8+galaxy2"
+        ],
+        "file_name": "hic-fastq-to-cool-hicup-cooler.ga"
+      },
+      {
+        "workflow_name": "Hi-C Data Processing: FASTQ to Valid Interaction Pairs",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/hicup_hicup/hicup_hicup/0.9.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/hicup2juicer/hicup2juicer/0.9.2+galaxy0",
+          "Filter1"
+        ],
+        "file_name": "hic-fastq-to-pairs-hicup.ga"
+      },
+      {
+        "workflow_name": "Hi-C Format Conversion: Juicer Medium to Cooler Files",
+        "number_of_steps": 7,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lldelisle/cooler_makebins/cooler_makebins/0.9.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/lldelisle/cooler_cload_tabix/cooler_cload_tabix/0.9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/lldelisle/cooler_balance/cooler_balance/0.9.3+galaxy0"
+        ],
+        "file_name": "hic-juicermediumtabix-to-cool-cooler.ga"
+      }
+    ],
+    "planemo_tests": [
+      "chic-fastq-to-cool-hicup-cooler-tests.yml",
+      "hic-fastq-to-cool-hicup-cooler-tests.yml",
+      "hic-fastq-to-pairs-hicup-tests.yml",
+      "hic-juicermediumtabix-to-cool-cooler-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome-assembly",
+    "workflow_repository": "assembly-with-flye",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome assembly with Flye",
+        "number_of_steps": 5,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/flye/flye/2.9.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/quast/quast/5.2.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/fasta_stats/fasta-stats/2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/2022.09+galaxy4"
+        ],
+        "file_name": "Genome-assembly-with-Flye.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Genome-assembly-with-Flye-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome-assembly",
+    "workflow_repository": "bacterial-genome-assembly",
+    "workflow_files": [
+      {
+        "workflow_name": "Bacterial Genome Assembly using Shovill",
+        "number_of_steps": 11,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/shovill/shovill/1.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/quast/quast/5.3.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/checkm2/checkm2/1.0.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/nml/refseq_masher/refseq_masher_matches/0.1.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_info/2022.09+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/2022.09+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator/tooldistillator/0.9.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator_summarize/tooldistillator_summarize/0.9.2+galaxy0"
+        ],
+        "file_name": "bacterial_genome_assembly.ga"
+      }
+    ],
+    "planemo_tests": [
+      "bacterial_genome_assembly-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome-assembly",
+    "workflow_repository": "polish-with-long-reads",
+    "workflow_files": [
+      {
+        "workflow_name": "Assembly polishing with long reads",
+        "number_of_steps": 11,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.26+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/racon/racon/1.5.0+galaxy1"
+        ],
+        "file_name": "Assembly-polishing-with-long-reads.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Assembly-polishing-with-long-reads-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome-assembly",
+    "workflow_repository": "quality-and-contamination-control",
+    "workflow_files": [
+      {
+        "workflow_name": "Quality and Contamination Control For Genome Assembly",
+        "number_of_steps": 12,
+        "tools_used": [
+          "__ZIP_COLLECTION__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.24.1+galaxy0",
+          "__UNZIP_COLLECTION__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/kraken2/kraken2/2.1.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bracken/est_abundance/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/recentrifuge/recentrifuge/1.16.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator/tooldistillator/0.9.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/tooldistillator_summarize/tooldistillator_summarize/0.9.2+galaxy0"
+        ],
+        "file_name": "quality_and_contamination_control.ga"
+      }
+    ],
+    "planemo_tests": [
+      "quality_and_contamination_control-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome_annotation",
+    "workflow_repository": "annotation-helixer",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome annotation with Helixer",
+        "number_of_steps": 8,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/genouest/helixer/helixer/0.3.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.8.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/gffread/gffread/2.2.1.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/jcvi_gff_stats/jcvi_gff_stats/0.8.4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/jbrowse/jbrowse/1.16.11+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/omark/omark/0.3.0+galaxy2"
+        ],
+        "file_name": "Galaxy-Workflow-annotation_helixer.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Galaxy-Workflow-annotation_helixer-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome_annotation",
+    "workflow_repository": "annotation-maker",
+    "workflow_files": [
+      {
+        "workflow_name": "Genome annotation with Maker",
+        "number_of_steps": 14,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fasta_stats/fasta-stats/2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/busco/busco/5.7.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/maker/maker/2.31.11+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/gffread/gffread/2.2.1.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/jcvi_gff_stats/jcvi_gff_stats/0.8.4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/maker_map_ids/maker_map_ids/2.31.11",
+          "toolshed.g2.bx.psu.edu/repos/iuc/jbrowse/jbrowse/1.16.11+galaxy1"
+        ],
+        "file_name": "Genome_annotation_with_maker_short.ga"
+      }
+    ],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "genome_annotation",
+    "workflow_repository": "functional-annotation",
+    "workflow_files": [],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_readme": false,
+    "has_changelog": false
+  },
+  {
+    "category": "genome_annotation",
+    "workflow_repository": "lncrnas-annotation",
+    "workflow_files": [
+      {
+        "workflow_name": "lncRNAs annotation workflow",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/gffread/gffread/2.2.1.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/stringtie/stringtie/2.2.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/feelnc/feelnc/0.2.1+galaxy0",
+          "cat1"
+        ],
+        "file_name": "Galaxy-Workflow-lncRNAs_annotation_workflow.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Galaxy-Workflow-lncRNAs_annotation_workflow-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "imaging",
+    "workflow_repository": "fluorescence-nuclei-segmentation-and-counting",
+    "workflow_files": [
+      {
+        "workflow_name": "Segmentation and counting of cell nuclei in fluorescence microscopy images",
+        "number_of_steps": 8,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/imgteam/2d_simple_filter/ip_filter_standard/1.12.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/2d_histogram_equalization/ip_histogram_equalization/0.18.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/2d_auto_threshold/ip_threshold/0.18.1+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/bfconvert/ip_convertimage/6.7.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/binary2labelimage/ip_binary_to_labelimage/0.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/overlay_images/ip_overlay_images/0.0.4+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/count_objects/ip_count_objects/0.0.5-2"
+        ],
+        "file_name": "segmentation-and-counting.ga"
+      }
+    ],
+    "planemo_tests": [
+      "segmentation-and-counting-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "imaging",
+    "workflow_repository": "tissue-microarray-analysis",
+    "workflow_files": [
+      {
+        "workflow_name": "End-to-End Tissue Microarray Analysis",
+        "number_of_steps": 13,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/perssond/basic_illumination/basic_illumination/1.1.1+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/perssond/ashlar/ashlar/1.18.0+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/perssond/coreograph/unet_coreograph/2.2.8+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/goeckslab/mesmer/mesmer/0.12.3+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/imgteam/bfconvert/ip_convertimage/6.7.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/perssond/quantification/quantification/1.6.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/goeckslab/rename_tiff_channels/rename_tiff_channels/0.0.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/goeckslab/scimap_mcmicro_to_anndata/scimap_mcmicro_to_anndata/2.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/goeckslab/scimap_phenotyping/scimap_phenotyping/2.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/goeckslab/vitessce_spatial/vitessce_spatial/3.5.1+galaxy0"
+        ],
+        "file_name": "tissue-micro-array-analysis.ga"
+      }
+    ],
+    "planemo_tests": [
+      "tissue-micro-array-analysis-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "metabolomics",
+    "workflow_repository": "gcms-metams",
+    "workflow_files": [
+      {
+        "workflow_name": "Mass spectrometry: GCMS with metaMS",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/msnbase_readmsdata/msnbase_readmsdata/2.16.1+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_xcmsset/abims_xcms_xcmsSet/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_plot_chromatogram/xcms_plot_chromatogram/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_merge/xcms_merge/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/yguitton/metams_rungc/metams_runGC/3.0.0+metaMS1.24.0-galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/ethevenot/checkformat/checkFormat/3.0.0",
+          "toolshed.g2.bx.psu.edu/repos/ethevenot/multivariate/Multivariate/2.3.10"
+        ],
+        "file_name": "Mass-spectrometry__GCMS-with-metaMS.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Mass-spectrometry__GCMS-with-metaMS-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "metabolomics",
+    "workflow_repository": "lcms-preprocessing",
+    "workflow_files": [
+      {
+        "workflow_name": "Mass spectrometry: LC-MS preprocessing with XCMS",
+        "number_of_steps": 14,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/msnbase_readmsdata/msnbase_readmsdata/2.16.1+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_plot_chromatogram/xcms_plot_chromatogram/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_xcmsset/abims_xcms_xcmsSet/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_merge/xcms_merge/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_group/abims_xcms_group/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_retcor/abims_xcms_retcor/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/ethevenot/checkformat/checkFormat/3.0.0",
+          "toolshed.g2.bx.psu.edu/repos/melpetera/intensity_checks/intens_check/1.3.0",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/xcms_fillpeaks/abims_xcms_fillPeaks/3.12.0+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/lecorguille/camera_annotate/abims_CAMERA_annotateDiffreport/2.2.7+camera1.48.0-galaxy1"
+        ],
+        "file_name": "Mass_spectrometry__LC-MS_preprocessing_with_XCMS.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Mass_spectrometry__LC-MS_preprocessing_with_XCMS-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "metabolomics",
+    "workflow_repository": "mfassignr",
+    "workflow_files": [
+      {
+        "workflow_name": "Molecular formula assignment and recalibration with MFAssignR package.",
+        "number_of_steps": 10,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_kmdnoise/mfassignr_kmdnoise/1.1.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_histnoise/mfassignr_histnoise/1.1.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_snplot/mfassignr_snplot/1.1.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_isofiltr/mfassignr_isofiltr/1.1.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_mfassigncho/mfassignr_mfassignCHO/1.1.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_recallist/mfassignr_recallist/1.1.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_findrecalseries/mfassignr_findRecalSeries/1.1.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_recal/mfassignr_recal/1.1.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/recetox/mfassignr_mfassign/mfassignr_mfassign/1.1.2+galaxy1"
+        ],
+        "file_name": "mfassignr.ga"
+      }
+    ],
+    "planemo_tests": [
+      "mfassignr-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "metabolomics",
+    "workflow_repository": "qcxms-sdf",
+    "workflow_files": [
+      {
+        "workflow_name": "QCxMS Spectra Prediction from SDF",
+        "number_of_steps": 5,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/bgruening/openbabel_compound_convert/openbabel_compound_convert/3.1.1+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/recetox/qcxms_neutral_run/qcxms_neutral_run/5.2.1+galaxy6",
+          "toolshed.g2.bx.psu.edu/repos/recetox/qcxms_production_run/qcxms_production_run/5.2.1+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/recetox/qcxms_getres/qcxms_getres/5.2.1+galaxy3"
+        ],
+        "file_name": "QCxMS-Spectra-Prediction-from-SDF.ga"
+      }
+    ],
+    "planemo_tests": [
+      "QCxMS-Spectra-Prediction-from-SDF-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "microbiome",
+    "workflow_repository": "mags-building",
+    "workflow_files": [
+      {
+        "workflow_name": "Metagenome-Assembled Genomes (MAGs) generation",
+        "number_of_steps": 54,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "__UNZIP_COLLECTION__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/megahit/megahit/1.2.9+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/nml/metaspades/metaspades/4.2.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/quast/quast/5.3.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/concoct_cut_up_fasta/concoct_cut_up_fasta/1.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_sort/samtools_sort/2.0.5",
+          "toolshed.g2.bx.psu.edu/repos/iuc/semibin/semibin/2.0.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/concoct_coverage_table/concoct_coverage_table/1.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/metabat2_jgi_summarize_bam_contig_depths/metabat2_jgi_summarize_bam_contig_depths/2.17+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/fasta_to_contig2bin/Fasta_to_Contig2Bin/1.1.7+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/concoct/concoct/1.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/mbernt/maxbin2/maxbin2/2.2.7+galaxy6",
+          "toolshed.g2.bx.psu.edu/repos/iuc/metabat2/metabat2/2.17+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/concoct_merge_cut_up_clustering/concoct_merge_cut_up_clustering/1.1.0+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/concoct_extract_fasta_bins/concoct_extract_fasta_bins/1.1.0+galaxy2",
+          "__BUILD_LIST__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/binette/binette/1.1.1+galaxy0",
+          "__FLATTEN__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/checkm2/checkm2/1.0.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/drep_dereplicate/drep_dereplicate/3.6.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/gtdbtk_classify_wf/gtdbtk_classify_wf/2.4.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/checkm_lineage_wf/checkm_lineage_wf/1.2.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/coverm_genome/coverm_genome/0.7.0+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bakta/bakta/1.9.4+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/collection_column_join/collection_column_join/0.0.3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3"
+        ],
+        "file_name": "MAGs-generation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "MAGs-generation-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "microbiome",
+    "workflow_repository": "pathogen-identification",
+    "workflow_files": [],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_readme": true,
+    "has_changelog": false
+  },
+  {
+    "category": "proteomics",
+    "workflow_repository": "clinicalmp",
+    "workflow_files": [],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_readme": false,
+    "has_changelog": false
+  },
+  {
+    "category": "proteomics",
+    "workflow_repository": "openms-metaprosip",
+    "workflow_files": [
+      {
+        "workflow_name": "MetaProSIP OpenMS 2.8",
+        "number_of_steps": 14,
+        "tools_used": [
+          "__SORTLIST__",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_decoydatabase/DecoyDatabase/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_featurefindermultiplex/FeatureFinderMultiplex/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_msgfplusadapter/MSGFPlusAdapter/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_peptideindexer/PeptideIndexer/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_falsediscoveryrate/FalseDiscoveryRate/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_idmapper/IDMapper/3.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/galaxyp/openms_metaprosip/MetaProSIP/3.1+galaxy0"
+        ],
+        "file_name": "metaprosip.ga"
+      }
+    ],
+    "planemo_tests": [
+      "metaprosip-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-consensus-from-variation",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: consensus construction",
+        "number_of_steps": 23,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_genomecoveragebed/2.31.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_filter/4.3+t.galaxy1",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_extractFields/4.3+t.galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/concat/gops_concat_1/1.0.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/merge/gops_merge_1/1.0.0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/subtract/gops_subtract_1/1.0.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bcftools_consensus/bcftools_consensus/1.15.1+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0"
+        ],
+        "file_name": "consensus-from-variation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "consensus-from-variation-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-ont-artic-variant-calling",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: variation analysis of ARTIC ONT data",
+        "number_of_steps": 27,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.20.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/1.6",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_column/1.1.3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.17+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/datamash_ops/datamash_ops/1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.9+galaxy2",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.2+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/freebayes/bamleftalign/1.3.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_trim/ivar_trim/1.3.1+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/qualimap_bamqc/qualimap_bamqc/2.2.2d+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/medaka_consensus/medaka_consensus/1.0.3+galaxy2",
+          "__FILTER_FAILED_DATASETS__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/medaka_variant/medaka_variant/1.3.2+galaxy1",
+          "__FLATTEN__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bedtools/bedtools_intersectbed/2.30.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.8+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bcftools_annotate/bcftools_annotate/1.10",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpeff_sars_cov_2/snpeff_sars_cov_2/4.5covid19",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_filter/lofreq_filter/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/1.1.3"
+        ],
+        "file_name": "ont-artic-variation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "ont-artic-variation-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-pe-illumina-artic-ivar-analysis",
+    "workflow_files": [
+      {
+        "workflow_name": "SARS-CoV-2 Illumina Amplicon pipeline - iVar based",
+        "number_of_steps": 21,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.23.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/1.1.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.15.1+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/qualimap_bamqc/qualimap_bamqc/2.2.2d+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_trim/ivar_trim/1.4.2+galaxy0",
+          "__FLATTEN__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_variants/ivar_variants/1.4.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_consensus/ivar_consensus/1.4.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.11+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpeff_sars_cov_2/snpeff_sars_cov_2/4.5covid19",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cat/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pangolin/pangolin/4.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/nextclade/nextclade/2.7.0+galaxy0"
+        ],
+        "file_name": "pe-wgs-ivar-analysis.ga"
+      }
+    ],
+    "planemo_tests": [],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-pe-illumina-artic-variant-calling",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: variation analysis on ARTIC PE data",
+        "number_of_steps": 33,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.24.0+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.18",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.20+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_viterbi/lofreq_viterbi/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.5",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_indelqual/lofreq_indelqual/2.1.5+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_trim/ivar_trim/1.4.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_call/lofreq_call/2.1.5+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/qualimap_bamqc/qualimap_bamqc/2.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_filter/4.3+t.galaxy1",
+          "__FILTER_FAILED_DATASETS__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/ivar_removereads/ivar_removereads/1.4.4+galaxy0",
+          "__FLATTEN__",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/bcftools_annotate/bcftools_annotate/1.15.1+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/devteam/vcfvcfintersect/vcfvcfintersect/1.0.0_rc3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpeff_sars_cov_2/snpeff_sars_cov_2/4.5covid19",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_filter/lofreq_filter/2.1.5+galaxy0"
+        ],
+        "file_name": "pe-artic-variation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "pe-artic-variation-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-pe-illumina-wgs-variant-calling",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: variation analysis on WGS PE data",
+        "number_of_steps": 13,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.23.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.2",
+          "toolshed.g2.bx.psu.edu/repos/iuc/samtools_view/samtools_view/1.13+galaxy2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.3",
+          "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/2.18.2.3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_viterbi/lofreq_viterbi/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.11+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_indelqual/lofreq_indelqual/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_call/lofreq_call/2.1.5+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_filter/lofreq_filter/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpeff_sars_cov_2/snpeff_sars_cov_2/4.5covid19"
+        ],
+        "file_name": "pe-wgs-variation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "pe-wgs-variation-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-se-illumina-wgs-variant-calling",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: variation analysis on WGS SE data",
+        "number_of_steps": 11,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.24.0+galaxy4",
+          "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.5.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/3.1.1.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_viterbi/lofreq_viterbi/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_indelqual/lofreq_indelqual/2.1.5+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_call/lofreq_call/2.1.5+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_filter/lofreq_filter/2.1.5+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpeff_sars_cov_2/snpeff_sars_cov_2/4.5covid19"
+        ],
+        "file_name": "se-wgs-variation.ga"
+      }
+    ],
+    "planemo_tests": [
+      "se-wgs-variation-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "sars-cov-2-variant-calling",
+    "workflow_repository": "sars-cov-2-variation-reporting",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19: variation analysis reporting",
+        "number_of_steps": 36,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_filter/4.3+t.galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_extractFields/4.3+t.galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/replace_column_by_key_value_file/replace_column_with_key_value_file/0.2",
+          "toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/2.1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/datamash_ops/datamash_ops/1.8+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/5.1.0",
+          "Filter1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_easyjoin_tool/9.3+galaxy1",
+          "Cut1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sort_header_tool/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/snpfreqplot/snpfreqplot/1.0+galaxy3"
+        ],
+        "file_name": "variation-reporting.ga"
+      }
+    ],
+    "planemo_tests": [
+      "variation-reporting-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "scrnaseq",
+    "workflow_repository": "baredsc",
+    "workflow_files": [
+      {
+        "workflow_name": "Single-Cell Mixture Analysis: baredSC 1D Log-Normalized Models",
+        "number_of_steps": 7,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/baredsc_1d/baredsc_1d/1.1.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/baredsc_combine_1d/baredsc_combine_1d/1.1.3+galaxy0"
+        ],
+        "file_name": "baredSC-1d-logNorm.ga"
+      },
+      {
+        "workflow_name": "Single-Cell Mixture Analysis: baredSC 2D Log-Normalized Models",
+        "number_of_steps": 10,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/baredsc_2d/baredsc_2d/1.1.3+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/baredsc_combine_2d/baredsc_combine_2d/1.1.3+galaxy0"
+        ],
+        "file_name": "baredSC-2d-logNorm.ga"
+      }
+    ],
+    "planemo_tests": [
+      "baredSC-1d-logNorm-tests.yml",
+      "baredSC-2d-logNorm-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "scrnaseq",
+    "workflow_repository": "fastq-to-matrix-10x",
+    "workflow_files": [
+      {
+        "workflow_name": "Single-Cell RNA-seq Preprocessing: 10X Genomics CellPlex Multiplexed Samples",
+        "number_of_steps": 14,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/cite_seq_count/cite_seq_count/1.4.4+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.5+galaxy0"
+        ],
+        "file_name": "scrna-seq-fastq-to-matrix-10x-cellplex.ga"
+      },
+      {
+        "workflow_name": "Single-Cell RNA-seq Preprocessing: 10X Genomics v3 to Seurat and Scanpy Compatible Format",
+        "number_of_steps": 9,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/rna_starsolo/rna_starsolo/2.7.11a+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.27+galaxy3",
+          "toolshed.g2.bx.psu.edu/repos/iuc/dropletutils/dropletutils/1.10.0+galaxy2"
+        ],
+        "file_name": "scrna-seq-fastq-to-matrix-10x-v3.ga"
+      }
+    ],
+    "planemo_tests": [
+      "scrna-seq-fastq-to-matrix-10x-cellplex-tests.yml",
+      "scrna-seq-fastq-to-matrix-10x-v3-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "scrnaseq",
+    "workflow_repository": "pseudobulk-worflow-decoupler-edger",
+    "workflow_files": [
+      {
+        "workflow_name": "Single-Cell Pseudobulk Differential Expression Analysis with edgeR",
+        "number_of_steps": 21,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/ebi-gxa/decoupler_pseudobulk/decoupler_pseudobulk/1.4.0+galaxy8",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/column_remove_by_header/column_remove_by_header/1.0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_column/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/edger/edger/3.36.0+galaxy5",
+          "toolshed.g2.bx.psu.edu/repos/iuc/collection_element_identifiers/collection_element_identifiers/0.0.2",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.2",
+          "param_value_from_file",
+          "toolshed.g2.bx.psu.edu/repos/iuc/volcanoplot/volcanoplot/0.0.6"
+        ],
+        "file_name": "pseudo-bulk_edgeR.ga"
+      }
+    ],
+    "planemo_tests": [
+      "pseudo-bulk_edgeR-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "scrnaseq",
+    "workflow_repository": "scanpy-clustering",
+    "workflow_files": [
+      {
+        "workflow_name": "Single-Cell RNA-seq Analysis: Scanpy Preprocessing and Clustering",
+        "number_of_steps": 68,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/pick_value/pick_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/anndata_import/anndata_import/0.10.9+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_filter/scanpy_filter/1.10.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/anndata_inspect/anndata_inspect/0.10.9+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/anndata_manipulate/anndata_manipulate/0.10.9+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_inspect/scanpy_inspect/1.10.2+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_plot/scanpy_plot/1.10.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_normalize/scanpy_normalize/1.10.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_remove_confounders/scanpy_remove_confounders/1.10.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/iuc/scanpy_cluster_reduce_dimension/scanpy_cluster_reduce_dimension/1.10.2+galaxy0",
+          "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/9.3+galaxy1",
+          "toolshed.g2.bx.psu.edu/repos/iuc/datamash_ops/datamash_ops/1.8+galaxy0",
+          "param_value_from_file"
+        ],
+        "file_name": "Preprocessing-and-Clustering-of-single-cell-RNA-seq-data-with-Scanpy.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Preprocessing-and-Clustering-of-single-cell-RNA-seq-data-with-Scanpy-tests.yml"
+    ],
+    "has_test_data": true,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  },
+  {
+    "category": "scrnaseq",
+    "workflow_repository": "velocyto",
+    "workflow_files": [
+      {
+        "workflow_name": "RNA Velocity Analysis: Velocyto for 10X Data with Filtered Barcodes",
+        "number_of_steps": 4,
+        "tools_used": [
+          "toolshed.g2.bx.psu.edu/repos/iuc/velocyto_cli/velocyto_cli/0.17.17+galaxy2"
+        ],
+        "file_name": "Velocyto-on10X-filtered-barcodes.ga"
+      },
+      {
+        "workflow_name": "RNA Velocity Analysis: Velocyto for 10X Data from Bundled Output",
+        "number_of_steps": 5,
+        "tools_used": [
+          "__APPLY_RULES__"
+        ],
+        "file_name": "Velocyto-on10X-from-bundled.ga"
+      }
+    ],
+    "planemo_tests": [
+      "Velocyto-on10X-filtered-barcodes-tests.yml",
+      "Velocyto-on10X-from-bundled-tests.yml"
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": true,
+    "has_readme": true,
+    "has_changelog": true
+  }
+]

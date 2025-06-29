@@ -1,0 +1,324 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "Galaxy repository data",
+  "description": "Schema for Galaxy repository data",
+  "type": "object",
+  "properties": {
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "category", "help"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tool"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the tool (may be empty)"
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ToolCategory"
+            },
+            "description": "Tool categories (can include multiple)"
+          },
+          "help": {
+            "type": "string",
+            "description": "Extended help text or usage guide for the tool (may include Markdown or plain text)"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "ToolCategory": {
+      "type": "string",
+      "manyOf": [
+        {
+          "const": "Assembly",
+          "description": "Tools for working with assemblies",
+          "repositories": 227
+        },
+        {
+          "const": "Astronomy",
+          "description": "Tools for astronomy",
+          "repositories": 17
+        },
+        {
+          "const": "ChIP-seq",
+          "description": "Tools for analyzing and manipulating ChIP-seq data.",
+          "repositories": 83
+        },
+        {
+          "const": "Climate Analysis",
+          "description": "Tools for analyzing climate data",
+          "repositories": 13
+        },
+        {
+          "const": "CLIP-seq",
+          "description": "Tools for CLIP-seq",
+          "repositories": 6
+        },
+        {
+          "const": "Combinatorial Selections",
+          "description": "Tools for combinatorial selection",
+          "repositories": 10
+        },
+        {
+          "const": "Computational chemistry",
+          "description": "Tools for use in computational chemistry",
+          "repositories": 195
+        },
+        {
+          "const": "Constructive Solid Geometry",
+          "description": "Tools for constructing and analyzing 3-dimensional shapes and their properties",
+          "repositories": 12
+        },
+        {
+          "const": "Convert Formats",
+          "description": "Tools for converting data formats",
+          "repositories": 166
+        },
+        {
+          "const": "Data Export",
+          "description": "Tools for exporting data to various destinations",
+          "repositories": 22
+        },
+        {
+          "const": "Data Managers",
+          "description": "Utilities for Managing Galaxy's built-in data cache",
+          "repositories": 130
+        },
+        {
+          "const": "Data Source",
+          "description": "Tools for retrieving data from external data sources",
+          "repositories": 117
+        },
+        {
+          "const": "Ecology",
+          "description": "Tools related to ecological studies",
+          "repositories": 140
+        },
+        {
+          "const": "Entomology",
+          "description": "Tools that involve insect studies",
+          "repositories": 5
+        },
+        {
+          "const": "Epigenetics",
+          "description": "Tools for analyzing Epigenetic/Epigenomic datasets",
+          "repositories": 63
+        },
+        {
+          "const": "Fasta Manipulation",
+          "description": "Tools for manipulating fasta data",
+          "repositories": 129
+        },
+        {
+          "const": "Fastq Manipulation",
+          "description": "Tools for manipulating fastq data",
+          "repositories": 129
+        },
+        {
+          "const": "Flow Cytometry Analysis",
+          "description": "Tools for manipulating and analyzing FCS files",
+          "repositories": 46
+        },
+        {
+          "const": "Genome annotation",
+          "description": "Tools for annotating genomic information",
+          "repositories": 103
+        },
+        {
+          "const": "Genome editing",
+          "description": "Tools for analyzing genome editing data",
+          "repositories": 13
+        },
+        {
+          "const": "Genome-Wide Association Study",
+          "description": "Utilities to support Genome-wide association studies",
+          "repositories": 30
+        },
+        {
+          "const": "Genomic Interval Operations",
+          "description": "Tools for operating on genomic intervals",
+          "repositories": 69
+        },
+        {
+          "const": "Geo Science",
+          "description": "The study of Earth and its processes, resources, and hazards",
+          "repositories": 16
+        },
+        {
+          "const": "GIS",
+          "description": "Tools related to Geographic Information Systems",
+          "repositories": 5
+        },
+        {
+          "const": "Graphics",
+          "description": "Tools producing images",
+          "repositories": 98
+        },
+        {
+          "const": "Imaging",
+          "description": "Utilities to support imaging",
+          "repositories": 169
+        },
+        {
+          "const": "Interactive Tools",
+          "description": "Tools that a Galaxy user can interact with in real time",
+          "repositories": 1
+        },
+        {
+          "const": "Machine Learning",
+          "description": "Tools for machine learning",
+          "repositories": 94
+        },
+        {
+          "const": "Materials science",
+          "description": "Tools for materials science",
+          "repositories": 19
+        },
+        {
+          "const": "Metabolomics",
+          "description": "Tools for use in the study of Metabolomics",
+          "repositories": 264
+        },
+        {
+          "const": "Metagenomics",
+          "description": "Tools enabling the study of metagenomes",
+          "repositories": 859
+        },
+        {
+          "const": "Micro-array Analysis",
+          "description": "Tools for performing micro-array analysis",
+          "repositories": 37
+        },
+        {
+          "const": "Molecular Dynamics",
+          "description": "Tools for studying the physical movements of atoms and molecules",
+          "repositories": 49
+        },
+        {
+          "const": "Muon spectroscopy",
+          "description": "Tools for simulating and analyzing muon spectroscopy experiments",
+          "repositories": 11
+        },
+        {
+          "const": "Nanopore",
+          "description": "Tools for analyzing Nanopore data",
+          "repositories": 22
+        },
+        {
+          "const": "Natural Language Processing",
+          "description": "Tools for natural language processing",
+          "repositories": 0
+        },
+        {
+          "const": "Next Gen Mappers",
+          "description": "Tools for the analysis and handling of Next Gen sequencing data",
+          "repositories": 140
+        },
+        {
+          "const": "Ontology Manipulation",
+          "description": "Tools for manipulating ontologies",
+          "repositories": 38
+        },
+        {
+          "const": "Phylogenetics",
+          "description": "Tools for performing phylogenetic analysis",
+          "repositories": 121
+        },
+        {
+          "const": "Proteomics",
+          "description": "Tools enabling the study of proteins",
+          "repositories": 460
+        },
+        {
+          "const": "RNA",
+          "description": "Utilities for RNA",
+          "repositories": 444
+        },
+        {
+          "const": "SAM",
+          "description": "Tools for manipulating alignments in the SAM format",
+          "repositories": 128
+        },
+        {
+          "const": "Sequence Analysis",
+          "description": "Tools for performing Protein and DNA/RNA analysis",
+          "repositories": 1641
+        },
+        {
+          "const": "Single Cell",
+          "description": "Tools for single cell analyses",
+          "repositories": 39
+        },
+        {
+          "const": "Spatial Omics",
+          "description": "Tools for spacial omics",
+          "repositories": 21
+        },
+        {
+          "const": "Statistics",
+          "description": "Tools for generating statistics",
+          "repositories": 555
+        },
+        {
+          "const": "Structural Materials Analysis",
+          "description": "Tools for High Energy X-ray Imaging, Diffraction, and Modeling of Microstructures",
+          "repositories": 7
+        },
+        {
+          "const": "Synthetic Biology",
+          "description": "Tools for synthetic biology",
+          "repositories": 76
+        },
+        {
+          "const": "Systems Biology",
+          "description": "Systems biology tools",
+          "repositories": 105
+        },
+        {
+          "const": "Text Manipulation",
+          "description": "Tools for manipulating data",
+          "repositories": 190
+        },
+        {
+          "const": "Tool Dependency Packages",
+          "description": "Repositories that contain third-party tool dependency package installation definitions",
+          "repositories": 662
+        },
+        {
+          "const": "Tool Generators",
+          "description": "Tools that make or help make new tools",
+          "repositories": 18
+        },
+        {
+          "const": "Transcriptomics",
+          "description": "Tools for use in the study of Transcriptomics.",
+          "repositories": 441
+        },
+        {
+          "const": "Variant Analysis",
+          "description": "Tools for single nucleotide polymorphism data such as WGA",
+          "repositories": 381
+        },
+        {
+          "const": "Visualization",
+          "description": "Tools for visualizing data",
+          "repositories": 266
+        },
+        {
+          "const": "Web Services",
+          "description": "Tools enabling access to web services",
+          "repositories": 122
+        }
+      ]  
+    }
+  }
+}
