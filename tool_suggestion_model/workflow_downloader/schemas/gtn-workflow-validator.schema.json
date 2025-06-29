@@ -1,0 +1,50 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "category": {
+        "type": "string",
+        "pattern": "^[a-z0-9-_]+$"
+      },
+      "workflow_repository": {
+        "type": "string",
+        "pattern": "^[a-z0-9-_]+"
+      },
+      "workflow_files": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "workflow_name": {"type": "string", "minLength": 1},
+            "number_of_steps": {"type": "integer", "minimum": 1},
+            "tools_used": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 1}
+            },
+            "file_name": {"type": "string", "pattern": "\\.ga$"}
+          },
+          "required": ["workflow_name", "number_of_steps", "tools_used", "file_name"]
+        }
+      },
+      "planemo_tests": {
+        "type": "array",
+        "items": {"type": "string", "pattern": "-tests\\.yml$"}
+      },
+      "has_test_data": {"type": "boolean"},
+      "has_dockstore_yml": {"type": "boolean"},
+      "has_readme": {"type": "boolean"},
+      "has_changelog": {"type": "boolean"}
+    },
+    "required": [
+      "category",
+      "workflow_repository",
+      "workflow_files",
+      "planemo_tests",
+      "has_test_data",
+      "has_dockstore_yml",
+      "has_readme",
+      "has_changelog"
+    ]
+  }
+}
