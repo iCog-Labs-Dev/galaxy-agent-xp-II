@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from configs.config import Settings
-from utils.response_models import SuggestionRequest, SuggestionResponse
-from suggesting_agent import ToolSuggestionAgent
+from agents.configs.config import Settings
+from agents.utils.response_models import SuggestionRequest, SuggestionResponse, WorkflowSuggestionResponse, WorkflowSuggestionResponseItem
+from agents.suggesting_agent import ToolSuggestionAgent
+from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
+from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 
 app = FastAPI(title="Galaxy Tool Suggestion API")
 
@@ -22,6 +24,13 @@ agent = ToolSuggestionAgent(
     embeddings_path=settings.embeddings_path,
     metadata_path=settings.metadata_path
 )
+
+# Load workflow suggestion agent
+workflow_agent = WorkflowSuggestionAgent(
+    embeddings_path=settings.workflow_embeddings_path,
+    metadata_path=settings.workflow_metadata_path
+)
+
 @app.get("/")
 def root():
     return {"message": "Welcome to the Galaxy Tool Suggestion API!"}
@@ -33,4 +42,27 @@ def health_check():
 @app.post("/suggest", response_model=SuggestionResponse)
 def suggest_tools(request: SuggestionRequest):
     results = agent.suggest_tools(request.query, request.top_k)
+    return {"results": results}
+
+@app.post("/suggest-workflows", response_model=WorkflowSuggestionResponse)
+def suggest_workflows(request: SuggestionRequest):
+    results = workflow_agent.suggest_workflows(request.query, request.top_k)
+    return {"results": results}
+
+@app.post("/suggest-tools-enhanced")
+def suggest_tools_enhanced(request: SuggestionRequest):
+    """
+    Enhanced tool suggestion endpoint that returns detailed tool suggestions.
+    """
+    result_from_e5 = agent.suggest_tools(request.query, request.top_k)
+    results = summarize_tool_suggestions(result_from_e5, request.query)
+    return {"results": results}
+
+@app.post("/suggest-workflows-enhanced")
+def suggest_workflows_enhanced(request: SuggestionRequest):
+    """
+    Enhanced workflow suggestion endpoint that returns detailed workflow suggestions.
+    """
+    result_from_e5 = workflow_agent.suggest_workflows(request.query, request.top_k)
+    results = summarize_workflow_suggestions(result_from_e5, request.query)
     return {"results": results}
