@@ -1,0 +1,41 @@
+{
+  "compare multiple funannotated fungal genomes": [
+      "compare multiple funannotated fungal genomes",
+      "tool for visualizing differences in genome annotations",
+      "compare annotations from different Funannotate runs",
+      "comparative genomics for fungal annotations",
+      "Funannotate tool to generate comparative graphs and phylogeny",
+      "visualize annotation comparisons using Funannotate",
+      "generate CSV reports and phylogenies for annotated genomes",
+      "compare genome annotations across species",
+      "lightweight comparative analysis of eukaryotic genomes",
+      "web-based visualization of genome annotation differences"
+  ],
+
+  "calculate alpha diversity from Bracken output": [
+    "calculate alpha diversity from Bracken output",
+    "tool for alpha diversity analysis in metagenomics",
+    "get diversity metrics from Bracken abundance file",
+    "alpha diversity calculation using KrakenTools",
+    "compute species richness from Bracken estimates",
+    "analyze microbial diversity using Bracken data",
+    "metagenomics alpha diversity script for Bracken",
+    "KrakenTools script to calculate diversity",
+    "Bracken output to alpha diversity metrics",
+    "microbial abundance file to diversity summary"
+  ], 
+
+  "split stratified HUMAnN output into separate tables": [
+    "split stratified HUMAnN output into separate tables",
+    "get unstratified and stratified HUMAnN tables",
+    "separate HUMAnN data into two files",
+    "how to split HUMAnN abundance table",
+    "extract stratified and unstratified parts from HUMAnN results",
+    "divide HUMAnN output by stratification",
+    "tool to split HUMAnN profile table",
+    "split microbial pathway abundance by stratification",
+    "generate two tables from HUMAnN output",
+    "process HUMAnN output to separate stratified values"
+  ]
+  
+}
