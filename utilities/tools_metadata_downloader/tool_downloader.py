@@ -31,7 +31,7 @@ categories = config.get("categories", {})  # Default to empty dict if not specif
 
 # Validate sensitive data
 if not galaxy_url or not api_key:
-    raise ValueError("GALAXY_URL_B and GALAXY_API_KEY_B must be set in the .env file")
+    raise ValueError("GALAXY_URL and GALAXY_API_KEY must be set in the .env file")
 
 # Initialize Galaxy instance
 gi = GalaxyInstance(url=galaxy_url, key=api_key)
