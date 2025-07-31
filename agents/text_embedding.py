@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Load data
-with open("Agents/data/galaxy_tools.json", "r", encoding="utf-8") as f:
+with open("agents/data/galaxy_tools_may_3_2025_v1.json", "r", encoding="utf-8") as f: 
     data = json.load(f)
 
 # Structure text data
