@@ -29,7 +29,7 @@ if not galaxy_url or not api_key:
 
 # Get non-sensitive config values
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = f"utilities/tools_metadata_downloader/datagalaxy_instance_tools_{timestamp}.json"
+output_file = f"utilities/tools_metadata_downloader/data/galaxy_instance_tools_{timestamp}.json"
 max_workers = config["processing"]["max_workers"]
 tool_limit = config["processing"].get("tool_limit", None)
 categories_config = config.get("categories", {})
@@ -80,7 +80,6 @@ else:
         tool = entry["base"]
         tool["categories"] = list(entry["categories"])
         filtered_tools.append(tool)
-
     # Enforce tool limit if specified
     if tool_limit:
         filtered_tools = filtered_tools[:tool_limit]
@@ -103,7 +102,7 @@ else:
             help_elem = root.find("help")
             if help_elem is not None:
                 # Capture help even if it's CDATA or HTML
-                help_text = ET.tostring(help_elem, encoding='unicode', method='html').strip()
+                help_text = help_elem.text.strip() 
                 print(f"Extracted help for {tool_id}: {help_text[:50]}...")
             else:
                 print(f"No <help> section found for {tool_id}")
