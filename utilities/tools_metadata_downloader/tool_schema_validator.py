@@ -3,45 +3,57 @@ import os
 import glob
 from jsonschema import validate, ValidationError
 
-# Step 1: Find the most recent downloaded tool file
-tool_files = glob.glob("galaxy_instance_tools_*.json")
-if not tool_files:
-    print("❌ No tool metadata files found.")
+# Define the directory containing downloaded tool metadata
+data_dir = os.path.join("utilities", "tools_metadata_downloader", "data")
+schema_path = os.path.join("utilities", "tools_metadata_downloader", "schemas", "tools.schema.json")
+
+# Ensure schema file exists
+if not os.path.exists(schema_path):
+    print(f"❌ Schema not found at {schema_path}")
     exit(1)
 
-latest_file = max(tool_files, key=os.path.getmtime)
-print(f"🔍 Validating latest file: {latest_file}")
-
-# Step 2: Load JSON and schema
-with open(latest_file, "r") as f:
-    tools_data = json.load(f)
-
-with open("schemas/tools.schema.json", "r") as f:
+# Load the schema
+with open(schema_path, "r") as f:
     schema = json.load(f)
 
-# Step 3: Validate
-try:
-    validate(instance=tools_data, schema=schema)
-    print("Validation passed: tools JSON is valid.")
+# Find all JSON files in the data directory
+json_files = glob.glob(os.path.join(data_dir, "*.json"))
 
-    # Step 4: Prompt for valid filename to save
-    valid_filename = input("💾 Enter a name to save this validated file (without extension): ").strip()
-    if not valid_filename:
-        print("Filename cannot be empty.")
-        exit(1)
+if not json_files:
+    print(f"❌ No JSON files found in {data_dir}")
+    exit(1)
 
-    if not valid_filename.endswith(".json"):
-        valid_filename += ".json"
+# Track validation status
+failed_files = []
+successful_files = []
 
-    # Step 5: Save to agents/data
-    output_dir = os.path.join("agents", "data")
-    os.makedirs(output_dir, exist_ok=True)
+print(f"🔍 Found {len(json_files)} JSON files. Starting validation...\n")
 
-    output_path = os.path.join(output_dir, valid_filename)
-    with open(output_path, "w") as f:
-        json.dump(tools_data, f, indent=2)
+# Validate each file
+for json_file in json_files:
+    print(f"🧪 Validating: {json_file}")
+    try:
+        with open(json_file, "r") as f:
+            data = json.load(f)
+        validate(instance=data, schema=schema)
+        print(f"✅ Passed: {os.path.basename(json_file)}\n")
+        successful_files.append(json_file)
+    except ValidationError as e:
+        print(f"❌ Failed: {os.path.basename(json_file)}")
+        print(f"   ↪ {e.message}\n")
+        failed_files.append(json_file)
+    except json.JSONDecodeError as e:
+        print(f"❌ Invalid JSON format: {os.path.basename(json_file)}")
+        print(f"   ↪ {e.msg}\n")
+        failed_files.append(json_file)
 
-    print(f"📦 Validated file saved as: {output_path}")
+# Final summary
+print("✅ Validation complete.\n")
+print(f"✔️ Passed: {len(successful_files)} file(s)")
+print(f"❌ Failed: {len(failed_files)} file(s)")
 
-except ValidationError as e:
-    print(f"❌ Validation failed:\n{e.message}")
+if failed_files:
+    print("\n🚨 Files with errors:")
+    for f in failed_files:
+        print(f" - {f}")
+
