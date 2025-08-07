@@ -1,12 +1,14 @@
 import requests
 import json
 import os
+from datetime import datetime
 
 GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workflows"
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
+MAX_WORKFLOWS = 5 
+
 HEADERS = {
-    # We will add a personal access token here if needed for higher rate limits:
     # "Authorization": "token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
 }
 
@@ -16,7 +18,6 @@ def github_api_get(url):
     return resp.json()
 
 def fetch_file_content(path):
-    # fetch raw file content via raw.githubusercontent.com
     raw_url = f"{RAW_BASE_URL}/{path}"
     resp = requests.get(raw_url, headers=HEADERS)
     resp.raise_for_status()
@@ -29,18 +30,37 @@ def parse_ga_content(ga_text):
         steps = data.get("steps", {})
         number_of_steps = len(steps)
         tools_used = []
+
         for step in steps.values():
-            tool_id = step.get("tool_id") or step.get("tool_shed") or None
-            if tool_id and tool_id not in tools_used:
-                tools_used.append(tool_id)
+            if step.get("type") != "tool":
+                continue
+
+            tool_id = step.get("tool_id", "")
+            name = step.get("name", "")
+            version = step.get("tool_version", "")
+            repo = step.get("tool_shed_repository", {})
+
+            tool_info = {
+                "id": tool_id,
+                "name": name,
+                "version": version,
+                "owner": repo.get("owner", ""),
+                "category": repo.get("name", ""),
+                "tool_shed_url": repo.get("tool_shed", "")
+            }
+
+            if tool_info not in tools_used:
+                tools_used.append(tool_info)
+
         return {
             "workflow_name": workflow_name,
             "number_of_steps": number_of_steps,
             "tools_used": tools_used,
         }
     except Exception as e:
-        print(f"Failed to parse .ga JSON: {e}")
+        print(f"❌ Failed to parse .ga JSON: {e}")
         return {}
+
 
 def scan_repo(category, repo_name):
     base_path = f"{category}/{repo_name}"
@@ -48,14 +68,14 @@ def scan_repo(category, repo_name):
     try:
         repo_contents = github_api_get(url)
     except Exception as e:
-        print(f"Failed to get repo contents for {base_path}: {e}")
+        print(f"⚠️ Failed to get repo contents for {base_path}: {e}")
         return None
 
     workflow_files = []
     planemo_tests = []
     files_present = set()
     directories_present = set()
-    readme_content = None  # new addition
+    readme_content = None
 
     for item in repo_contents:
         name = item["name"]
@@ -66,16 +86,16 @@ def scan_repo(category, repo_name):
                 ga_info = parse_ga_content(ga_text)
                 ga_info["file_name"] = name
                 workflow_files.append(ga_info)
+
                 test_file = name.replace(".ga", "-tests.yml")
                 if test_file in [f["name"] for f in repo_contents if f["type"] == "file"]:
                     planemo_tests.append(test_file)
 
-            # Fetch README content if exists
             if name == "README.md":
                 try:
                     readme_content = fetch_file_content(f"{base_path}/README.md")
                 except Exception as e:
-                    print(f"Failed to fetch README for {base_path}: {e}")
+                    print(f"⚠️ Failed to fetch README for {base_path}: {e}")
                     readme_content = None
 
         elif item["type"] == "dir":
@@ -89,44 +109,56 @@ def scan_repo(category, repo_name):
         "has_test_data": "test-data" in directories_present,
         "has_dockstore_yml": ".dockstore.yml" in files_present,
         "has_readme": "README.md" in files_present,
-        "readme_content": readme_content, 
+        "readme_content": readme_content,
         "has_changelog": "CHANGELOG.md" in files_present,
     }
     return repo_data
 
-
 def main():
-    print("Fetching top-level categories...")
+    print("🔍 Fetching top-level categories...")
     categories = github_api_get(GITHUB_API_URL)
     all_data = []
+    workflow_count = 0
 
     for cat in categories:
         if cat["type"] != "dir":
             continue
         category = cat["name"]
-        print(f"Scanning category: {category}")
+        print(f"\n📂 Scanning category: {category}")
         try:
             repos = github_api_get(f"{GITHUB_API_URL}/{category}")
         except Exception as e:
-            print(f"Failed to get category contents {category}: {e}")
+            print(f"⚠️ Failed to get contents for {category}: {e}")
             continue
 
         for repo in repos:
             if repo["type"] != "dir":
                 continue
+            if MAX_WORKFLOWS is not None and workflow_count >= MAX_WORKFLOWS:
+                print(f"\n✅ Reached MAX_WORKFLOWS limit: {MAX_WORKFLOWS}")
+                break
+
             repo_name = repo["name"]
-            print(f"  Scanning workflow repo: {repo_name}")
+            print(f"  📁 Scanning workflow repo: {repo_name}")
             repo_data = scan_repo(category, repo_name)
             if repo_data:
                 all_data.append(repo_data)
+                workflow_count += 1
 
-    # Save output
+        if MAX_WORKFLOWS is not None and workflow_count >= MAX_WORKFLOWS:
+            break
+
+    # Save output with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "iwc_workflows_summary.json")
-    with open(output_file, "w") as f:
-        json.dump(all_data, f, indent=2)
-    print(f"\nSaved summary to {output_file}")
+    output_file = os.path.join(output_dir, f"galaxy_iwc_workflows_{timestamp}.json")
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(all_data, f, indent=2, ensure_ascii=False)
+
+    print(f"\n📦 Saved summary to {output_file}")
+
 
 if __name__ == "__main__":
     main()
