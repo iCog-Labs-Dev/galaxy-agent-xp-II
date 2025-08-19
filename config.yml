@@ -2,11 +2,11 @@ output:
   file: "galaxy_tools.json"
 processing:
   max_workers: 5
-  tool_limit: 100
+  # tool_limit: 20
 
 categories:
   Get Data:
-    percentage: 0.2 
+    percentage: 1
   Astronomy:
     percentage: 1 
   # Other categories not listed will fetch 100% of tools
@@ -16,3 +16,10 @@ comparison:
   bizon_server_json_file: "galaxy_tools_bizon.json"
   output_excel: "galaxy_tools_comparison.xlsx"
 
+agent:
+  base_model: "intfloat/e5-base-v2"
+  finetuned_model: "agents/models/e5-galaxy-finetuned"
+  tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250818_104503.npy"
+  tools_metadata_path: "agents/embeddings/galaxy_metadata_20250818_104503.json"
+  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250818_154211.npy"
+  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250818_154211.json"
