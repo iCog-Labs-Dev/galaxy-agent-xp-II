@@ -1,12 +1,31 @@
 import json
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
+from dotenv import load_dotenv
+import os
+import yaml
 
 class WorkflowSuggestionAgent:
-    def __init__(self, model_path='intfloat/e5-base-v2', embeddings_path=None, metadata_path=None):
+    """
+    A simple agent to suggest workflows based on user queries.
+    It uses a pre-trained SentenceTransformer model to encode queries and workflows,
+    and retrieves the most relevant workflows based on cosine similarity.
+    """
+    config_file = "config.yml"
+    if not os.path.exists(config_file):
+        raise FileNotFoundError(f"Configuration file '{config_file}' not found. Please ensure it exists.")
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+
+    # model_path = config["agent"]["base_model"]
+    model_path = config["agent"]["finetuned_model"]
+    embeddings_path = config["agent"]["workflow_embeddings_path"]
+    metadata_path = config["agent"]["workflow_metadata_path"]
+    def __init__(self, model_path=model_path, embeddings_path=embeddings_path, metadata_path=metadata_path):
         # If not provided, use default paths
-        self.embeddings_path = embeddings_path or 'agents/embeddings/iwc_workflow_embeddings.npy'
-        self.metadata_path = metadata_path or 'agents/embeddings/iwc_workflow_metadata.json'
+        self.model_path = model_path
+        self.embeddings_path = embeddings_path
+        self.metadata_path = metadata_path 
         
         # Load the model and data
         self.model = SentenceTransformer(model_path)
@@ -39,9 +58,8 @@ class WorkflowSuggestionAgent:
                 suggestions.append({
                     "name": workflow_name,
                     "category": workflow_info.get("category", "Uncategorized") or "Uncategorized",
-                    "tools_used": workflow_info.get("tools_used", []),
-                    "has_readme": workflow_info.get("has_readme", False),
-                    "readme_excerpt": workflow_info.get("readme_content", "")[:300],  # Preview first 300 chars
+                    "tools_used": workflow_info.get("tool_names", []),
+                    "readme_excerpt": workflow_info.get("readme_cleaned", ""),
                     "score": score
                 })
                 seen_workflows[workflow_name] = score
@@ -59,5 +77,4 @@ if __name__ == "__main__":
         print(f"\n{i}. {wf['name']} (Score: {wf['score']:.4f})")
         print(f"   Category: {wf['category']}")
         print(f"   Tools Used: {', '.join(wf['tools_used']) if wf['tools_used'] else 'N/A'}")
-        print(f"   Has README: {'✅' if wf['has_readme'] else '❌'}")
-        print(f"   Description: {wf['readme_excerpt']}...")
+        print(f"   Readme: {wf['readme_excerpt'] if wf['readme_excerpt'] else 'No description available'}")
