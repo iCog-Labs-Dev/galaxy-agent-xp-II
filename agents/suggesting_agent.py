@@ -1,12 +1,31 @@
 import json
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
+from dotenv import load_dotenv
+import os
+import yaml
 
 class ToolSuggestionAgent:
-    def __init__(self, model_path='intfloat/e5-base-v2', embeddings_path=None, metadata_path=None):
+    """    A class to suggest tools based on user queries using a pre-trained SentenceTransformer model.
+    This class loads a model and embeddings from specified paths, encodes user queries, computes cosine
+    similarities with the embeddings, and returns a list of suggested tools based on the highest similarity scores
+    and a score threshold.
+    """
+    config_file = "config.yml"
+    if not os.path.exists(config_file):
+        raise FileNotFoundError(f"Configuration file {config_file} not found. Please ensure it exists.")
+    with open(config_file, "r") as f:
+        config = yaml.safe_load(f)
+    # model_path = config["agent"]["base_model"]
+    model_path = config["agent"]["finetuned_model"]
+    embeddings_path = config["agent"]["tools_embeddings_path"]
+    metadata_path = config["agent"]["tools_metadata_path"]   
+
+    def __init__(self, model_path=model_path, embeddings_path=embeddings_path, metadata_path=metadata_path):
         # If not provided, use default paths
-        self.embeddings_path = embeddings_path or 'embeddings/galaxy_embeddings.npy'
-        self.metadata_path = metadata_path or 'embeddings/galaxy_metadata.json'
+        self.model_path = model_path
+        self.embeddings_path = embeddings_path
+        self.metadata_path = metadata_path
         
         # Load the model and data
         self.model = SentenceTransformer(model_path)
