@@ -2,15 +2,25 @@ import requests
 import json
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workflows"
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
-MAX_WORKFLOWS = 5 
+# MAX_WORKFLOWS = 5 # Uncomment to limit the number of workflows processed
+MAX_WORKFLOWS = None  # Set to None to process all workflows
 
-HEADERS = {
-    # "Authorization": "token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
-}
+github_token = os.getenv("GITHUB_TOKEN")
+if github_token:
+    HEADERS = {
+        "Authorization": f"token {github_token}"
+    }
+else:    
+    print("⚠️ No GITHUB_TOKEN found in environment variables. Using unauthenticated requests may hit rate limits.")
+    HEADERS = {}
 
 def github_api_get(url):
     resp = requests.get(url, headers=HEADERS)
