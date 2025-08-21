@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from agents.configs.config import Settings
 from agents.utils.response_models import SuggestionRequest, SuggestionResponse, WorkflowSuggestionResponse, WorkflowSuggestionResponseItem
 from agents.suggesting_agent import ToolSuggestionAgent
 from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
@@ -9,8 +8,8 @@ from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_
 app = FastAPI(title="Galaxy Tool Suggestion API")
 
 # CORS setup
-settings = Settings()
-origins = settings.allowed_origins.split(",")
+allowed_origins = "*"
+origins = allowed_origins.split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -20,16 +19,10 @@ app.add_middleware(
 )
 
 # Load agent once, passing settings from config
-agent = ToolSuggestionAgent(
-    embeddings_path=settings.embeddings_path,
-    metadata_path=settings.metadata_path
-)
+agent = ToolSuggestionAgent()
 
 # Load workflow suggestion agent
-workflow_agent = WorkflowSuggestionAgent(
-    embeddings_path=settings.workflow_embeddings_path,
-    metadata_path=settings.workflow_metadata_path
-)
+workflow_agent = WorkflowSuggestionAgent()
 
 @app.get("/")
 def root():
