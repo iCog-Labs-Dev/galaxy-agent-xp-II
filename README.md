@@ -24,28 +24,56 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
 
 1. **Clone this repository**  
    ```bash
-   git clone https://github.com/johnnas12/galaxy_tool_suggestion.git
-   cd galaxy_tool_suggestion
+   git clone https://github.com/iCog-Labs-Dev/galaxy-agent-xp-II.git
+   cd galaxy-agent-xp-II
    ```
 2. **Create and activate a virtual environment (optional but recommended)**
    ```
    python -m venv venv
    source venv/bin/activate    # On Windows, use venv\Scripts\activate
    ```
- 3. Install the required packages
+ 3. **Install the required packages**
     ```
     pip install -r requirements.txt
     ```
-4. Create a .env file in the project root directory.
+4. **Create a .env file in the project root directory.**
    ```
    GALAXY_URL=https://usegalaxy.org
-   GALAXY_API_KEY=your_api_key_here
+   GALAXY_API_KEY="your_api_key_here"
 
    ```
- 5. Usage
+ 5. **Usage**
+    
+    a. fetch tools
     ```
-    python fetch_tools.py
+    python utilities/tools_metadata_downloader/run.py
     ```
+    b. fetch workflows 
+    ```
+    python utilities/workflow_downloader/run.py
+    ```
+
+    c. copy the preprocessed tools and workflows to the agents/data/
+    
+    
+    d. embed the preprocessed tools
+    ```
+    python agents/scripts/embed_tools.py --input agents/data/preprocessed_tools_{time_stamp}.json
+    ```
+    e. embed the preprocessed workflow
+    ```
+    python agents/scripts/embed_workflows.py --input/data/preprocessed_workflows_{time_stamp}.json
+    ```
+
+    f. copy the names of the embedded files to the config.yml
+
+    g. use the agents for recommendation
+
+    ```
+    python agents/suggesting_agent.py
+    ```
+    and ask about the tools 
+    
 # Galaxy Tools Suggestion Using intfloat/e5-large 
 A FastAPI-powered AI agent for suggesting relevant Galaxy tools based on natural language queries using sentence embeddings and cosine similarity.
 
