@@ -52,22 +52,19 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
     ```
     python utilities/workflow_downloader/run.py
     ```
-
-    c. **copy the preprocessed tools and workflows to the agents/data/**
     
-    
-    d. **embed the preprocessed tools**
+    c. **embed the preprocessed tools**
     ```
-    python agents/scripts/embed_tools.py --input agents/data/preprocessed_tools_{time_stamp}.json
+    python agents/scripts/embed_tools.py --input utilities/tools_metadata_downloader/data/preprocessed_tools_{time_stamp}.json
     ```
-    e. **embed the preprocessed workflow**
+    d. **embed the preprocessed workflow**
     ```
-    python agents/scripts/embed_workflows.py --input/data/preprocessed_workflows_{time_stamp}.json
+    python agents/scripts/embed_workflows.py --input utilities/workflow_downloader/data/preprocessed_workflows_{time_stamp}.json
     ```
 
-    f. **copy the names of the embedded files to the config.yml**
+    e. **copy the names of the embedded files to the config.yml**
 
-    g. **use the agents for recommendation**
+    f. **use the agents for recommendation**
     ```
     python agents/suggesting_agent.py
     ```
