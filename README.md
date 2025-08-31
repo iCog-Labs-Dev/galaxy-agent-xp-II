@@ -48,7 +48,7 @@ This Python script connects to a Galaxy instance using the [BioBlend](https://bi
     ```
     python utilities/tools_metadata_downloader/run.py
     ```
-    b. **fetch workflows **
+    b. **fetch workflows**
     ```
     python utilities/workflow_downloader/run.py
     ```
