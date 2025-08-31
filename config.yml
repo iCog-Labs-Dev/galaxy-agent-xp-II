@@ -1,7 +1,7 @@
 output:
   file: "galaxy_tools.json"
 processing:
-  max_workers: 5
+  max_workers: 5  
   # tool_limit: 20
 
 categories:
@@ -19,7 +19,7 @@ comparison:
 agent:
   base_model: "intfloat/e5-base-v2"
   finetuned_model: "agents/models/e5-galaxy-finetuned"
-  tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250818_104503.npy"
-  tools_metadata_path: "agents/embeddings/galaxy_metadata_20250818_104503.json"
-  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250818_154211.npy"
-  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250818_154211.json"
+  tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250829_152111.npy"
+  tools_metadata_path: "agents/embeddings/galaxy_metadata_20250829_152111.json"
+  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250829_153128.npy"
+  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250829_153128.json"
