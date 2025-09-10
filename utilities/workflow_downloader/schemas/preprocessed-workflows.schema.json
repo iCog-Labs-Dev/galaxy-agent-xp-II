@@ -3,7 +3,7 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["category", "workflow_repository", "tool_names", "readme_cleaned"],
+    "required": ["category", "workflow_repository", "tool_names", "readme_cleaned","raw_download_url"],
     "properties": {
       "category": {"type": "string"},
       "workflow_repository": {"type": "string"},
@@ -11,7 +11,8 @@
         "type": "array",
         "items": {"type": "string"}
       },
-      "readme_cleaned": {"type": "string"}
+      "readme_cleaned": {"type": "string"},
+      "raw_download_url": {"type": "string"}
     }
   }
 }

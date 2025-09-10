@@ -11,7 +11,7 @@ GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workfl
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
 # MAX_WORKFLOWS = 5 # Uncomment to limit the number of workflows processed
-MAX_WORKFLOWS = None  # Set to None to process all workflows
+MAX_WORKFLOWS = 1  # Set to None to process all workflows
 
 github_token = os.getenv("GITHUB_TOKEN")
 if github_token:
@@ -21,7 +21,7 @@ if github_token:
 else:    
     print("⚠️ No GITHUB_TOKEN found in environment variables. Using unauthenticated requests may hit rate limits.")
     HEADERS = {}
-
+     
 def github_api_get(url):
     resp = requests.get(url, headers=HEADERS)
     resp.raise_for_status()
@@ -71,7 +71,6 @@ def parse_ga_content(ga_text):
         print(f"❌ Failed to parse .ga JSON: {e}")
         return {}
 
-
 def scan_repo(category, repo_name):
     base_path = f"{category}/{repo_name}"
     url = f"{GITHUB_API_URL}/{category}/{repo_name}"
@@ -94,7 +93,14 @@ def scan_repo(category, repo_name):
             if name.endswith(".ga"):
                 ga_text = fetch_file_content(f"{base_path}/{name}")
                 ga_info = parse_ga_content(ga_text)
-                ga_info["file_name"] = name
+                
+                # Add file name and raw download URL
+                raw_url = f"{RAW_BASE_URL}/{base_path}/{name}"
+                ga_info.update({
+                    "file_name": name,
+                    "raw_download_url": raw_url
+                })
+                
                 workflow_files.append(ga_info)
 
                 test_file = name.replace(".ga", "-tests.yml")
@@ -103,7 +109,7 @@ def scan_repo(category, repo_name):
 
             if name == "README.md":
                 try:
-                    readme_content = fetch_file_content(f"{base_path}/README.md")
+                    readme_content = fetch_file_content(f"{base_path}/{name}")
                 except Exception as e:
                     print(f"⚠️ Failed to fetch README for {base_path}: {e}")
                     readme_content = None
@@ -168,7 +174,6 @@ def main():
         json.dump(all_data, f, indent=2, ensure_ascii=False)
 
     print(f"\n📦 Saved summary to {output_file}")
-
 
 if __name__ == "__main__":
     main()
