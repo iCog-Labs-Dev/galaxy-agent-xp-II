@@ -19,7 +19,7 @@ def clean_readme(text):
 def preprocess_workflow_file(input_file, output_dir):
     with open(input_file, "r", encoding="utf-8") as f:
         try:
-            data = json.load(f)
+            data = json.load(f)# ← Reads iwc_downloader's output
         except json.JSONDecodeError as e:
             print(f"❌ Invalid JSON in {input_file}: {e}")
             return
@@ -34,21 +34,26 @@ def preprocess_workflow_file(input_file, output_dir):
         # Extract tool names from all workflow_files > tools_used
         tool_names = []
         for wf_file in workflow.get("workflow_files", []):
+            raw_download_url = wf_file.get("raw_download_url", "")
             for tool in wf_file.get("tools_used", []):
                 name = tool.get("name")
                 if name:
                     tool_names.append(name)
 
+    # Clean README content
         cleaned_readme = clean_readme(workflow.get("readme_content", ""))
 
+        # Create simplified structure
         preprocessed.append({
             "category": workflow.get("category", ""),
             "workflow_repository": workflow.get("workflow_repository", ""),
-            "tool_names": tool_names,
-            "readme_cleaned": cleaned_readme
+            "tool_names": tool_names, # ← Flattened tool list
+            "readme_cleaned": cleaned_readme, 
+            "raw_download_url": raw_download_url,
         })
 
     # Output with timestamp
+      # Save preprocessed data: preprocessed_workflows_20250908_123041.json
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_filename = f"preprocessed_workflows_{timestamp}.json"
     output_path = Path(output_dir) / output_filename
