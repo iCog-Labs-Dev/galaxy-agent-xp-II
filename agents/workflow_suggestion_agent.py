@@ -17,8 +17,8 @@ class WorkflowSuggestionAgent:
     with open(config_file, 'r') as f:
         config = yaml.safe_load(f)
 
-    # model_path = config["agent"]["base_model"]
-    model_path = config["agent"]["finetuned_model"]
+    model_path = config["agent"]["base_model"]
+    #model_path = config["agent"]["finetuned_model"]
     embeddings_path = config["agent"]["workflow_embeddings_path"]
     metadata_path = config["agent"]["workflow_metadata_path"]
     def __init__(self, model_path=model_path, embeddings_path=embeddings_path, metadata_path=metadata_path):
@@ -60,6 +60,7 @@ class WorkflowSuggestionAgent:
                     "category": workflow_info.get("category", "Uncategorized") or "Uncategorized",
                     "tools_used": workflow_info.get("tool_names", []),
                     "readme_excerpt": workflow_info.get("readme_cleaned", ""),
+                    "download_url": workflow_info.get("raw_download_url", ""),
                     "score": score
                 })
                 seen_workflows[workflow_name] = score
@@ -77,4 +78,5 @@ if __name__ == "__main__":
         print(f"\n{i}. {wf['name']} (Score: {wf['score']:.4f})")
         print(f"   Category: {wf['category']}")
         print(f"   Tools Used: {', '.join(wf['tools_used']) if wf['tools_used'] else 'N/A'}")
+        print(f"   Download URL: {wf['download_url'] if wf['download_url'] else 'No download available'}")
         print(f"   Readme: {wf['readme_excerpt'] if wf['readme_excerpt'] else 'No description available'}")
