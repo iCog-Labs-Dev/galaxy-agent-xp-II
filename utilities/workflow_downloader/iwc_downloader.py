@@ -11,7 +11,7 @@ GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workfl
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
 # MAX_WORKFLOWS = 5 # Uncomment to limit the number of workflows processed
-MAX_WORKFLOWS = 1  # Set to None to process all workflows
+MAX_WORKFLOWS = None # Set to None to process all workflows
 
 github_token = os.getenv("GITHUB_TOKEN")
 if github_token:
