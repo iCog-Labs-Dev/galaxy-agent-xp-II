@@ -2,7 +2,7 @@ output:
   file: "galaxy_tools.json"
 processing:
   max_workers: 5
-  # tool_limit: 20
+  tool_limit: null  # Set to null for no limit
 
 categories:
   Get Data:
