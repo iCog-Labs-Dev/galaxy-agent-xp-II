@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     # Step 2: Preprocess the latest IWC workflow JSON file
     latest_file = get_latest_iwc_json(data_dir)
-    run_command(f"python utilities/workflow_downloader/preprocess_wf_data.py {latest_file}")
+    run_command(f'python utilities/workflow_downloader/preprocess_wf_data.py "{latest_file}"')
 
     # Step 3: Validate all JSON files in data/ using schema
     run_command("python utilities/workflow_downloader/workflow_schema_validator.py")

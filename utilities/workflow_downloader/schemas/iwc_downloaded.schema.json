@@ -5,44 +5,58 @@
     "type": "object",
     "required": ["category", "workflow_repository", "workflow_files"],
     "properties": {
-      "category": {"type": "string"},
-      "workflow_repository": {"type": "string"},
+      "category": { "type": "string" },
+      "workflow_repository": { "type": "string" },
       "workflow_files": {
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["workflow_name", "number_of_steps", "tools_used", "file_name"],
+          "required": [
+            "workflow_name",
+            "number_of_steps",
+            "tools_used",
+            "file_name",
+            "raw_download_url"
+          ],
           "properties": {
-            "workflow_name": {"type": "string"},
-            "number_of_steps": {"type": "integer"},
-            "file_name": {"type": "string"},
+            "workflow_name": { "type": "string" },
+            "number_of_steps": { "type": "integer" },
+            "file_name": { "type": "string" },
+            "raw_download_url": { "type": "string" },
             "tools_used": {
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["id", "name", "version", "owner", "category", "tool_shed_url"],
+                "required": [
+                  "id",
+                  "name",
+                  "version",
+                  "owner",
+                  "category",
+                  "tool_shed_url"
+                ],
                 "properties": {
-                  "id": {"type": "string"},
-                  "name": {"type": "string"},
-                  "version": {"type": "string"},
-                  "owner": {"type": "string"},
-                  "category": {"type": "string"},
-                  "tool_shed_url": {"type": "string"}
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "version": { "type": "string" },
+                  "owner": { "type": "string" },
+                  "category": { "type": "string" },
+                  "tool_shed_url": { "type": "string" }
                 }
               }
             }
           }
         }
       },
-      "readme_content": {"type": ["string", "null"]},
+      "readme_content": { "type": ["string", "null"] },
       "planemo_tests": {
         "type": "array",
-        "items": {"type": "string"}
+        "items": { "type": "string" }
       },
-      "has_readme": {"type": "boolean"},
-      "has_dockstore_yml": {"type": "boolean"},
-      "has_test_data": {"type": "boolean"},
-      "has_changelog": {"type": "boolean"}
+      "has_readme": { "type": "boolean" },
+      "has_dockstore_yml": { "type": "boolean" },
+      "has_test_data": { "type": "boolean" },
+      "has_changelog": { "type": "boolean" }
     }
   }
 }

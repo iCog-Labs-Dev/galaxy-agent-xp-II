@@ -13,20 +13,32 @@ def main(args):
 
     # Structure texts for embedding
     texts = []
+    metadata_for_saving = []   # Store metadata with download URLs for saving
     for entry in data:
         workflow_repo = entry.get("workflow_repository", "")
         category = entry.get("category", "")
         readme = entry.get("readme_cleaned", "")
         tools = entry.get("tool_names", [])
+        raw_download_url = entry.get("raw_download_url", "") 
+        
 
-        # Build structured text
+        # Build structured text embedding
         text = (
             f"Workflow Repository: {workflow_repo}. "
             f"Category: {category}. "
             f"Description: {readme}. "
             f"Tools Used: {', '.join(tools)}."
+            f"Download URL: {raw_download_url}" 
         )
         texts.append(text)
+
+            # Store complete metadata including download URL for saving
+        metadata_for_saving.append({
+            "workflow_repository": workflow_repo,
+            "category": category,
+            "tool_names": tools,
+            "readme_cleaned": readme,
+            "raw_download_url": raw_download_url})
 
     # Load model
     print(f"Loading model: {args.model}")
@@ -56,7 +68,7 @@ def main(args):
     print(f"✅ Encoded {len(embeddings)} workflows")
     print(f"💾 Embeddings saved to: {emb_path}")
     print(f"💾 Metadata saved to: {meta_path}")
-
+    print(f"📥 Download URLs included in both embedded text and metadata")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate embeddings for IWC workflows metadata.")
