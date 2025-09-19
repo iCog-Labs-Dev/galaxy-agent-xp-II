@@ -37,7 +37,6 @@ categories_config = config.get("categories", {})
 # Connect to Galaxy
 gi = GalaxyInstance(url=galaxy_url, key=api_key)
 
-# Check for existing output
 if os.path.exists(output_file):
     print(f"Output file '{output_file}' already exists. Skipping fetch.")
 else:
@@ -51,8 +50,8 @@ else:
         category = tool.get("panel_section_name", "Uncategorized")
         tools_by_category.setdefault(category, []).append(tool)
 
-    # Deduplicate tools while tracking categories
-    tool_map = {}  # tool_id -> {"base": tool, "categories": set()}
+    # Deduplicate and sample tools by category
+    tool_map = {}
     for category, cat_tools in tools_by_category.items():
         percentage = categories_config.get(category, {}).get("percentage", 1)
         if not isinstance(percentage, (int, float)) or percentage < 0:
@@ -74,22 +73,21 @@ else:
                 tool_map[tool_id] = {"base": tool, "categories": set()}
             tool_map[tool_id]["categories"].add(category)
 
-    # Merge and finalize filtered tools
+    # Final filtered list
     filtered_tools = []
     for entry in tool_map.values():
         tool = entry["base"]
         tool["categories"] = list(entry["categories"])
         filtered_tools.append(tool)
-    # Enforce tool limit if specified
     if tool_limit:
         filtered_tools = filtered_tools[:tool_limit]
 
     print(f"Fetching details for {len(filtered_tools)} tools...")
 
-    # Fetch tool metadata
     def fetch_tool_details(tool: dict) -> dict | None:
         tool_id = tool.get("id", "")
         try:
+            # Get tool details
             tool_details = gi.tools.show_tool(tool_id, io_details=True)
 
             help_text = ""
@@ -100,14 +98,20 @@ else:
 
             root = ET.fromstring(tool_xml)
             help_elem = root.find("help")
-            if help_elem is not None:
-                # Capture help even if it's CDATA or HTML
-                help_text = help_elem.text.strip() 
+            if help_elem is not None and help_elem.text:
+                help_text = help_elem.text.strip()
                 print(f"Extracted help for {tool_id}: {help_text[:50]}...")
             else:
                 print(f"No <help> section found for {tool_id}")
 
+            # Use the original tool_id as it should already be in the correct format
+            # For ToolShed tools, the id should already be in format: 
+            # toolshed.g2.bx.psu.edu/repos/owner/repo/tool_id/version
+            # For local tools, it will remain as the local ID
+            
+            # Return only the requested keys in the specified order
             return {
+                "id": tool_id,  # This should already be in the correct format
                 "name": tool.get("name", ""),
                 "description": tool.get("description", ""),
                 "categories": tool.get("categories", []),

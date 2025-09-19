@@ -1,14 +1,14 @@
 output:
   file: "galaxy_tools.json"
 processing:
-  max_workers: 5  
-  # tool_limit: 20
+  max_workers: 5
+  tool_limit: null  # Set to null for no limit
 
 categories:
   Get Data:
     percentage: 1
   Astronomy:
-    percentage: 1 
+    percentage: 1
   # Other categories not listed will fetch 100% of tools
 
 comparison:
@@ -21,5 +21,5 @@ agent:
   finetuned_model: "agents/models/e5-galaxy-finetuned"
   tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250829_152111.npy"
   tools_metadata_path: "agents/embeddings/galaxy_metadata_20250829_152111.json"
-  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250829_153128.npy"
-  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250829_153128.json"
+  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250915_112803.npy"
+  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250915_112803.json"

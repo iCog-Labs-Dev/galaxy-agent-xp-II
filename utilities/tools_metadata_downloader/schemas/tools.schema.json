@@ -5,6 +5,9 @@
   "items": {
     "type": "object",
     "properties": {
+      "id": {
+        "type": "string"
+      },
       "name": {
         "type": "string",
         "minLength": 1
@@ -13,7 +16,7 @@
         "type": "string"
       },
       "categories": {
-        "type": "array",
+        "type": "array",  
         "items": {
           "type":[ "string", "null" ],
           "minLength": 0
@@ -27,6 +30,6 @@
         "type": ["string", "null"]
       }
     },
-    "required": ["name", "description", "categories", "version", "help"]
+    "required": ["id","name", "description", "categories", "version", "help"]
   }
 }
