@@ -28,14 +28,21 @@ def build_texts(data: list[dict]) -> list[str]:
     """
     texts = []
     for entry in data:
+        # Safely get categories as a comma-separated string
         categories = entry.get("categories") or []
         categories_str = ", ".join([c for c in categories if c])
 
         help_text = entry.get("help") or ""
+        # Safely get required fields, fallback to empty string if missing or None
+        tool_id = entry.get("id") or ""
+        name = entry.get("name") or ""
+        description = entry.get("description") or ""
+        version = entry.get("version") or ""
 
+        # Build the combined text for embedding
         text = (
-            f"{entry['id']} - {entry['name']} - {entry['description']} - "
-            f"{categories_str} - {entry['version']} - {help_text}"
+            f"{tool_id} - {name} - {description} - "
+            f"{categories_str} - {version} - {help_text}"
         )
         texts.append(text)
     return texts
