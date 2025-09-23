@@ -32,28 +32,36 @@ class WorkflowSuggestionAgent:
         self.embeddings = np.load(self.embeddings_path)
         with open(self.metadata_path, "r", encoding="utf-8") as f:
             self.metadata = json.load(f)
-    
+    def validate_workflow_metadata(self, workflow_info: dict) -> dict:
+        """
+        Ensure that all required fields exist and are non-null.
+        Fills missing or null fields with defaults.
+        """
+        validated = {
+            "workflow_repository": workflow_info.get("workflow_repository") or "",
+            "category": workflow_info.get("category") or "",
+            "tool_names": workflow_info.get("tool_names") or [],
+            "readme_cleaned": workflow_info.get("readme_cleaned") or "",
+            "raw_download_url": workflow_info.get("raw_download_url") or ""
+        }
+        return validated
     
     def suggest_workflows(self, query, top_k=5, score_threshold=0.05):
-        # Encode the query
         query_embedding = self.model.encode(query, convert_to_numpy=True)
-        
-        # Compute cosine similarities
         similarities = util.cos_sim(query_embedding, self.embeddings)[0]
-
-        # Get top-k results
         top_results = np.argsort(-similarities)[:top_k]
-
-        # Build suggestion list
+    
         suggestions = []
         seen_workflows = {}
-
+    
         for idx in top_results:
             workflow_info = self.metadata[idx]
             workflow_name = workflow_info["workflow_repository"]
             score = float(similarities[idx])
-
-            # If not seen yet or significantly different in score
+    
+            # Internal validation (just for logging / debugging)
+            self.validate_workflow_metadata(workflow_info)
+    
             if workflow_name not in seen_workflows or abs(seen_workflows[workflow_name] - score) > score_threshold:
                 suggestions.append({
                     "name": workflow_name,
@@ -64,8 +72,9 @@ class WorkflowSuggestionAgent:
                     "score": score
                 })
                 seen_workflows[workflow_name] = score
-
+    
         return suggestions
+
 
 
 if __name__ == "__main__":
