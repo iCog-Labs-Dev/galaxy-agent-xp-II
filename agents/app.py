@@ -1,18 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from agents.routes.recommend_route import router as recommend_router
 from agents.utils.response_models import (
-    SuggestionRequest,
-    SuggestionResponse,
-    WorkflowSuggestionResponse
+    SuggestionRequest, SuggestionResponse, WorkflowSuggestionResponse
 )
 from agents.suggesting_agent import ToolSuggestionAgent
 from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
-from agents.summary_agent import (
-    summarize_tool_suggestions,
-    summarize_workflow_suggestions
-)
-from agents.services.classification_service import classify_query   # ✅ NEW import
+from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 
 app = FastAPI(title="Galaxy Tool Suggestion API")
 
@@ -46,8 +40,10 @@ def suggest_tools(request: SuggestionRequest):
 
 @app.post("/suggest-tools-enhanced")
 def suggest_tools_enhanced(request: SuggestionRequest):
-    result_from_e5 = agent.suggest_tools(request.query, request.top_k)
-    results = summarize_tool_suggestions(result_from_e5, request.query)
+    results = summarize_tool_suggestions(
+        agent.suggest_tools(request.query, request.top_k),
+        request.query
+    )
     return {"results": results}
 
 # ------------------ WORKFLOW ENDPOINTS ---------- #
@@ -58,33 +54,11 @@ def suggest_workflows(request: SuggestionRequest):
 
 @app.post("/suggest-workflows-enhanced")
 def suggest_workflows_enhanced(request: SuggestionRequest):
-    result_from_e5 = workflow_agent.suggest_workflows(request.query, request.top_k)
-    results = summarize_workflow_suggestions(result_from_e5, request.query)
+    results = summarize_workflow_suggestions(
+        workflow_agent.suggest_workflows(request.query, request.top_k),
+        request.query
+    )
     return {"results": results}
 
 # ------------------ GEMINI-POWERED ENDPOINT ----- #
-@app.post("/recommend")
-def recommend(request: SuggestionRequest):
-    """
-    Unified endpoint:
-    - Gemini classifies query as 'tool', 'workflow', or 'both'
-    - Routes to the correct agent(s)
-    """
-    category = classify_query(request.query)  #  Step 1: Gemini classification
-
-    if category == "tool":
-        tools = agent.suggest_tools(request.query, request.top_k)
-        return {"type": "tool", "results": tools}
-
-    elif category == "workflow":
-        workflows = workflow_agent.suggest_workflows(request.query, request.top_k)
-        return {"type": "workflow", "results": workflows}
-
-    else:  # "both"
-        tools = agent.suggest_tools(request.query, request.top_k)
-        workflows = workflow_agent.suggest_workflows(request.query, request.top_k)
-        return {
-            "type": "both",
-            "tool_results": tools,
-            "workflow_results": workflows
-        }
+app.include_router(recommend_router)
