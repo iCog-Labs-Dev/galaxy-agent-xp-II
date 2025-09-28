@@ -16,11 +16,9 @@ Galaxy Agent XP-II is a **FastAPI-powered AI assistant** that recommends **Galax
 - [Example Usage](#-example-usage)
 - [Tech Stack](#-tech-stack)
 - [Security Notes](#-security-notes)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Credits](#-credits)
 
-## ✨ Features
+
+##  Features
 
 - **Galaxy Tool Recommendation** – Suggest relevant Galaxy tools for a given bioinformatics task
 - **Workflow Recommendation** – Recommend publicly available **Galaxy workflows** (from GitHub) with descriptions, scores, and download links
@@ -31,7 +29,7 @@ Galaxy Agent XP-II is a **FastAPI-powered AI assistant** that recommends **Galax
 - **FastAPI Backend** – RESTful API endpoints for easy integration with frontend or other services
 - **Embeddings-based Search** – Uses `intfloat/e5-large` for semantic search
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 Client → [Merged FastAPI endpoint] → [Gemini "classifier" layer]
@@ -56,7 +54,7 @@ Client → [Merged FastAPI endpoint] → [Gemini "classifier" layer]
    - or both
 4. Returns a **unified JSON response**
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1️⃣ Prerequisites
 
@@ -143,7 +141,7 @@ uvicorn agents.app:app --reload
 
 Server runs at: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
-## ⚡ API Endpoints
+##  API Endpoints
 
 ### Health Check
 
@@ -203,7 +201,7 @@ Server runs at: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
       "name": "bacterial-genome-assembly",
       "category": "genome-assembly",
       "tools_used": ["Shovill", "Bandage Info", "Bandage Image", "ToolDistillator", "ToolDistillator Summarize"],
-      "download_url": "https://usegalaxy.eu/api/workflows/xxxx",
+      "download_url": "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/genome-assembly/bacterial-genome-assembly/bacterial_genome_assembly.ga",
       "readme_excerpt": "Bacterial genome assembly workflow for paired end data...",
       "score": 0.8218
     }
@@ -246,7 +244,7 @@ Simpler endpoint where users **don't need to specify** if their query is about *
 }
 ```
 
-## 🧩 How It Works
+##  How It Works
 
 1. **Data Collection**
    - Galaxy tools fetched via [BioBlend](https://bioblend.readthedocs.io/)
@@ -265,12 +263,12 @@ Simpler endpoint where users **don't need to specify** if their query is about *
 5. **Gemini Classification**
    - The internal Gemini layer classifies the query into **tool**, **workflow**, or **both** before routing
 
-## 📌 Key Notes
+##  Key Notes
 
 - **Independent Use:** You can still call `/tools/suggest` and `/workflows/suggest` independently if you already know the type of query
 - **Merged Endpoint:** `/recommend` is ideal for **frontend clients** or **end users** who simply provide a natural-language query
 
-## 🧪 Example Usage
+##  Example Usage
 
 After starting the FastAPI server:
 
@@ -280,36 +278,15 @@ curl -X POST "http://127.0.0.1:8000/suggest-tools" \
     -d '{"query":"RNA sequencing analysis","top_k":3}'
 ```
 
-## 🧩 Tech Stack
+##  Tech Stack
 
 - **FastAPI** – Backend API
 - **Gemini LLM** – Query classification
 - **BioBlend** – Communication with Galaxy API
 - **Galaxy Platform** – Public instance: [usegalaxy.eu](https://usegalaxy.eu)
 
-## 🛡️ Security Notes
+##  Security Notes
 
 - **Never commit** your real `.env` file to GitHub
 - Use the provided **sample** as a template only
 - For production, use **environment variable secrets** or a vault service
-
-## 🤝 Contributing
-
-Pull requests are welcome! Please:
-
-1. Fork the repo
-2. Create a feature branch
-3. Submit a PR with a clear description
-
-## 📜 License
-
-MIT License – Feel free to use and modify
-
-## 💡 Credits
-
-- [Galaxy Project](https://galaxyproject.org/)
-- [BioBlend](https://bioblend.readthedocs.io/en/latest/)
-- [Sentence Transformers](https://www.sbert.net/)
-- [Google Gemini](https://deepmind.google/technologies/gemini/)
-
----
