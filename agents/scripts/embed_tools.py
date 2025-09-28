@@ -1,69 +1,107 @@
+#!/usr/bin/env python3
+"""
+Generate text embeddings for Galaxy workflow/tool metadata.
+
+Steps:
+1. Read a JSON file that matches the Galaxy metadata schema.
+2. Convert each record into a single text string for embedding.
+3. Encode those strings using a SentenceTransformer model.
+4. Save both the embeddings and the original metadata with a timestamp.
+"""
+
 import argparse
 import json
 import os
 import time
+from pathlib import Path
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
-def main(args):
-    # Load data
+def build_texts(data: list[dict]) -> list[str]:
+    """
+    Convert each metadata record into a single descriptive text string.
+
+    - Joins category values into a comma-separated string.
+    - Replaces nulls with an empty string.
+    """
+    texts = []
+    for entry in data:
+        # Safely get categories as a comma-separated string
+        categories = entry.get("categories") or []
+        categories_str = ", ".join([c for c in categories if c])
+
+        help_text = entry.get("help") or ""
+        # Safely get required fields, fallback to empty string if missing or None
+        tool_id = entry.get("id") or ""
+        name = entry.get("name") or ""
+        description = entry.get("description") or ""
+        version = entry.get("version") or ""
+
+        # Build the combined text for embedding
+        text = (
+            f"{tool_id} - {name} - {description} - "
+            f"{categories_str} - {version} - {help_text}"
+        )
+        texts.append(text)
+    return texts
+
+
+def main(args: argparse.Namespace) -> None:
+    # Load JSON metadata
     with open(args.input, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Structure text data
-    texts = [
-        f"{entry['name']} - {entry['description']} - {entry['categories']} - {entry['help']}"
-        for entry in data
-    ]
+    # Prepare text for embedding
+    texts = build_texts(data)
 
-    # Load model
-    print(f"Loading model: {args.model}")
+    # Load the sentence-transformer model
+    print(f"🔄 Loading model: {args.model}")
     model = SentenceTransformer(args.model)
 
-    # Encode texts
+    # Encode texts into embeddings
     embeddings = model.encode(
         texts,
         show_progress_bar=True,
         convert_to_numpy=True
     )
 
-    # Ensure output dir exists
-    os.makedirs(args.output_dir, exist_ok=True)
+    # Ensure output directory exists
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Timestamp for versioning
+    # Timestamped filenames for versioning
     timestamp = time.strftime("%Y%m%d_%H%M%S")
+    emb_path = output_dir / f"galaxy_embeddings_{timestamp}.npy"
+    meta_path = output_dir / f"galaxy_metadata_{timestamp}.json"
 
-    # Save embeddings
-    emb_path = os.path.join(args.output_dir, f"galaxy_embeddings_{timestamp}.npy")
-    meta_path = os.path.join(args.output_dir, f"galaxy_metadata_{timestamp}.json")
-
+    # Save embeddings and original metadata
     np.save(emb_path, embeddings)
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Encoded {len(embeddings)} texts")
     print(f"💾 Embeddings saved to: {emb_path}")
-    print(f"💾 Metadata saved to: {meta_path}")
+    print(f"💾 Metadata saved to:  {meta_path}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate embeddings for Galaxy metadata.")
-
+    parser = argparse.ArgumentParser(
+        description="Generate embeddings for Galaxy metadata."
+    )
     parser.add_argument(
         "--input",
         type=str,
         required=True,
         help="Path to the preprocessed JSON input file."
     )
-
     parser.add_argument(
         "--output-dir",
         type=str,
         default="agents/embeddings",
         help="Directory where embeddings and metadata will be saved."
     )
-
     parser.add_argument(
         "--model",
         type=str,
@@ -71,5 +109,4 @@ if __name__ == "__main__":
         help="SentenceTransformer model to use."
     )
 
-    args = parser.parse_args()
-    main(args)
+    main(parser.parse_args())
