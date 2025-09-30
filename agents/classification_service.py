@@ -43,8 +43,10 @@ Do not add any extra text or explanation.
 Query: "{query}"
 """
 
-    # Select Gemini model
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # Recommended: Use the latest stable flash model
+    model = genai.GenerativeModel("models/gemini-2.5-flash")
+    # or, for best reasoning accuracy:
+    # model = genai.GenerativeModel("models/gemini-2.5-pro")
 
     # Generate classification
     response = model.generate_content(prompt)
