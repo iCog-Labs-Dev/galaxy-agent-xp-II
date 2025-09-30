@@ -1,131 +1,152 @@
----
+# Embedding Generation Scripts
 
-# Sentence Embedding with `intfloat/e5-base-v2`
+This directory contains scripts for generating text embeddings for Galaxy tools and workflows metadata using SentenceTransformer models.
 
-This guide explains how to generate **sentence embeddings** from the validated workflow output produced by:
+## Overview
 
-```
-iwc_downloader.py → preprocess_wf_data.py → workflow_schema_validator.py
-             ↓                 ↓                        ↓
-       Raw GitHub data   →   Cleaned data       →   Validated JSON
-```
+The embedding scripts convert structured metadata from Galaxy tools and workflows into vector embeddings that enable semantic search functionality in the Galaxy Agent XP-II system.
 
-The **validated JSON** is the final output and will be used as input for embedding.
+## Scripts
 
----
+### 1. Workflow Embedding Generator (`embed_workflows.py`)
 
-## 1. Install Dependencies
+Generates embeddings for Galaxy workflow metadata from the Intergalactic Workflow Commission (IWC) repository.
 
-Make sure the required libraries are installed:
-
+#### Usage
 ```bash
-pip install sentence-transformers torch
+python embed_workflows.py --input path/to/preprocessed_workflows.json [--output-dir agents/embeddings] [--model intfloat/e5-base-v2]
 ```
 
----
+#### Features
+- Processes workflow metadata including repository, category, description, tools used, and download URLs
+- Creates structured text combining all workflow information for embedding
+- Saves both embeddings and complete metadata with timestamps
+- Includes download URLs in both embedded text and saved metadata
 
-## 2. Load the Embedding Model
+#### Output Files
+- `iwc_workflow_embeddings_YYYYMMDD_HHMMSS.npy` - NumPy array of embeddings
+- `iwc_workflow_metadata_YYYYMMDD_HHMMSS.json` - Complete workflow metadata with download URLs
 
-We use the [E5 model family](https://huggingface.co/intfloat/e5-base-v2), which is optimized for text embedding tasks.
+### 2. Tool Embedding Generator (`embed_tools.py`)
+
+Generates embeddings for Galaxy tools metadata from BioBlend API responses.
+
+#### Usage
+```bash
+python embed_tools.py --input path/to/preprocessed_tools.json [--output-dir agents/embeddings] [--model intfloat/e5-base-v2]
+```
+
+#### Features
+- Processes tool metadata including ID, name, description, categories, version, and help text
+- Safely handles null values and missing fields
+- Combines multiple metadata fields into a single descriptive text for embedding
+- Automatic timestamp versioning for output files
+
+#### Output Files
+- `galaxy_embeddings_YYYYMMDD_HHMMSS.npy` - NumPy array of embeddings
+- `galaxy_metadata_YYYYMMDD_HHMMSS.json` - Original tool metadata
+
+## Required Dependencies
 
 ```python
-from sentence_transformers import SentenceTransformer
-
-# Load the model
-model = SentenceTransformer("intfloat/e5-base-v2")
+sentence-transformers >= 2.2.2
+numpy >= 1.21.0
+torch >= 1.9.0
+transformers >= 4.20.0
 ```
 
----
+## Model Options
 
-## 3. Load Validated Data
+Both scripts support any SentenceTransformer model. Default models:
 
-The validated workflows are stored as JSON in the `data/` directory (produced by the pipeline). Example:
+- **Workflows**: `intfloat/e5-base-v2`
+- **Tools**: `intfloat/e5-base-v2`
+
+### Alternative Models
+- `intfloat/e5-large-v2` - Higher quality, larger model
+- `all-mpnet-base-v2` - General purpose model
+- `all-MiniLM-L6-v2` - Faster, smaller model
+
+## Input Data Format
+
+### Workflows JSON Format
+```json
+[
+  {
+    "workflow_repository": "repository/name",
+    "category": "genome-assembly",
+    "readme_cleaned": "Workflow description...",
+    "tool_names": ["tool1", "tool2"],
+    "raw_download_url": "https://raw.githubusercontent.com/.../workflow.ga"
+  }
+]
+```
+
+### Tools JSON Format
+```json
+[
+  {
+    "id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa",
+    "name": "BWA",
+    "description": "Burrows-Wheeler Aligner",
+    "categories": ["NGS", "Alignment"],
+    "version": "0.7.17",
+    "help": "Tool help text..."
+  }
+]
+```
+
+## Text Construction for Embedding
+
+### Workflows
+```
+"Workflow Repository: {repo}. Category: {category}. Description: {readme}. Tools Used: {tools}. Download URL: {url}"
+```
+
+### Tools
+```
+"{tool_id} - {name} - {description} - {categories} - {version} - {help}"
+```
+
+## Integration with Galaxy Agent
+
+After generating embeddings, update the configuration in `config.yml`:
 
 ```python
-import json
-
-validated_file = "utilities/workflow_downloader/data/validated_workflows.json"
-
-with open(validated_file, "r") as f:
-    workflows = json.load(f)
+class Settings(BaseSettings):
+    embeddings_path: str = "embeddings/galaxy_embeddings_20240101_120000.npy"
+    metadata_path: str = "embeddings/galaxy_metadata_20240101_120000.json"
+    workflow_embeddings_path: str = "embeddings/iwc_workflow_embeddings_20240101_120000.npy"
+    workflow_metadata_path: str = "embeddings/iwc_workflow_metadata_20240101_120000.json"
 ```
 
-Each entry in the JSON corresponds to a cleaned and validated workflow object.
+## Example Usage
 
----
-
-## 4. Prepare Text for Embedding
-
-Decide what textual information you want to embed. Common options:
-
-- Workflow `workflow_name`
-- Workflow `category`
-- Workflow `description` (if available)
-
-Example:
-
-```python
-texts = []
-for wf in workflows:
-    name = wf.get("workflow_name", "")
-    category = wf.get("category", "")
-    description = wf.get("description", "")
-
-    # Combine fields into a single string
-    text_input = f"{name} | {category} | {description}"
-    texts.append(text_input)
+### Generate Workflow Embeddings
+```bash
+python embed_workflows.py \
+    --input utilities/workflow_downloader/data/preprocessed_workflows_20240101_120000.json \
+    --output-dir agents/embeddings \
+    --model intfloat/e5-base-v2
 ```
 
----
-
-## 5. Generate Embeddings
-
-Pass the prepared text into the embedding model:
-
-```python
-embeddings = model.encode(texts, convert_to_tensor=True, show_progress_bar=True)
+### Generate Tool Embeddings
+```bash
+python embed_tools.py \
+    --input utilities/tools_metadata_downloader/data/preprocessed_tools_20240101_120000.json \
+    --output-dir agents/embeddings \
+    --model intfloat/e5-large-v2
 ```
 
-- `texts` → list of workflow descriptions
-- `embeddings` → tensor of shape `(num_workflows, 768)` for `e5-base-v2`
+## Performance Notes
 
----
+- **Memory Usage**: Larger models like `e5-large-v2` require more RAM
+- **Processing Time**: ~1000 records/minute on CPU, significantly faster on GPU
+- **Output Size**: Embeddings are typically 384-1024 dimensions depending on model
 
-## 6. Store or Use Embeddings
+## Troubleshooting
 
-You can store embeddings for later use (search, clustering, etc.):
-
-```python
-import numpy as np
-
-np.save("workflow_embeddings.npy", embeddings.cpu().numpy())
-```
-
-Or integrate directly into downstream tasks (e.g., similarity search, semantic clustering, retrieval).
-
----
-
-## 7. Example: Find Similar Workflows
-
-```python
-from sentence_transformers.util import cos_sim
-
-# Compare the first workflow to all others
-similarities = cos_sim(embeddings[0], embeddings)[0]
-
-# Get top 5 most similar workflows
-top_indices = similarities.argsort(descending=True)[:5]
-
-for idx in top_indices:
-    print(texts[idx], "→", similarities[idx].item())
-```
-
----
-
-## Summary
-
-- Run the pipeline to generate **validated JSON**.
-- Use `intfloat/e5-base-v2` to convert workflow text into dense vector embeddings.
-- Save and use embeddings for tasks such as **semantic search**, **clustering**, or **recommendation**.
-
----
+1. **Memory Errors**: Use smaller models or process in batches
+2. **Model Download Issues**: Check internet connection and firewall settings
+3. **JSON Format Errors**: Validate input JSON files before processing
+4. **Output Directory**: Ensure write permissions for the output directory
