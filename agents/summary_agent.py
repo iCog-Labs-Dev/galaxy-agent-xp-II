@@ -9,7 +9,9 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+# model = genai.GenerativeModel("gemini-1.5-flash")
+
+model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 
 def summarize_tool_suggestions(tools: list, query: str) -> str:
