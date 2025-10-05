@@ -18,8 +18,8 @@ comparison:
 
 agent:
   base_model: "intfloat/e5-base-v2"
-  finetuned_model: "agents/models/e5-galaxy-finetuned"
+  finetuned_model: "johnnas12/e5-galaxy-finetuned"
   tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250919_132947.npy"
   tools_metadata_path: "agents/embeddings/galaxy_metadata_20250919_132947.json"
-  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250915_112803.npy"
-  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250915_112803.json"
+  workflow_embeddings_path: "agents/embeddings/iwc_workflow_embeddings_20250930_144357.npy"
+  workflow_metadata_path: "agents/embeddings/iwc_workflow_metadata_20250930_144357.json"
