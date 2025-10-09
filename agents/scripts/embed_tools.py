@@ -105,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        default="intfloat/e5-base-v2",
+        default="johnnas12/e5-galaxy-finetuned",
         help="SentenceTransformer model to use."
     )
 
