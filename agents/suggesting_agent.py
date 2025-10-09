@@ -16,8 +16,8 @@ class ToolSuggestionAgent:
         raise FileNotFoundError(f"Configuration file {config_file} not found. Please ensure it exists.")
     with open(config_file, "r") as f:
         config = yaml.safe_load(f)
-    model_path = config["agent"]["base_model"]
-    # model_path = config["agent"]["finetuned_model"]
+    # model_path = config["agent"]["base_model"]
+    model_path = config["agent"]["finetuned_model"]
     embeddings_path = config["agent"]["tools_embeddings_path"]
     metadata_path = config["agent"]["tools_metadata_path"]   
 

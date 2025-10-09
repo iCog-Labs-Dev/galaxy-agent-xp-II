@@ -22,7 +22,7 @@ Galaxy Agent XP-II is a **FastAPI-powered AI assistant** that recommends **Galax
 
 - **Galaxy Tool Recommendation** – Suggest relevant Galaxy tools for a given bioinformatics task
 - **Workflow Recommendation** – Recommend publicly available **Galaxy workflows** (from GitHub) with descriptions, scores, and download links
-- **Secure Configuration** – Uses `.env` for API keys and `config.py` for paths
+- **Secure Configuration** – Uses `.env` for API keys and `config.yml` for paths
 - **Unified Recommendation Endpoint** – `/recommend` merges tool & workflow suggestions in one API call
 - **Gemini-powered Query Classification** – Automatically determines if a query is about tools, workflows, or both
 - **Structured JSON Responses** – Easy to consume for frontend or third-party applications
@@ -96,7 +96,7 @@ GITHUB_TOKEN='YOUR_GITHUB_TOKEN_HERE'       # GitHub personal access token for h
 
 #### Application Configuration
 
-Update `configs/config.py` if you want to customize paths:
+Update `config.yml` if you want to customize paths:
 
 ```python
 from pydantic_settings import BaseSettings
@@ -131,7 +131,7 @@ python agents/scripts/embed_tools.py --input utilities/tools_metadata_downloader
 python agents/scripts/embed_workflows.py --input utilities/workflow_downloader/data/preprocessed_workflows_{timestamp}.json
 ```
 
-> **Note:** Update `config.py` to point to the generated embedding and metadata files.
+> **Note:** Update `config.yml` to point to the generated embedding and metadata files.
 
 ### 5️⃣ Run the FastAPI Backend
 
@@ -154,7 +154,7 @@ Server runs at: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
 ### Tool Recommendation
 
-**POST** `/suggest-tools`
+**POST** `/suggest`
 
 **Request:**
 ```json
