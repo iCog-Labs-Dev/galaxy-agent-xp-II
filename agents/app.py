@@ -8,7 +8,7 @@ from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
 from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 from agents.classification_service import classify_query
 
-app = FastAPI(title="Galaxy Tool Suggestion API") 
+app = FastAPI(title="Galaxy Tool Suggestion API")
 
 # ------------------ CORS SETUP ------------------ #
 app.add_middleware(
