@@ -8,13 +8,13 @@ class SuggestionRequest(BaseModel):
 
 # ------------------ TOOL MODELS ------------------ #
 class ToolSuggestion(BaseModel):
-    id: str                      # Include ID
-    name: str
-    description: str
-    help: Optional[str] = ""
-    category: str
-    version: str
-    score: float
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    help: Optional[str] = None
+    category: Optional[str] = None
+    version: Optional[str] = None
+    score: Optional[float] = None
 
 class SuggestionResponse(BaseModel):
     results: List[ToolSuggestion]
