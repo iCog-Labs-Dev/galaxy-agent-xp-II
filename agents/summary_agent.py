@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -13,13 +14,26 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Check environment variables
-if not GEMINI_API_KEY and not OPENAI_API_KEY:
-    raise ValueError(" Both GEMINI_API_KEY and OPENAI_API_KEY are missing in .env — please provide at least one.")
-
-# Prioritize OpenAI if both are available
+# Determine default provider (safe even if keys missing)
 DEFAULT_PROVIDER = "openai" if OPENAI_API_KEY else "gemini"
-logger.info(f"✅ Using {DEFAULT_PROVIDER.upper()} as default LLM provider.")
+
+
+def validate_env():
+    """Ensure that at least one API key is present."""
+    if not GEMINI_API_KEY and not OPENAI_API_KEY:
+        raise ValueError(
+            "Both GEMINI_API_KEY and OPENAI_API_KEY are missing in .env — please provide at least one."
+        )
+
+
+# Skip validation in testing environments
+if "pytest" not in sys.modules:
+    try:
+        validate_env()
+        logger.info(f"✅ Using {DEFAULT_PROVIDER.upper()} as default LLM provider.")
+    except ValueError as e:
+        logger.error(str(e))
+        raise
 
 
 # ------------------ LLM WRAPPERS ------------------ #
@@ -57,14 +71,15 @@ class OpenAIModel(LLMInterface):
 # ------------------ PROVIDER SELECTION ------------------ #
 def get_llm(provider: str = None) -> LLMInterface:
     """Selects the appropriate LLM provider with fallbacks."""
+    validate_env()  # check only when function is actually called
     provider = (provider or DEFAULT_PROVIDER).lower()
 
     if provider == "openai":
         if not OPENAI_API_KEY:
             if GEMINI_API_KEY:
-                logger.warning(" OpenAI API key missing — falling back to Gemini.")
+                logger.warning("OpenAI API key missing — falling back to Gemini.")
                 return GeminiModel(GEMINI_API_KEY)
-            raise ValueError(" OpenAI API key missing, and no Gemini fallback available.")
+            raise ValueError("OpenAI API key missing, and no Gemini fallback available.")
         return OpenAIModel(OPENAI_API_KEY)
 
     elif provider == "gemini":
@@ -79,16 +94,20 @@ def get_llm(provider: str = None) -> LLMInterface:
         raise ValueError("Invalid provider name — choose 'openai' or 'gemini'.")
 
 
-# ------------------ INITIALIZE MODEL ------------------ #
-llm = get_llm()
+# ------------------ INITIALIZE MODEL (lazy) ------------------ #
+llm = None  # Only created when needed
 
 
 # ------------------ SUMMARIZATION FUNCTIONS ------------------ #
 def summarize_tool_suggestions(tools: list, query: str) -> str:
     """Summarizes and ranks tool suggestions using the selected LLM."""
+    global llm
+    if llm is None:
+        llm = get_llm()
+
     tool_descriptions = "\n\n".join(
         f"{i+1}. {tool['name']} (Category: {tool['category']})\n"
-        f"{tool['description'] or 'No description provided.'}"
+        f"{tool.get('description', 'No description provided.')}"
         for i, tool in enumerate(tools)
     )
 
@@ -112,9 +131,13 @@ Briefly explain what each tool is suitable for.
 
 def summarize_workflow_suggestions(workflows: list, query: str) -> str:
     """Summarizes and ranks workflow suggestions using the selected LLM."""
+    global llm
+    if llm is None:
+        llm = get_llm()
+
     workflow_descriptions = "\n\n".join(
         f"{i+1}. {wf['name']} (Category: {wf['category']}, Score: {wf['score']:.2f})\n"
-        f"{wf['readme_excerpt'] or 'No details provided.'}"
+        f"{wf.get('readme_excerpt', 'No details provided.')}"
         for i, wf in enumerate(workflows)
     )
 
