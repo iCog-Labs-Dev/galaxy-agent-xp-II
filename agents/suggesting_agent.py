@@ -1,35 +1,46 @@
 import json
 import numpy as np
-from sentence_transformers import SentenceTransformer, util
-from dotenv import load_dotenv
 import os
 import yaml
+from sentence_transformers import SentenceTransformer, util
+
 
 class ToolSuggestionAgent:
-    """    A class to suggest tools based on user queries using a pre-trained SentenceTransformer model.
-    This class loads a model and embeddings from specified paths, encodes user queries, computes cosine
-    similarities with the embeddings, and returns a list of suggested tools based on the highest similarity scores
-    and a score threshold.
     """
-    config_file = "config.yml"
-    if not os.path.exists(config_file):
-        raise FileNotFoundError(f"Configuration file {config_file} not found. Please ensure it exists.")
-    with open(config_file, "r") as f:
-        config = yaml.safe_load(f)
-    # model_path = config["agent"]["base_model"]
-    model_path = config["agent"]["finetuned_model"]
-    embeddings_path = config["agent"]["tools_embeddings_path"]
-    metadata_path = config["agent"]["tools_metadata_path"]   
+    Suggest tools based on a query using a pre-trained SentenceTransformer model.
+    Loads embeddings and metadata lazily to avoid heavy operations on import.
+    """
 
-    def __init__(self, model_path=model_path, embeddings_path=embeddings_path, metadata_path=metadata_path):
-        # If not provided, use default paths
-        self.model_path = model_path
-        self.embeddings_path = embeddings_path
-        self.metadata_path = metadata_path
-        
-        # Load the model and data
-        print(f"🔄 Loading model from {model_path}")
-        self.model = SentenceTransformer(model_path)
+    # Default config paths
+    config_file = "config.yml"
+    _config_loaded = False
+
+    @classmethod
+    def load_config(cls):
+        if cls._config_loaded:
+            return
+        if not os.path.exists(cls.config_file):
+            raise FileNotFoundError(
+                f"Configuration file {cls.config_file} not found. Please ensure it exists."
+            )
+        with open(cls.config_file, "r") as f:
+            config = yaml.safe_load(f)
+        cls.model_path = config["agent"]["finetuned_model"]
+        cls.embeddings_path = config["agent"]["tools_embeddings_path"]
+        cls.metadata_path = config["agent"]["tools_metadata_path"]
+        cls._config_loaded = True
+
+    def __init__(self, model_path=None, embeddings_path=None, metadata_path=None):
+        self.load_config()
+
+        # Use provided paths or fallback to config
+        self.model_path = model_path or self.model_path
+        self.embeddings_path = embeddings_path or self.embeddings_path
+        self.metadata_path = metadata_path or self.metadata_path
+
+        # Load model and embeddings lazily
+        print(f"🔄 Loading model from {self.model_path}")
+        self.model = SentenceTransformer(self.model_path)
         self.embeddings = np.load(self.embeddings_path)
 
         # Load metadata
@@ -37,10 +48,6 @@ class ToolSuggestionAgent:
             self.metadata = json.load(f)
 
     def validate_tool_info(self, tool_info: dict) -> dict:
-        """
-        Ensure that all required fields exist and are non-null.
-        Fills missing or null fields with defaults.
-        """
         validated = {
             "id": tool_info.get("id") or "",
             "name": tool_info.get("name") or "",
@@ -49,30 +56,22 @@ class ToolSuggestionAgent:
             "version": tool_info.get("version") or "",
             "help": tool_info.get("help") or "",
         }
-        # For convenience in output, take first category if exists, else 'Uncategorized'
         validated["category"] = validated["categories"][0] if validated["categories"] else "Uncategorized"
-        return validated    
-    
+        return validated
+
     def suggest_tools(self, query, top_k=5, score_threshold=0.05):
-        # Encode query
-        query_embedding = self.model.encode(query, convert_to_numpy=True)
+        query_embedding = self.model.encode(query, convert_to_numpy=True).astype(np.float32)
+        similarities = util.pytorch_cos_sim(query_embedding, self.embeddings)[0]
 
-        # Compute cosine similarities
-        similarities = util.cos_sim(query_embedding, self.embeddings)[0]
-
-        # Get top-k results
         top_results = np.argsort(-similarities)[:top_k]
-
         suggestions = []
-        seen_tools = {}  # track highest score per tool
+        seen_tools = {}
 
         for idx in top_results:
             raw_tool = self.metadata[idx]
-            tool = self.validate_tool_info(raw_tool)  # validate against schema
-
+            tool = self.validate_tool_info(raw_tool)
             score = float(similarities[idx])
 
-            # Only add if not already seen with close score
             if tool["name"] not in seen_tools or abs(seen_tools[tool["name"]] - score) > score_threshold:
                 tool["score"] = score
                 suggestions.append(tool)
@@ -83,12 +82,12 @@ class ToolSuggestionAgent:
 
 if __name__ == "__main__":
     agent = ToolSuggestionAgent()
-    user_query = input("Describe what you want to do: ")
-    results = agent.suggest_tools(user_query, top_k=5)
+    query = input("Describe what you want to do: ")
+    results = agent.suggest_tools(query, top_k=5)
 
     print("\nTop Suggestions:")
     for i, tool in enumerate(results, 1):
-        print(f"\n{i}. {tool['name']} (ID: {tool['id']}, Score: {tool['score']:.4f})")
+        print(f"{i}. {tool['name']} (ID: {tool['id']}, Score: {tool['score']:.4f})")
         print(f"   Description: {tool['description']}")
         print(f"   Help: {tool['help']}")
         print(f"   Category: {tool['category']}")
