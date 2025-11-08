@@ -20,3 +20,7 @@ pydantic>=2.7.0
 fastapi>=0.115.12
 uvicorn>=0.35.0
 google-generativeai>=0.8.5
+
+# testing + utils
+pytest>=8.3.0
+numpy>=1.26.0
