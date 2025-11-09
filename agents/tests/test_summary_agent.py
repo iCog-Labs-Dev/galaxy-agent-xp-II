@@ -1,99 +1,125 @@
+# agents/tests/test_summary_agent.py
+import os
 import pytest
 from unittest.mock import patch, MagicMock
+
 import agents.summary_agent as summary_agent
+
 
 # ---------------- FIXTURES ---------------- #
 @pytest.fixture
 def mock_openai_generate():
     return MagicMock(return_value="OpenAI mock output")
 
+
 @pytest.fixture
 def mock_gemini_generate():
     return MagicMock(return_value="Gemini mock output")
 
-@pytest.fixture
-def mock_llm_init():
-    with patch.object(summary_agent.OpenAIModel, "__init__", return_value=None) as mock_openai_init, \
-         patch.object(summary_agent.GeminiModel, "__init__", return_value=None) as mock_gemini_init:
-        yield mock_openai_init, mock_gemini_init
 
-
-# ---------------- CORE LOGIC TEST ---------------- #
+# ---------------- CORE LOGIC TESTS ---------------- #
 @pytest.mark.parametrize(
-    "provider_name, expected_class, mock_output",
+    "env_openai, env_gemini, provider_arg, expected_cls, expected_text_fixture",
     [
-        ("openai", summary_agent.OpenAIModel, "OpenAI mock output"),
-        ("gemini", summary_agent.GeminiModel, "Gemini mock output"),
-        (None, summary_agent.OpenAIModel, "OpenAI mock output"),  # default preference
-    ]
+        # Explicit OpenAI with both keys available → OpenAI
+        ("k_openai", "k_gemini", "openai", "OpenAIModel", "OpenAI mock output"),
+        # Explicit Gemini with both keys available → Gemini
+        ("k_openai", "k_gemini", "gemini", "GeminiModel", "Gemini mock output"),
+        # Default provider when both keys exist → OpenAI preferred
+        ("k_openai", "k_gemini", None, "OpenAIModel", "OpenAI mock output"),
+        # Default provider when only OpenAI exists → OpenAI
+        ("k_openai", None, None, "OpenAIModel", "OpenAI mock output"),
+        # Default provider when only Gemini exists → Gemini
+        (None, "k_gemini", None, "GeminiModel", "Gemini mock output"),
+    ],
 )
-def test_get_llm_logic(provider_name, expected_class, mock_output,
-                       mock_openai_generate, mock_gemini_generate, mock_llm_init):
-    """Test LLM selection logic with all external dependencies mocked."""
-
-    with patch("agents.summary_agent.OPENAI_API_KEY", "fake_openai_key"), \
-         patch("agents.summary_agent.GEMINI_API_KEY", "fake_gemini_key"), \
-         patch("agents.summary_agent.DEFAULT_PROVIDER", "openai"), \
-         patch.object(summary_agent, "OpenAIModel", autospec=True) as MockOpenAI, \
-         patch.object(summary_agent, "GeminiModel", autospec=True) as MockGemini:
-
-        # Mock generate outputs
-        MockOpenAI.return_value.generate = mock_openai_generate
-        MockGemini.return_value.generate = mock_gemini_generate
-
-        model = summary_agent.get_llm(provider=provider_name)
-
-        # Validate model type
-        if provider_name in ("openai", None):
-            assert isinstance(model, MockOpenAI.return_value.__class__)
-            assert model.generate("test") == "OpenAI mock output"
+def test_get_llm_selection_and_generate(env_openai, env_gemini, provider_arg, expected_cls, expected_text_fixture,
+                                        mock_openai_generate, mock_gemini_generate, monkeypatch):
+    # Set environment for this test case
+    with monkeypatch.context() as m:
+        if env_openai is None:
+            m.delenv("OPENAI_API_KEY", raising=False)
         else:
-            assert isinstance(model, MockGemini.return_value.__class__)
-            assert model.generate("test") == "Gemini mock output"
+            m.setenv("OPENAI_API_KEY", env_openai)
+
+        if env_gemini is None:
+            m.delenv("GEMINI_API_KEY", raising=False)
+        else:
+            m.setenv("GEMINI_API_KEY", env_gemini)
+
+        # Patch provider classes to avoid importing real SDKs
+        with patch.object(summary_agent, "OpenAIModel", autospec=True) as MockOpenAI, \
+             patch.object(summary_agent, "GeminiModel", autospec=True) as MockGemini:
+
+            # set mocked generate() outputs
+            MockOpenAI.return_value.generate = mock_openai_generate
+            MockGemini.return_value.generate = mock_gemini_generate
+
+            model = summary_agent.get_llm(provider_arg)
+
+            # verify correct class chosen
+            if expected_cls == "OpenAIModel":
+                assert isinstance(model, MockOpenAI.return_value.__class__)
+                assert model.generate("prompt") == "OpenAI mock output"
+            else:
+                assert isinstance(model, MockGemini.return_value.__class__)
+                assert model.generate("prompt") == "Gemini mock output"
 
 
-# ---------------- FALLBACK LOGIC ---------------- #
-def test_fallback_to_gemini(mock_openai_generate, mock_gemini_generate):
-    """If OpenAI key missing, should fallback to Gemini."""
-    with patch("agents.summary_agent.OPENAI_API_KEY", None), \
-         patch("agents.summary_agent.GEMINI_API_KEY", "fake_gemini_key"), \
-         patch.object(summary_agent, "GeminiModel", autospec=True) as MockGemini:
-        MockGemini.return_value.generate = mock_gemini_generate
-        model = summary_agent.get_llm("openai")
-        assert model.generate("prompt") == "Gemini mock output"
+def test_fallback_to_gemini_when_openai_missing(mock_gemini_generate, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("OPENAI_API_KEY", raising=False)
+        m.setenv("GEMINI_API_KEY", "k_gemini")
+
+        with patch.object(summary_agent, "GeminiModel", autospec=True) as MockGemini:
+            MockGemini.return_value.generate = mock_gemini_generate
+            model = summary_agent.get_llm("openai")
+            assert model.generate("x") == "Gemini mock output"
 
 
-def test_fallback_to_openai(mock_openai_generate, mock_gemini_generate):
-    """If Gemini key missing, should fallback to OpenAI."""
-    with patch("agents.summary_agent.GEMINI_API_KEY", None), \
-         patch("agents.summary_agent.OPENAI_API_KEY", "fake_openai_key"), \
-         patch.object(summary_agent, "OpenAIModel", autospec=True) as MockOpenAI:
-        MockOpenAI.return_value.generate = mock_openai_generate
-        model = summary_agent.get_llm("gemini")
-        assert model.generate("prompt") == "OpenAI mock output"
+def test_fallback_to_openai_when_gemini_missing(mock_openai_generate, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("GEMINI_API_KEY", raising=False)
+        m.setenv("OPENAI_API_KEY", "k_openai")
+
+        with patch.object(summary_agent, "OpenAIModel", autospec=True) as MockOpenAI:
+            MockOpenAI.return_value.generate = mock_openai_generate
+            model = summary_agent.get_llm("gemini")
+            assert model.generate("x") == "OpenAI mock output"
 
 
-# ---------------- INVALID PROVIDER ---------------- #
-def test_invalid_provider_raises():
-    """Should raise ValueError for invalid provider."""
-    with patch("agents.summary_agent.OPENAI_API_KEY", "fake"), \
-         patch("agents.summary_agent.GEMINI_API_KEY", "fake"):
+def test_invalid_provider_raises(monkeypatch):
+    with monkeypatch.context() as m:
+        m.setenv("OPENAI_API_KEY", "k_openai")
+        m.setenv("GEMINI_API_KEY", "k_gemini")
+
         with pytest.raises(ValueError):
             summary_agent.get_llm("invalid_provider")
 
 
+def test_no_keys_raises(monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("OPENAI_API_KEY", raising=False)
+        m.delenv("GEMINI_API_KEY", raising=False)
+
+        with pytest.raises(ValueError):
+            summary_agent.get_llm()
+
+
 # ---------------- SUMMARIZATION TESTS ---------------- #
-def test_summarize_tool_suggestions(mock_openai_generate):
-    """Ensure summarize_tool_suggestions uses llm.generate correctly."""
+def test_summarize_tool_suggestions_uses_injected_llm(mock_openai_generate):
     tools = [{"name": "ToolA", "category": "Bio", "description": "DescA"}]
-    with patch.object(summary_agent, "llm", MagicMock(generate=mock_openai_generate)):
-        result = summary_agent.summarize_tool_suggestions(tools, "Query")
-        assert result == "OpenAI mock output"
+    fake_llm = MagicMock(generate=mock_openai_generate)
+
+    result = summary_agent.summarize_tool_suggestions(tools, "Query", llm=fake_llm)
+    assert result == "OpenAI mock output"
+    fake_llm.generate.assert_called_once()
 
 
-def test_summarize_workflow_suggestions(mock_openai_generate):
-    """Ensure summarize_workflow_suggestions uses llm.generate correctly."""
+def test_summarize_workflow_suggestions_uses_injected_llm(mock_openai_generate):
     workflows = [{"name": "WF1", "category": "CatX", "score": 0.95, "readme_excerpt": "Details"}]
-    with patch.object(summary_agent, "llm", MagicMock(generate=mock_openai_generate)):
-        result = summary_agent.summarize_workflow_suggestions(workflows, "Query")
-        assert result == "OpenAI mock output"
+    fake_llm = MagicMock(generate=mock_openai_generate)
+
+    result = summary_agent.summarize_workflow_suggestions(workflows, "Query", llm=fake_llm)
+    assert result == "OpenAI mock output"
+    fake_llm.generate.assert_called_once()
