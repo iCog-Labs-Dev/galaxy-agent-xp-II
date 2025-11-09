@@ -3,24 +3,32 @@ python-dotenv>=1.0.0
 
 # Galaxy API client
 bioblend>=0.16.0
-# Sentence-BERT (SBERT)
+
+# Sentence-BERT
 sentence-transformers>=2.2.2
 
-# tdqm for progress bars
+# Progress bars
 tqdm>=4.64.0
 
-# PyYAML for YAML parsing
+
+# YAML + Excel + Data
 PyYAML>=6.0
-openpyxl >= 3.1.5
-pandas >= 2.2.3
-pydantic-settings >= 2.9.1
-fastapi >= 0.115.12
-pydantic-settings 
-pydantic>=2.7.0
+openpyxl>=3.1.5
+pandas>=2.2.3
+numpy>=1.26.0
+
+# API Framework
 fastapi>=0.115.12
 uvicorn>=0.35.0
-google-generativeai>=0.8.5
 
-# testing + utils
+# Settings & Validation
+pydantic>=2.7.0
+pydantic-settings>=2.9.1
+
+# AI APIs
+google-generativeai>=0.8.5
+openai
+
+# Testing & HTTP
 pytest>=8.3.0
-numpy>=1.26.0
+httpx>=0.28.0
