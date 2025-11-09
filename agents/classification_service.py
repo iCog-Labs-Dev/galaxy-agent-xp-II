@@ -1,29 +1,13 @@
 # agents/services/classification_service.py
 import os
+import json
 from typing import Literal, TypedDict, Union
 from dotenv import load_dotenv
-import json
 
 # --- Load environment variables ---
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# --- Initialize models ---
-use_openai = False
-use_gemini = False
-
-if OPENAI_API_KEY:
-    from openai import OpenAI
-    client = OpenAI(api_key=OPENAI_API_KEY)
-    use_openai = True
-elif GEMINI_API_KEY:
-    import google.generativeai as genai
-    genai.configure(api_key=GEMINI_API_KEY)
-    use_gemini = True
-else:
-    raise EnvironmentError("❌ Neither OPENAI_API_KEY nor GEMINI_API_KEY found in .env file.")
-
 
 # --- Expected classification return values ---
 Classification = Literal["tool", "workflow", "both"]
@@ -33,6 +17,36 @@ class ClassificationResult(TypedDict):
     confidence: float
     reasoning: str
 
+# --- Lazy-loaded clients ---
+_openai_client = None
+_gemini_initialized = False
+
+def _init_openai_client():
+    global _openai_client
+    if not OPENAI_API_KEY:
+        return None
+    if _openai_client is None:
+        try:
+            from openai import OpenAI
+            _openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        except Exception as e:
+            print(f"⚠️ Failed to initialize OpenAI client: {e}")
+            _openai_client = None
+    return _openai_client
+
+def _init_gemini():
+    global _gemini_initialized
+    if not GEMINI_API_KEY:
+        return False
+    if not _gemini_initialized:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            _gemini_initialized = True
+        except Exception as e:
+            print(f"⚠️ Failed to initialize Gemini client: {e}")
+            _gemini_initialized = False
+    return _gemini_initialized
 
 # ------------------ MAIN FUNCTION ------------------ #
 def classify_query(query: str) -> Classification:
@@ -74,8 +88,9 @@ Now classify this query:
     parsed: Union[ClassificationResult, None] = None
 
     try:
-        if use_openai:
-            # --- Use OpenAI (primary) ---
+        # --- Try OpenAI first ---
+        client = _init_openai_client()
+        if client:
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
@@ -83,12 +98,16 @@ Now classify this query:
             )
             raw_output = response.choices[0].message.content.strip()
 
-        elif use_gemini:
-            # --- Use Gemini (fallback) ---
+        # --- Fall back to Gemini ---
+        elif _init_gemini():
             import google.generativeai as genai
             model = genai.GenerativeModel("models/gemini-2.5-flash")
             response = model.generate_content(prompt)
             raw_output = response.text.strip()
+
+        else:
+            print("⚠️ No API keys available for classification. Returning 'both'.")
+            return "both"
 
         # ------------------ SAFE JSON PARSING ------------------ #
         cleaned = raw_output.strip("`").replace("json", "").strip()
@@ -101,7 +120,7 @@ Now classify this query:
         if label not in ["tool", "workflow", "both"]:
             label = "both"
 
-        print(f"[LLM: {'OpenAI' if use_openai else 'Gemini'}]")
+        print(f"[LLM: {'OpenAI' if client else 'Gemini'}]")
         print(f"Query: {query}")
         print(f"Reasoning: {reasoning}")
         print(f"Label: {label} | Confidence: {confidence}\n")
