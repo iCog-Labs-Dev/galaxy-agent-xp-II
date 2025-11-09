@@ -48,7 +48,8 @@ class WorkflowSuggestionAgent:
     
     def suggest_workflows(self, query, top_k=5, score_threshold=0.05):
         query_embedding = self.model.encode(query, convert_to_numpy=True)
-        similarities = util.cos_sim(query_embedding, self.embeddings)[0]
+        similarities = util.pytorch_cos_sim(query_embedding, self.embeddings)[0]
+
         top_results = np.argsort(-similarities)[:top_k]
     
         suggestions = []
@@ -58,10 +59,14 @@ class WorkflowSuggestionAgent:
             workflow_info = self.metadata[idx]
             workflow_name = workflow_info["workflow_repository"]
             score = float(similarities[idx])
-    
-            # Internal validation (just for logging / debugging)
+        
+            # Skip if below threshold
+            if score < score_threshold:
+                continue
+            
+            # Internal validation
             self.validate_workflow_metadata(workflow_info)
-    
+        
             if workflow_name not in seen_workflows or abs(seen_workflows[workflow_name] - score) > score_threshold:
                 suggestions.append({
                     "name": workflow_name,
@@ -72,7 +77,7 @@ class WorkflowSuggestionAgent:
                     "score": score
                 })
                 seen_workflows[workflow_name] = score
-    
+
         return suggestions
 
 
