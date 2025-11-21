@@ -1,0 +1,20 @@
+nodes:
+  Workflow:
+    unique: name
+    fields: [name, category, readme]
+
+  Tool:
+    unique: name
+    fields: [name]
+
+  Category:
+    unique: name
+    fields: [name]
+
+  Input:
+    unique: description
+    fields: [description]
+
+  Output:
+    unique: description
+    fields: [description]
