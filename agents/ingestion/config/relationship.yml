@@ -1,0 +1,20 @@
+relationships:
+  - type: HAS_WORKFLOW
+    from: Category
+    to: Workflow
+    properties: []
+
+  - type: USES_TOOL
+    from: Workflow
+    to: Tool
+    properties: [step]
+
+  - type: REQUIRES
+    from: Workflow
+    to: Input
+    properties: []
+
+  - type: GENERATES
+    from: Workflow
+    to: Output
+    properties: []
