@@ -9,7 +9,7 @@ class Neo4jClient:
 
     def merge_node(self, label, properties):
         props = ", ".join([f"{k}: ${k}" for k in properties.keys()])
-        query = f"MERGE (n:{label} {{ {props} }}) RETURN id(n)"
+        query = f"MERGE (n:{label} {{ {props} }}) RETURN elementId(n)"
         with self.driver.session() as s:
             s.run(query, **properties)
 

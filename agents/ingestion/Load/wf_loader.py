@@ -1,8 +1,8 @@
 from extract.parser import WorkflowParser
 from extract.normalize import Normalizer
-from agents.ingestion.transform.wf_node_builder import NodeBuilder
-from agents.ingestion.transform.wf_rel_builder import RelationshipBuilder
-from agents.ingestion.Load.neo4j_client import Neo4jClient
+from transform.wf_node_builder import NodeBuilder
+from transform.wf_rel_builder import RelationshipBuilder
+from Load.neo4j_client import Neo4jClient
 import json
 
 class GraphLoader:
