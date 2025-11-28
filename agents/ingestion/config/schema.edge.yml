@@ -1,0 +1,42 @@
+Workflow_TOOL:
+  source: Workflow
+  target: Tool
+  type: USES_TOOL
+  properties: {}   # none yet
+
+Workflow_CATEGORY:
+  source: Workflow
+  target: Category
+  type: BELONGS_TO
+
+Tool_CATEGORY:
+  source: Tool
+  target: Category
+  type: BELONGS_TO
+
+Workflow_INPUT:
+  source: Workflow
+  target: Input
+  type: HAS_INPUT
+
+Workflow_OUTPUT:
+  source: Workflow
+  target: Output
+  type: HAS_OUTPUT
+
+Workflow_KEYWORD:
+  source: Workflow
+  target: Keyword
+  type: HAS_KEYWORD
+
+Tool_KEYWORD:
+  source: Tool
+  target: Keyword
+  type: HAS_KEYWORD
+
+Tool_SIMILAR:
+  source: Tool
+  target: Tool
+  type: SIMILAR_TO
+  properties:
+    score: {type: float}
