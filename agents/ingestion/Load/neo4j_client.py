@@ -7,6 +7,35 @@ class Neo4jClient:
     def close(self):
         self.driver.close()
 
+    def create_indexes(self) -> None:
+        """Create helpful indexes for commonly-queried unique keys.
+
+        Creates indexes for:
+        - Tool.tool_id
+        - ToolCategory.category_id
+        - ToolInput.input_uid
+        - ToolOutput.output_uid
+
+        This method issues `CREATE INDEX IF NOT EXISTS` statements and is
+        idempotent.
+        """
+        queries = [
+            "CREATE INDEX IF NOT EXISTS FOR (t:Tool) ON (t.tool_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (c:ToolCategory) ON (c.category_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (i:ToolInput) ON (i.input_uid)",
+            "CREATE INDEX IF NOT EXISTS FOR (o:ToolOutput) ON (o.output_uid)",
+            "CREATE INDEX IF NOT EXISTS FOR (w:Workflow) ON (w.workflow_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (s:Step) ON (s.step_uid)",
+        ]
+
+        try:
+            with self.driver.session() as s:
+                for q in queries:
+                    s.run(q)
+        except Exception as e:
+            print(f"[neo4j][create_indexes] error creating indexes: {e}")
+            raise
+
     def merge_node(self, label, properties, unique_key=None):
         """
         Merge a node using only its unique key, update other properties.
