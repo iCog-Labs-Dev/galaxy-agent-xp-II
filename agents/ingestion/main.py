@@ -4,16 +4,17 @@ from Load.wf_loader import GraphLoader
 # from transform.tool_node_builder import ToolMetadataBuilder
 # from transform.tool_rel_builder import ToolMetadataRelations
 
+
 def main():
     # Connect to Neo4j
-    neo = Neo4jClient("bolt://localhost:7687", "neo4j", "abc12345")
+    neo = Neo4jClient("neo4j+s://1ca3d6f1.databases.neo4j.io", "neo4j", "tPkVCp0Q9KYhI_SGJce0Do4eODTDOaJ6f5PEYYZeihM")
 
     # -----------------------
     # 1. Workflows ETL
     # -----------------------
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
-        "utilities/workflow_downloader/data/galaxy_iwc_workflows_20251127_093913.json"
+        "utilities/workflow_downloader/data/iwc_full_20251127_165619.json"
     )
 
     # -----------------------
@@ -28,7 +29,7 @@ def main():
 
     # Close connection
     neo.close()
-    print("Workflows ETL completed!")
+    print("Workflows ETL completed! - main.py:32")
 
 if __name__ == "__main__":
     main()

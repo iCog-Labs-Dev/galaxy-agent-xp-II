@@ -3,9 +3,60 @@ from neo4j import GraphDatabase  # type: ignore
 class Neo4jClient:
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
+        
+    def _generate_id(self, *args):
+        import hashlib
+        s = "_".join([str(a) for a in args if a is not None])
+        return hashlib.md5(s.encode("utf-8")).hexdigest()
+
+    def get_unique_key_value(self, schema, properties):
+        unique_fields = schema.get("unique_key", [])
+
+        if not unique_fields:
+            # no fields specified → generate ID from all properties
+            # return self._generate_id(*properties.values())
+            return ValueError("No unique_key fields specified in schema")
+
+        # Otherwise, generate ID from listed fields
+        values = [properties.get(f) for f in unique_fields]
+        return self._generate_id(*values)
 
     def close(self):
         self.driver.close()
+
+    def merge_node_2(self, node):
+        """
+        node: output of build_node()
+        """
+        label = node["label"]
+        properties = node["properties"]
+
+        merge_key = "id"
+        merge_value = properties[merge_key]
+
+        set_props = {k: v for k, v in properties.items() if k != "id"}
+
+        merge_clause = f"id: $id"
+
+        if set_props:
+            set_clause = ", ".join([f"n.{k} = ${k}" for k in set_props])
+            query = f"""
+            MERGE (n:{label} {{ {merge_clause} }})
+            SET {set_clause}
+            RETURN elementId(n)
+            """
+        else:
+            query = f"""
+            MERGE (n:{label} {{ {merge_clause} }})
+            RETURN elementId(n)
+            """
+
+        params = {"id": merge_value}
+        params.update(set_props)
+
+        with self.driver.session() as s:
+            return s.run(query, **params).single().value()
+
 
     def merge_node(self, label, properties, unique_key=None):
         """
@@ -44,7 +95,6 @@ class Neo4jClient:
             with self.driver.session() as s:
                 s.run(query, **params)
         except Exception as e:
-            print(f"[neo4j][merge_node] error merging node {label} on {unique_key}={merge_value}: {e}")
             raise
 
     def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props):
@@ -81,5 +131,5 @@ class Neo4jClient:
             with self.driver.session() as s:
                 s.run(query, **params)
         except Exception as e:
-            print(f"[neo4j][merge_rel] error merging rel {type} between {from_label} and {to_label}: {e}")
+            print(f"[neo4j][merge_rel] error merging rel {type} between {from_label} and {to_label}: {e} - neo4j_client.py:134")
             raise
