@@ -9,7 +9,7 @@ load_dotenv()
 GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workflows"
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
-MAX_WORKFLOWS = 2
+MAX_WORKFLOWS = 1
 
 github_token = os.getenv("GITHUB_TOKEN")
 HEADERS = {"Authorization": f"token {github_token}"} if github_token else {}
@@ -62,7 +62,7 @@ def parse_ga_file(ga_text):
         }
 
     except Exception as e:
-        print("❌ Error parsing GA file:", e)
+        print("❌ Error parsing GA file: - iwc_downloader.py:65", e)
         return None
 
 
@@ -76,7 +76,7 @@ def scan_repo(category, repo_name):
     try:
         repo_contents = github_api_get(url)
     except Exception as e:
-        print(f"⚠️ Failed to scan repo '{repo_name}': {e}")
+        print(f"⚠️ Failed to scan repo '{repo_name}': {e} - iwc_downloader.py:79")
         return None
 
     workflow_files = []
@@ -127,7 +127,7 @@ def scan_repo(category, repo_name):
 #   MAIN RUNNER
 # ----------------------------
 def main():
-    print("🔍 Fetching workflow categories...")
+    print("🔍 Fetching workflow categories... - iwc_downloader.py:130")
     categories = github_api_get(GITHUB_API_URL)
     all_data = []
     count = 0
@@ -136,7 +136,7 @@ def main():
         if cat["type"] != "dir":
             continue
         category = cat["name"]
-        print(f"\n📂 Category: {category}")
+        print(f"\n📂 Category: {category} - iwc_downloader.py:139")
 
         repos = github_api_get(f"{GITHUB_API_URL}/{category}")
 
@@ -148,7 +148,7 @@ def main():
                 break
 
             repo_name = repo["name"]
-            print(f"  📁 Repo: {repo_name}")
+            print(f"📁 Repo: {repo_name} - iwc_downloader.py:151")
 
             repo_data = scan_repo(category, repo_name)
             if repo_data:
@@ -167,7 +167,7 @@ def main():
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
 
-    print(f"\n📦 Saved complete workflow dump to: {output_file}")
+    print(f"\n📦 Saved complete workflow dump to: {output_file} - iwc_downloader.py:170")
 
 
 if __name__ == "__main__":
