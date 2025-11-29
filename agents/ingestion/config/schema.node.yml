@@ -10,9 +10,9 @@ Workflow:
     file_name: {type: str}
     raw_download_url: {type: str}
     number_of_steps: {type: int}
-    has_readme: False
-    has_changelog: False
-    has_test_data: False
+    has_readme: {type: bool}
+    has_changelog: {type: bool}
+    has_test_data: {type: bool}
 
 
 Tool:

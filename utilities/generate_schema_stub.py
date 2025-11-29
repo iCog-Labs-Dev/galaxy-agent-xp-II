@@ -58,7 +58,8 @@ def generate_relationships(EDGE_yaml: dict) -> str:
         "# AUTO-GENERATED: RELATIONSHIP CLASSES",
         "from pydantic import BaseModel",
         "from typing import Any\n",
-        "from .schema_nodes import *\n"
+        "from .schema_nodes import *\n",
+        "from typing import Optional\n"
     ]
 
     for rel_name, rel_def in EDGE_yaml.items():
@@ -68,7 +69,7 @@ def generate_relationships(EDGE_yaml: dict) -> str:
         target = rel_def["target"]
         props = rel_def.get("properties", {})
 
-        # generate properties model if any
+        # Properties class (if exists)
         prop_class_name = ""
         if props:
             prop_class_name = f"{class_name}Properties"
@@ -76,18 +77,25 @@ def generate_relationships(EDGE_yaml: dict) -> str:
             for k, v in props.items():
                 type_hint = v.get("type", "Any") if isinstance(v, dict) else "Any"
                 lines.append(indent(f"{k}: {type_hint}", "    "))
-            lines.append("")  # newline
+            lines.append("")
 
-        # main relationship class
+        # Relationship class
         lines.append(f"class {class_name}(BaseModel):")
+        lines.append(indent(f"label: str = \"{rel_def['label']}\"", "    "))
+
+        # 🔥 Always generate source + target, never derive names
         lines.append(indent(f"source: {source}", "    "))
         lines.append(indent(f"target: {target}", "    "))
+
         if prop_class_name:
             lines.append(indent(f"properties: {prop_class_name}", "    "))
+        else:
+            lines.append(indent("properties: Optional[BaseModel] = None", "    "))
 
-        lines.append("")  # newline
+        lines.append("")
 
     return "\n".join(lines)
+
 
 def main():
     # Load YAMLs
@@ -100,9 +108,9 @@ def main():
     OUT_NODES.write_text(generate_nodes(node_data))
     OUT_EDGES.write_text(generate_relationships(edge_data))
 
-    print("Generated: - generate_schema_stub.py:103")
-    print(f"{OUT_NODES} - generate_schema_stub.py:104")
-    print(f"{OUT_EDGES} - generate_schema_stub.py:105")
+    print("Generated: - generate_schema_stub.py:111")
+    print(f"{OUT_NODES} - generate_schema_stub.py:112")
+    print(f"{OUT_EDGES} - generate_schema_stub.py:113")
 
 
 if __name__ == "__main__":
