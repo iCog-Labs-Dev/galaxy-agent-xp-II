@@ -17,7 +17,7 @@ Workflow:
 
 Tool:
   label: tool
-  unique_key: []
+  unique_key: [name, version]
   properties:
     name: {type: str}
     description: {type: str}
@@ -47,3 +47,14 @@ Keyword:
   unique_key: []
   properties:
     name: {type: str}
+
+Step:
+  label: step
+  unique_key: [step_uid]
+  description: "A single step in a workflow"
+  properties:
+    step_uid: {type: str}
+    step_id: {type: int}
+    name: {type: str}
+    type: {type: str}
+    annotation: {type: str}

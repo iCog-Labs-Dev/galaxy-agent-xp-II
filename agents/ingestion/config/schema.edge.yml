@@ -1,4 +1,4 @@
-WorkflowTOOL:
+WorkflowTool:
   label: USES_TOOL
   source: Workflow
   target: Tool
@@ -13,16 +13,6 @@ ToolCategory:
   label: BELONGS_TO
   source: Tool
   target: Category
-
-WorkflowInput:
-  label: HAS_INPUT
-  source: Workflow
-  target: Input
-
-WorkflowOutput:
-  label: HAS_OUTPUT
-  source: Workflow
-  target: Output
 
 WorkflowKeyword:
   label: HAS_KEYWORD
@@ -40,3 +30,47 @@ ToolSimilar:
   target: Tool
   properties:
     score: {type: float}
+
+WorkflowInput:
+  label: HAS_INPUT
+  source: Workflow
+  target: Input
+  properties: {}
+
+WorkflowOutput:
+  label: HAS_OUTPUT
+  source: Workflow
+  target: Output
+  properties: {}
+
+WorkflowStep:
+  label: HAS_STEP
+  source: Workflow
+  target: Step
+  properties: {}
+
+StepTool:
+  label: USES_TOOL
+  source: Step
+  target: Tool
+  properties: {}
+
+StepInput:
+  label: HAS_INPUT
+  source: Step
+  target: Input
+  properties: {}
+
+StepOutput:
+  label: HAS_OUTPUT
+  source: Step
+  target: Output
+  properties: {}
+
+OutputInput:
+  label: FEEDS
+  description: "Connects an upstream Output port to a downstream Input port"
+  source: Output
+  target: Input
+  properties:
+    port: {type: str}

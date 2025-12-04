@@ -28,7 +28,7 @@ class ToolProperties(BaseModel):
 
 class Tool(BaseModel):
     label: str = "tool"
-    unique_key: Any = []
+    unique_key: Any = ['name', 'version']
     properties: ToolProperties
 
 class CategoryProperties(BaseModel):
@@ -62,3 +62,16 @@ class Keyword(BaseModel):
     label: str = "keyword"
     unique_key: Any = []
     properties: KeywordProperties
+
+class StepProperties(BaseModel):
+    step_uid: str
+    step_id: int
+    name: str
+    type: str
+    annotation: str
+
+class Step(BaseModel):
+    label: str = "step"
+    unique_key: Any = ['step_uid']
+    description: str = "A single step in a workflow"
+    properties: StepProperties
