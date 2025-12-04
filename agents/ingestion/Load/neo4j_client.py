@@ -1,9 +1,34 @@
+import time
+from functools import wraps
 from neo4j import GraphDatabase  # type: ignore
+from neo4j.exceptions import SessionExpired, TransientError
+
+def retry(max_retries=3, backoff=1.0):
+    """
+    Decorator to retry Neo4j queries on SessionExpired or TransientError.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            attempt = 0
+            while attempt < max_retries:
+                try:
+                    return func(*args, **kwargs)
+                except (SessionExpired, TransientError) as e:
+                    wait = backoff * (2 ** attempt)
+                    print(f"[neo4j][retry] attempt {attempt+1}/{max_retries} after {wait}s due to: {e} - neo4j_client.py:19")
+                    time.sleep(wait)
+                    attempt += 1
+            # Final attempt without catching exception
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 
 class Neo4jClient:
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
-        
+
     def _generate_id(self, *args):
         import hashlib
         s = "_".join([str(a) for a in args if a is not None])
@@ -24,6 +49,7 @@ class Neo4jClient:
     def close(self):
         self.driver.close()
 
+    @retry(max_retries=5, backoff=2.0)
     def merge_node_2(self, node):
         """
         node: output of build_node()
@@ -58,45 +84,7 @@ class Neo4jClient:
             return s.run(query, **params).single().value()
 
 
-    def merge_node(self, label, properties, unique_key=None):
-        """
-        Merge a node using only its unique key, update other properties.
-        """
-        if unique_key is None:
-            raise ValueError("unique_key must be specified for MERGE")
-        # Ensure unique key exists and is not None
-        if unique_key not in properties or properties[unique_key] is None:
-            raise ValueError(f"unique_key '{unique_key}' missing or None in properties: {properties}")
-
-        # Use only non-None properties for SET to avoid matching on nulls
-        merge_value = properties[unique_key]
-        set_props = {k: v for k, v in properties.items() if k != unique_key and v is not None}
-
-        merge_str = f"{unique_key}: ${unique_key}"
-
-        if set_props:
-            set_str = ", ".join([f"n.{k} = ${k}" for k in set_props.keys()])
-            query = f"""
-            MERGE (n:{label} {{ {merge_str} }})
-            SET {set_str}
-            RETURN elementId(n)
-            """
-        else:
-            # No additional properties to set
-            query = f"""
-            MERGE (n:{label} {{ {merge_str} }})
-            RETURN elementId(n)
-            """
-
-        params = {unique_key: merge_value}
-        params.update(set_props)
-
-        try:
-            with self.driver.session() as s:
-                s.run(query, **params)
-        except Exception as e:
-            raise
-
+    @retry(max_retries=5, backoff=2.0)
     def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props):
         # Filter out None-valued properties to avoid MATCH on nulls
         fp_dict = {k: v for k, v in from_props.items() if v is not None}
@@ -131,5 +119,67 @@ class Neo4jClient:
             with self.driver.session() as s:
                 s.run(query, **params)
         except Exception as e:
-            print(f"[neo4j][merge_rel] error merging rel {type} between {from_label} and {to_label}: {e} - neo4j_client.py:134")
+            print(f"[neo4j][merge_rel] error merging rel {type} between {from_label} and {to_label}: {e} - neo4j_client.py:122")
             raise
+        
+    @retry(max_retries=5, backoff=2.0)
+    def merge_nodes_batch(self, nodes):
+        """
+        nodes: list of node dicts from GenericNodeBuilder
+        """
+        if not nodes:
+            return
+
+        query = """
+        UNWIND $batch AS n
+        MERGE (node:{label} {{ id: n.properties.id }})
+        SET node += n.properties
+        RETURN count(node)
+        """
+
+        # Group nodes by label for efficient batch MERGE
+        from collections import defaultdict
+        label_groups = defaultdict(list)
+        for node in nodes:
+            label_groups[node["label"]].append(node)
+
+        with self.driver.session() as s:
+            for label, group in label_groups.items():
+                params = {"batch": group, "label": label}
+                s.run(query.format(label=label), **params)
+
+    @retry(max_retries=5, backoff=2.0)
+    def merge_rels_batch(self, rels):
+        """
+        Accepts a list of relationship Pydantic models.
+        Converts them to MERGE queries and pushes to Neo4j.
+        """
+        for rel in rels:
+            print(rel)
+            # Extract labels and properties
+            rel_label = rel.label
+            src_node = rel.source
+            tgt_node = rel.target
+            rel_props = getattr(rel, "properties", None)
+
+            # Ensure IDs exist
+            src_id = src_node["properties"]["id"]
+            tgt_id = tgt_node["properties"]["id"]
+
+            # Build relationship MERGE query
+            props_clause = ""
+            params = {"src_id": src_id, "tgt_id": tgt_id}
+            if rel_props is not None:
+                props_dict = rel_props.model_dump()  # e.g., OutputInputProperties
+                props_clause = " {" + ", ".join([f"{k}: ${k}" for k in props_dict.keys()]) + "}"
+                params.update(props_dict)
+
+            query = f"""
+            MATCH (a {{id: $src_id}})
+            MATCH (b {{id: $tgt_id}})
+            MERGE (a)-[r:{rel_label}{props_clause}]->(b)
+            """
+
+            # Execute
+            with self.neo.driver.session() as s:
+                s.run(query, **params)
