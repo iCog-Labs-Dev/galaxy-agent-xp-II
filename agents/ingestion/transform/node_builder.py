@@ -33,9 +33,6 @@ class GenericNodeBuilder:
 
         # get unique fields from schema
         unique_fields = schema.get("unique_key", [])
-        # if not unique_fields:
-        #     raise ValueError(f"No unique_key defined for {type_name}")
-        
         # generate ID
         unique_values = [node.get(f) for f in unique_fields]
         # Always inject as "id"

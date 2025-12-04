@@ -14,8 +14,10 @@ def main():
     # -----------------------
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
-        "utilities/workflow_downloader/data/iwc_full_20251127_165619.json"
+        "utilities/workflow_downloader/data/iwc_full_20251129_123552.json"
     )
+    # workflow_loader.flush_to_neo4j()
+
 
     # -----------------------
     # 2. Tools ETL (commented for now)
@@ -29,7 +31,7 @@ def main():
 
     # Close connection
     neo.close()
-    print("Workflows ETL completed! - main.py:32")
+    print("Workflows ETL completed! - main.py:34")
 
 if __name__ == "__main__":
     main()

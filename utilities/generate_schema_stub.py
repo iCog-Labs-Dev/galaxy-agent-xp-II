@@ -11,6 +11,7 @@ OUT_EDGES  = Path("agents/ingestion/config/schema_relationships.py")
 
 
 def snake_to_pascal(name: str) -> str:
+    return name
     return "".join(part.capitalize() for part in name.split("_"))
 
 def generate_nodes(node_yaml: dict) -> str:
@@ -108,9 +109,9 @@ def main():
     OUT_NODES.write_text(generate_nodes(node_data))
     OUT_EDGES.write_text(generate_relationships(edge_data))
 
-    print("Generated: - generate_schema_stub.py:111")
-    print(f"{OUT_NODES} - generate_schema_stub.py:112")
-    print(f"{OUT_EDGES} - generate_schema_stub.py:113")
+    print("Generated: - generate_schema_stub.py:112")
+    print(f"{OUT_NODES} - generate_schema_stub.py:113")
+    print(f"{OUT_EDGES} - generate_schema_stub.py:114")
 
 
 if __name__ == "__main__":
