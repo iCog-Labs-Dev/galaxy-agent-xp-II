@@ -17,51 +17,74 @@ class GenericRelationshipBuilder:
 
     def build_edge(self, model_instance):
         """
-        Accepts a relationship model instance and returns a relationship tuple
-        exactly like build_node() returns a node dict.
+        Takes a Pydantic relationship model like OutputInput, StepInput, etc.
+        Returns the same model, but ensures source/target nodes are fully resolved.
         """
-        type_name = model_instance.__class__.__name__
+        # If rel_model.properties is a dict, wrap it into a Pydantic object
+        if isinstance(model_instance.properties, dict):
+            # Try to dynamically get the properties class
+            prop_class = type(model_instance).__fields__["properties"].type_
+            model_instance.properties = prop_class(**model_instance.properties)
 
-        if type_name not in self.schema:
-            raise ValueError(f"No relationship schema found for '{type_name}'")
+        # Ensure source and target are dicts with 'properties' and 'id'
+        for node_attr in ["source", "target"]:
+            node = getattr(model_instance, node_attr)
+            # if isinstance(node, BaseModel):
+                # flatten properties if necessary
+            if hasattr(node, "properties"):
+                setattr(model_instance, node_attr, {"properties": node.model_dump()})
+            # elif isinstance(node, dict):
+            #     # assume already correct
+            #     pass
+            # else:
+            #     raise TypeError(f"{node_attr} must be dict or BaseModel")
 
-        schema = self.schema[type_name]
+        return model_instance
 
-        # -----------------------------------------
-        # 1. Extract source and target field values
-        # -----------------------------------------
-        source_model = model_instance.source
-        target_model = model_instance.target
+    # def build_edge(self, model_instance):
+    #     """
+    #     Accepts a relationship model instance and returns a relationship tuple
+    #     exactly like build_node() returns a node dict.
+    #     """
+    #     type_name = model_instance.__class__.__name__
 
-        # -----------------------------------------
-        # 2. Build node dicts using GenericNodeBuilder
-        # -----------------------------------------
-        source_node = self.node_builder.build_node(source_model)
-        target_node = self.node_builder.build_node(target_model)
+    #     if type_name not in self.schema:
+    #         raise ValueError(f"No relationship schema found for '{type_name}'")
 
-        # -----------------------------------------
-        # 3. Collect relationship properties
-        # -----------------------------------------
-        edge_props = {}
-        schema_props = schema.get("properties", {})
+    #     schema = self.schema[type_name]
 
-        for prop_name in schema_props:
-            # Relationship model should hold this property
-            edge_props[prop_name] = getattr(model_instance, prop_name, None)
+    #     # -----------------------------------------
+    #     # 1. Extract source and target field values
+    #     # -----------------------------------------
+    #     source_model = model_instance.source
+    #     target_model = model_instance.target
 
-        # -----------------------------------------
-        # 4. Return relationship tuple
-        # -----------------------------------------
-        return (
-            schema["label"],
+    #     # -----------------------------------------
+    #     # 2. Build node dicts using GenericNodeBuilder
+    #     # -----------------------------------------
+    #     source_node = self.node_builder.build_node(source_model)
+    #     target_node = self.node_builder.build_node(target_model)
 
-            source_node["label"],
-            source_node["properties"],
+    #     # -----------------------------------------
+    #     # 3. Collect relationship properties
+    #     # -----------------------------------------
+    #     edge_props = {}
+    #     schema_props = schema.get("properties", {})
 
-            target_node["label"],
-            target_node["properties"],
+    #     for prop_name in schema_props:
+    #         # Relationship model should hold this property
+    #         edge_props[prop_name] = getattr(model_instance, prop_name, None)
 
-            edge_props
-        )
+    #     # -----------------------------------------
+    #     # 4. Return relationship tuple
+    #     # -----------------------------------------
+    #     return (
+    #         schema["label"],
+    #         source_node["label"],
+    #         source_node["properties"],
+    #         target_node["label"],
+    #         target_node["properties"],
+    #         edge_props
+    #     )
 
 
