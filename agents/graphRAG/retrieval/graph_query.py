@@ -1,4 +1,3 @@
-# agents/graphRAG/graph_queries.py
 from typing import Optional, List, Any, Dict
 from neo4j import Session
 import logging
@@ -14,7 +13,6 @@ class GraphQueries:
     # -----------------------
     @staticmethod
     def get_tool_by_id_query() -> str:
-        """Retrieve a tool node by its tool_id."""
         return """
         MATCH (t:Tool {tool_id: $tool_id})
         RETURN t.tool_id AS tool_id, t.name AS name, t.version AS version, t.description AS description
@@ -22,7 +20,6 @@ class GraphQueries:
 
     @staticmethod
     def get_tool_with_inputs_outputs_query() -> str:
-        """Get a tool with its inputs and outputs."""
         return """
         MATCH (t:Tool {tool_id: $tool_id})
         OPTIONAL MATCH (t)-[:TOOL_HAS_INPUT]->(i:ToolInput)
@@ -37,7 +34,6 @@ class GraphQueries:
     # -----------------------
     @staticmethod
     def get_tools_by_category_query() -> str:
-        """Retrieve all tools for a specific category."""
         return """
         MATCH (c:ToolCategory {name: $category_name})<-[:BELONGS_TO]-(t:Tool)
         RETURN t.tool_id AS tool_id, t.name AS name, t.version AS version
@@ -48,7 +44,6 @@ class GraphQueries:
     # -----------------------
     @staticmethod
     def get_workflow_by_id_query() -> str:
-        """Fetch a workflow with basic metadata."""
         return """
         MATCH (w:Workflow {workflow_id: $workflow_id})
         RETURN w.workflow_id AS workflow_id, w.name AS name, w.category AS category, w.number_of_steps AS steps
@@ -56,7 +51,6 @@ class GraphQueries:
 
     @staticmethod
     def get_workflow_steps_query() -> str:
-        """Retrieve steps of a workflow along with associated tools."""
         return """
         MATCH (w:Workflow {workflow_id: $workflow_id})-[:HAS_STEP]->(s:Step)
         OPTIONAL MATCH (s)-[:STEP_REQUIRES]->(i:Input)
@@ -69,7 +63,6 @@ class GraphQueries:
 
     @staticmethod
     def get_workflow_inputs_outputs_query() -> str:
-        """Get workflow-level inputs and outputs."""
         return """
         MATCH (w:Workflow {workflow_id: $workflow_id})
         OPTIONAL MATCH (w)-[:REQUIRES]->(i:Input)
@@ -83,7 +76,6 @@ class GraphQueries:
     # -----------------------
     @staticmethod
     def get_tool_category_relationship_query() -> str:
-        """Find the category of a given tool."""
         return """
         MATCH (t:Tool {tool_id: $tool_id})-[:BELONGS_TO]->(c:ToolCategory)
         RETURN t.tool_id AS tool_id, c.name AS category_name
@@ -91,21 +83,16 @@ class GraphQueries:
 
     @staticmethod
     def get_step_tool_relationship_query() -> str:
-        """Retrieve the tool associated with a workflow step."""
         return """
         MATCH (s:Step {step_uid: $step_uid})
         RETURN s.step_uid AS step_uid, s.tool_id AS tool_id, s.tool_version AS tool_version
         """
 
     # -----------------------
-    # Additional Queries
+    # Advanced / Optional
     # -----------------------
     @staticmethod
     def search_nodes_by_name_query(limit: int = 50) -> str:
-        """
-        Generic search by name for any node type.
-        :param limit: Maximum number of results to return
-        """
         return f"""
         MATCH (n)
         WHERE toLower(n.name) CONTAINS toLower($name)
@@ -114,16 +101,13 @@ class GraphQueries:
         """
 
     # -----------------------
-    # Utility / Execution Methods
+    # Wrapper / Execution Method
     # -----------------------
     @staticmethod
     def run_query(session: Session, query: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
-        Safely run a query with parameters and handle errors.
-        :param session: Neo4j session
-        :param query: Cypher query string
-        :param parameters: Dict of query parameters
-        :return: List of dictionaries with query results
+        Safely execute a query using a Neo4j session with error handling.
+        Returns a list of dictionaries for easy access.
         """
         parameters = parameters or {}
         try:
@@ -134,3 +118,15 @@ class GraphQueries:
         except Exception as e:
             logger.error(f"Failed to execute query: {query.strip().splitlines()[0]} | Error: {e}")
             return []
+
+    # -----------------------
+    # Convenience Method
+    # -----------------------
+    @staticmethod
+    def fetch_single(session: Session, query: str, parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+        """
+        Executes a query and returns a single record or None if empty.
+        Useful for fetching one tool, workflow, or step.
+        """
+        results = GraphQueries.run_query(session, query, parameters)
+        return results[0] if results else None
