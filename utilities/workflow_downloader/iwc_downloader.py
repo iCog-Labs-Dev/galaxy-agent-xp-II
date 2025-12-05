@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# --------------------------------------
+#   ENV CONFIG (NO MORE HARD-CODING)
+# --------------------------------------
 GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workflows"
 RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
 
@@ -28,47 +31,70 @@ def fetch_raw(path):
     return resp.text
 
 
-# ----------------------------
-#   FULL WORKFLOW PARSER
-# ----------------------------
-def parse_ga_file(ga_text):
+# --------------------------------------
+#   PARSE GA FILE
+# --------------------------------------
+def parse_ga_file(ga_text, file_name, raw_download_url):
+    """
+    ga_text: raw text from *.ga file (JSON)
+    file_name: name of the GA file
+    raw_download_url: GitHub raw URL
+    """
+
     try:
-        data = json.loads(ga_text)
-
-        workflow_name = data.get("name", "")
-        steps = data.get("steps", {})
-
-        step_list = []
-        for step_id, step_data in steps.items():
-            step_list.append({
-                "step_id": int(step_id),
-                "annotation": step_data.get("annotation", ""),
-                "type": step_data.get("type", ""),
-                "tool_id": step_data.get("tool_id"),
-                "tool_version": step_data.get("tool_version"),
-                "name": step_data.get("name", ""),
-
-                "inputs": step_data.get("inputs", []),
-                "outputs": step_data.get("outputs", []),
-                "input_connections": step_data.get("input_connections", {}),
-
-                "tool_shed_repository": step_data.get("tool_shed_repository", {})
-            })
-
-        return {
-            "workflow_name": workflow_name,
-            "number_of_steps": len(steps),
-            "steps": step_list
-        }
-
-    except Exception as e:
-        print("❌ Error parsing GA file:", e)
+        ga_dict = json.loads(ga_text)
+    except json.JSONDecodeError:
+        print(f"⚠️ Cannot parse GA file: {file_name}")
         return None
 
+    workflow_name = ga_dict.get("name", file_name)
+    steps = ga_dict.get("steps", {})
 
-# ----------------------------
+    step_list = []
+    tools_used = []
+
+    for step_id, step in steps.items():
+        tool_id = step.get("tool_id")
+        tool_version = step.get("tool_version")
+        tool_shed_repo = step.get("tool_shed_repository", {}) or {}
+
+        step_info = {
+            "id": step_id,
+            "name": step.get("name"),
+            "tool_id": tool_id,
+            "tool_version": tool_version,
+            "tool_shed_repository": {
+                "owner": tool_shed_repo.get("owner"),
+                "name": tool_shed_repo.get("name"),
+                "tool_shed": tool_shed_repo.get("tool_shed_url"),
+            },
+        }
+        step_list.append(step_info)
+
+        # required for schema
+        if tool_id:
+            tools_used.append({
+                "id": tool_id,
+                "name": step.get("name") or "",
+                "version": tool_version or "",
+                "owner": tool_shed_repo.get("owner") or "",
+                "category": tool_shed_repo.get("name") or "",
+                "tool_shed_url": tool_shed_repo.get("tool_shed_url") or "",
+            })
+
+    return {
+        "workflow_name": workflow_name,
+        "number_of_steps": len(step_list),
+        "file_name": file_name,
+        "raw_download_url": raw_download_url,
+        "steps": step_list,
+        "tools_used": tools_used,
+    }
+
+
+# --------------------------------------
 #   SCAN INDIVIDUAL REPO
-# ----------------------------
+# --------------------------------------
 def scan_repo(category, repo_name):
     base_path = f"{category}/{repo_name}"
     url = f"{GITHUB_API_URL}/{category}/{repo_name}"
@@ -84,22 +110,24 @@ def scan_repo(category, repo_name):
     directories_present = set()
     readme_content = None
 
-    # loop inside workflow repo
     for item in repo_contents:
         name = item["name"]
+
         if item["type"] == "file":
             files_present.add(name)
 
             if name.endswith(".ga"):
                 path = f"{base_path}/{name}"
                 ga_text = fetch_raw(path)
-                parsed = parse_ga_file(ga_text)
+
+                # FIXED: properly call with all 3 arguments
+                parsed = parse_ga_file(
+                    ga_text,
+                    file_name=name,
+                    raw_download_url=f"{RAW_BASE_URL}/{path}"
+                )
 
                 if parsed:
-                    parsed.update({
-                        "file_name": name,
-                        "raw_download_url": f"{RAW_BASE_URL}/{path}"
-                    })
                     workflow_files.append(parsed)
 
             if name == "README.md":
@@ -123,9 +151,9 @@ def scan_repo(category, repo_name):
     }
 
 
-# ----------------------------
+# --------------------------------------
 #   MAIN RUNNER
-# ----------------------------
+# --------------------------------------
 def main():
     print("🔍 Fetching workflow categories...")
     categories = github_api_get(GITHUB_API_URL)
@@ -135,6 +163,7 @@ def main():
     for cat in categories:
         if cat["type"] != "dir":
             continue
+
         category = cat["name"]
         print(f"\n📂 Category: {category}")
 
@@ -158,12 +187,15 @@ def main():
         if MAX_WORKFLOWS is not None and count >= MAX_WORKFLOWS:
             break
 
-    # Save output
+    # save file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(output_dir, exist_ok=True)
 
-    output_file = os.path.join(output_dir, f"iwc_full_{timestamp}.json")
+    output_file = os.path.join(
+        output_dir, f"galaxy_iwc_workflows_{timestamp}.json"
+    )
+
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
 
