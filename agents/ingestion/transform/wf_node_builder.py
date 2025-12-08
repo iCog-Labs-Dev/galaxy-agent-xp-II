@@ -52,6 +52,25 @@ class NodeBuilder:
         }
 
     # -----------------------
+    # Tool Node
+    # -----------------------
+    def create_tool(self, tool_id, version=None, repo_name=None, owner=None):
+        """
+        Create a Tool node to be used by USES_TOOL edges
+        """
+        node_id = self._generate_id(tool_id, version)
+        return {
+            "label": "Tool",
+            "properties": {
+                "tool_id": tool_id,
+                "tool_uid": node_id,
+                "version": version,
+                "repo_name": repo_name,
+                "owner": owner
+            }
+        }
+
+    # -----------------------
     # Input / Output Nodes
     # -----------------------
     def create_input_node(self, workflow_id, step_id, name, description):
