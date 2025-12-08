@@ -45,7 +45,8 @@ class GraphRunner:
 # Example Usage
 # -----------------------
 if __name__ == "__main__":
-    neo = Neo4jClient("bolt://localhost:7687", "neo4j", "password")
+    # Neo4jClient automatically reads credentials from graph_db_config.yml
+    neo = Neo4jClient()
     runner = GraphRunner(neo)
 
     # Fetch a single tool by tool_id
