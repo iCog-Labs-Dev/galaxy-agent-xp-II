@@ -9,7 +9,7 @@ from datetime import datetime
 # ---------------------------------------------
 # CONFIG (developer can change MAX_WORKFLOWS)
 # ---------------------------------------------
-MAX_WORKFLOWS = 5   # Set None for ALL workflows
+MAX_WORKFLOWS = None  # Set None for ALL workflows
 
 
 # ---------------------------------------------
@@ -24,7 +24,7 @@ def fetch_all_workflow_ids():
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         json_data = resp.json()
-        workflows = json_data.get("data", [])  # workflow entries list
+        workflows = json_data.get("data", [])
     except Exception as e:
         print(f"❌ Failed to fetch workflow catalog: {e}")
         return []
@@ -37,13 +37,41 @@ def fetch_all_workflow_ids():
         except:
             continue
 
-    #  Sort ascending so workflow IDs are cleanly ordered
     ids = sorted(ids)
 
     print(f"📦 Found {len(ids)} workflow entries in WorkflowHub")
     print(f"➡️ Sorted first 10 workflow IDs: {ids[:10]}")
 
     return ids
+
+
+# ---------------------------------------------
+# GALAXY DESCRIPTOR FILTER
+# ---------------------------------------------
+def is_galaxy_descriptor(wf_id):
+    """
+    Checks TRS versions to determine whether this workflow
+    has any GALAXY descriptor types.
+    """
+    versions_url = f"https://workflowhub.eu/ga4gh/trs/v2/tools/{wf_id}/versions"
+
+    try:
+        resp = requests.get(versions_url, timeout=20)
+        resp.raise_for_status()
+        versions = resp.json()
+    except Exception:
+        return False
+
+    for version in versions:
+        desc_list = version.get("descriptor_type", [])
+        desc_list = [d.lower() for d in desc_list if d]
+
+        # Key condition → must contain GALAXY descriptor
+        if any("galaxy" in d for d in desc_list):
+            return True
+
+    return False
+
 
 # ---------------------------------------------
 # Helper: Fetch TRS Metadata
@@ -214,12 +242,20 @@ def main():
 
         print(f"\n📦 Processing WorkflowHub ID: {wf_id}")
 
+        # -------------------------------------
+        # 🚨 NEW: Check Galaxy descriptor type
+        # -------------------------------------
+        if not is_galaxy_descriptor(wf_id):
+            print("⏭️  Not a GALAXY workflow → skipping")
+            continue
+
+        print("✅ GALAXY descriptor detected → downloading...")
+
         entry = process_workflowhub_workflow(wf_id)
         if entry:
             all_data.append(entry)
             processed += 1
 
-    # Save output
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(out_dir, exist_ok=True)
