@@ -1,0 +1,2575 @@
+[
+  {
+    "category": "galaxyproject sars-cov-2",
+    "workflow_repository": "genomics_-_read_pre-processing",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19 - Genomics [1] Read pre-processing with download",
+        "number_of_steps": 17,
+        "steps": [
+          {
+            "step_id": 0,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 1,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 2,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/2.10.4+galaxy1",
+            "tool_version": "2.10.4+galaxy1",
+            "name": "Faster Download and Extract Reads in FASTQ",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Faster Download and Extract Reads in FASTQ",
+                "name": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "list_paired",
+                "type": "input"
+              },
+              {
+                "name": "output_collection",
+                "type": "input"
+              },
+              {
+                "name": "output_collection_other",
+                "type": "input"
+              },
+              {
+                "name": "log",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input|file_list": {
+                "id": 0,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "aad3885b3216",
+              "name": "sra_tools",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 3,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/2.10.4+galaxy1",
+            "tool_version": "2.10.4+galaxy1",
+            "name": "Faster Download and Extract Reads in FASTQ",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Faster Download and Extract Reads in FASTQ",
+                "name": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "list_paired",
+                "type": "input"
+              },
+              {
+                "name": "output_collection",
+                "type": "input"
+              },
+              {
+                "name": "output_collection_other",
+                "type": "input"
+              },
+              {
+                "name": "log",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input|file_list": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "aad3885b3216",
+              "name": "sra_tools",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 4,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.5+galaxy1",
+            "tool_version": "0.19.5+galaxy1",
+            "name": "fastp",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output_paired_coll",
+                "type": "input"
+              },
+              {
+                "name": "report_html",
+                "type": "html"
+              },
+              {
+                "name": "report_json",
+                "type": "json"
+              }
+            ],
+            "input_connections": {
+              "single_paired|paired_input": {
+                "id": 2,
+                "output_name": "list_paired"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "1d8fe9bc4cb0",
+              "name": "fastp",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 5,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/nanoplot/nanoplot/1.25.0+galaxy1",
+            "tool_version": "1.25.0+galaxy1",
+            "name": "NanoPlot",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output_html",
+                "type": "html"
+              },
+              {
+                "name": "nanostats",
+                "type": "txt"
+              },
+              {
+                "name": "nanostats_post_filtering",
+                "type": "txt"
+              },
+              {
+                "name": "read_length",
+                "type": "png"
+              },
+              {
+                "name": "log_read_length",
+                "type": "png"
+              }
+            ],
+            "input_connections": {
+              "mode|reads|files": {
+                "id": 3,
+                "output_name": "output_collection"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "645159bcee2d",
+              "name": "nanoplot",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 6,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.72+galaxy1",
+            "tool_version": "0.72+galaxy1",
+            "name": "FastQC",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool FastQC",
+                "name": "limits"
+              },
+              {
+                "description": "runtime parameter for tool FastQC",
+                "name": "contaminants"
+              },
+              {
+                "description": "runtime parameter for tool FastQC",
+                "name": "adapters"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "html_file",
+                "type": "html"
+              },
+              {
+                "name": "text_file",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 3,
+                "output_name": "output_collection"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "e7b2202befea",
+              "name": "fastqc",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 7,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.17+galaxy0",
+            "tool_version": "2.17+galaxy0",
+            "name": "Map with minimap2",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "alignment_output",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "fastq_input|fastq_input1": {
+                "id": 3,
+                "output_name": "output_collection"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b3eab4b67562",
+              "name": "minimap2",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 8,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "tool_version": "1.7",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|input": {
+                "id": 4,
+                "output_name": "report_json"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2f1f75d49c4",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 9,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "tool_version": "0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "bam_output",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "fastq_input|fastq_input1": {
+                "id": 4,
+                "output_name": "output_paired_coll"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "01ac0a5fedc3",
+              "name": "bwa",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 10,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "tool_version": "1.7",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|output_0|input": {
+                "id": 6,
+                "output_name": "text_file"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2f1f75d49c4",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 11,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "tool_version": "1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Filter SAM or BAM, output SAM or BAM",
+                "name": "bed_file"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output1",
+                "type": "sam"
+              }
+            ],
+            "input_connections": {
+              "input1": {
+                "id": 7,
+                "output_name": "alignment_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "649a225999a5",
+              "name": "samtool_filter2",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 12,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "tool_version": "1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Filter SAM or BAM, output SAM or BAM",
+                "name": "bed_file"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output1",
+                "type": "sam"
+              }
+            ],
+            "input_connections": {
+              "input1": {
+                "id": 9,
+                "output_name": "bam_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "649a225999a5",
+              "name": "samtool_filter2",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 13,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "tool_version": "2.18.2.1",
+            "name": "MergeSamFiles",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outFile",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 11,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a1f0b3f4b781",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 14,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "tool_version": "2.18.2.1",
+            "name": "MergeSamFiles",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outFile",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 12,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a1f0b3f4b781",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 15,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "tool_version": "1.9+galaxy1",
+            "name": "Samtools fastx",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "nonspecific",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 13,
+                "output_name": "outFile"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a8d69aee190e",
+              "name": "samtools_fastx",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 16,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "tool_version": "1.9+galaxy1",
+            "name": "Samtools fastx",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "forward",
+                "type": "fasta"
+              },
+              {
+                "name": "reverse",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 14,
+                "output_name": "outFile"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a8d69aee190e",
+              "name": "samtools_fastx",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          }
+        ],
+        "file_name": "Genomics-1-PreProcessing_with_download.ga",
+        "raw_download_url": "https://workflowhub.eu/workflows/2/download?format=rocrate",
+        "tools_used": [
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/2.10.4+galaxy1",
+            "name": "Faster Download and Extract Reads in FASTQ",
+            "version": "2.10.4+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/2.10.4+galaxy1",
+            "name": "Faster Download and Extract Reads in FASTQ",
+            "version": "2.10.4+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.5+galaxy1",
+            "name": "fastp",
+            "version": "0.19.5+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/nanoplot/nanoplot/1.25.0+galaxy1",
+            "name": "NanoPlot",
+            "version": "1.25.0+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.72+galaxy1",
+            "name": "FastQC",
+            "version": "0.72+galaxy1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.17+galaxy0",
+            "name": "Map with minimap2",
+            "version": "2.17+galaxy0",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "name": "MultiQC",
+            "version": "1.7",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "version": "0.7.17.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "name": "MultiQC",
+            "version": "1.7",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "version": "1.8+galaxy1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "version": "1.8+galaxy1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "name": "MergeSamFiles",
+            "version": "2.18.2.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "name": "MergeSamFiles",
+            "version": "2.18.2.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "name": "Samtools fastx",
+            "version": "1.9+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "name": "Samtools fastx",
+            "version": "1.9+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          }
+        ]
+      }
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_changelog": false,
+    "has_readme": true,
+    "readme_content": "preprocessing of raw sars-cov-2 reads. more info can be found at https://covid19.galaxyproject.org/genomics/",
+    "planemo_tests": []
+  },
+  {
+    "category": "galaxyproject sars-cov-2",
+    "workflow_repository": "genomics_-_read_pre-processing_without_downloading_from_sra",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19 - Genomics [1] Read pre-processing without downloading from SRA",
+        "number_of_steps": 15,
+        "steps": [
+          {
+            "step_id": 0,
+            "annotation": "",
+            "type": "data_collection_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset collection",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 1,
+            "annotation": "",
+            "type": "data_collection_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset collection",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 2,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.3.3",
+            "tool_version": "0.19.3.3",
+            "name": "fastp",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output_paired_coll",
+                "type": "input"
+              },
+              {
+                "name": "report_html",
+                "type": "html"
+              },
+              {
+                "name": "report_json",
+                "type": "json"
+              }
+            ],
+            "input_connections": {
+              "single_paired|paired_input": {
+                "id": 0,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a935cbdf1c0e",
+              "name": "fastp",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 3,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/nanoplot/nanoplot/1.28.2+galaxy1",
+            "tool_version": "1.28.2+galaxy1",
+            "name": "NanoPlot",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output_html",
+                "type": "html"
+              },
+              {
+                "name": "nanostats",
+                "type": "txt"
+              },
+              {
+                "name": "nanostats_post_filtering",
+                "type": "txt"
+              },
+              {
+                "name": "read_length",
+                "type": "png"
+              },
+              {
+                "name": "log_read_length",
+                "type": "png"
+              }
+            ],
+            "input_connections": {
+              "mode|reads|files": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "edbb6c5028f5",
+              "name": "nanoplot",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 4,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.72",
+            "tool_version": "0.72",
+            "name": "FastQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "html_file",
+                "type": "html"
+              },
+              {
+                "name": "text_file",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "3e1cdf5406db",
+              "name": "fastqc",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 5,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.12",
+            "tool_version": "2.12",
+            "name": "Map with minimap2",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "alignment_output",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "fastq_input|fastq_input1": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "17e61517c166",
+              "name": "minimap2",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 6,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "tool_version": "1.7",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|input": {
+                "id": 2,
+                "output_name": "report_json"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2f1f75d49c4",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 7,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "tool_version": "0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "bam_output",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "fastq_input|fastq_input1": {
+                "id": 2,
+                "output_name": "output_paired_coll"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "01ac0a5fedc3",
+              "name": "bwa",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 8,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "tool_version": "1.7",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|output_0|input": {
+                "id": 4,
+                "output_name": "text_file"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2f1f75d49c4",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 9,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8",
+            "tool_version": "1.8",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output1",
+                "type": "sam"
+              }
+            ],
+            "input_connections": {
+              "input1": {
+                "id": 5,
+                "output_name": "alignment_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "56c31114ad4a",
+              "name": "samtool_filter2",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 10,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8",
+            "tool_version": "1.8",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Filter SAM or BAM, output SAM or BAM",
+                "name": "bed_file"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output1",
+                "type": "sam"
+              }
+            ],
+            "input_connections": {
+              "input1": {
+                "id": 7,
+                "output_name": "bam_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "56c31114ad4a",
+              "name": "samtool_filter2",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 11,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "tool_version": "2.18.2.1",
+            "name": "MergeSamFiles",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outFile",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 9,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "6f9c0884a3e7",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 12,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "tool_version": "2.18.2.1",
+            "name": "MergeSamFiles",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outFile",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 10,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "6f9c0884a3e7",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 13,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "tool_version": "1.9+galaxy1",
+            "name": "Samtools fastx",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "nonspecific",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 11,
+                "output_name": "outFile"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a8d69aee190e",
+              "name": "samtools_fastx",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 14,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "tool_version": "1.9+galaxy1",
+            "name": "Samtools fastx",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "forward",
+                "type": "fasta"
+              },
+              {
+                "name": "reverse",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 12,
+                "output_name": "outFile"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a8d69aee190e",
+              "name": "samtools_fastx",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          }
+        ],
+        "file_name": "Genomics-1-PreProcessing_without_downloading_from_SRA.ga",
+        "raw_download_url": "https://workflowhub.eu/workflows/4/download?format=rocrate",
+        "tools_used": [
+          {
+            "id": null,
+            "name": "Input dataset collection",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_collection_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": null,
+            "name": "Input dataset collection",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_collection_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.3.3",
+            "name": "fastp",
+            "version": "0.19.3.3",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/nanoplot/nanoplot/1.28.2+galaxy1",
+            "name": "NanoPlot",
+            "version": "1.28.2+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.72",
+            "name": "FastQC",
+            "version": "0.72",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/minimap2/minimap2/2.12",
+            "name": "Map with minimap2",
+            "version": "2.12",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "name": "MultiQC",
+            "version": "1.7",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "version": "0.7.17.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7",
+            "name": "MultiQC",
+            "version": "1.7",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "version": "1.8",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "version": "1.8",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "name": "MergeSamFiles",
+            "version": "2.18.2.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MergeSamFiles/2.18.2.1",
+            "name": "MergeSamFiles",
+            "version": "2.18.2.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "name": "Samtools fastx",
+            "version": "1.9+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/samtools_fastx/samtools_fastx/1.9+galaxy1",
+            "name": "Samtools fastx",
+            "version": "1.9+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          }
+        ]
+      }
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_changelog": false,
+    "has_readme": true,
+    "readme_content": "preprocessing of raw sars-cov-2 reads. this workflow contains an alternate starting point to avoid the data to be downloaded from the ncbi sra. more info can be found at https://covid19.galaxyproject.org/genomics/",
+    "planemo_tests": []
+  },
+  {
+    "category": "galaxyproject sars-cov-2",
+    "workflow_repository": "genomics_-_assembly_of_the_genome_sequence",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19 - Genomics [2] Assembly of genome sequence",
+        "number_of_steps": 9,
+        "steps": [
+          {
+            "step_id": 0,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 1,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 2,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 3,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/unicycler/unicycler/0.4.6.0",
+            "tool_version": null,
+            "name": "Create assemblies with Unicycler",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Create assemblies with Unicycler",
+                "name": "lr_align"
+              },
+              {
+                "description": "runtime parameter for tool Create assemblies with Unicycler",
+                "name": "rotation"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "assembly_graph",
+                "type": "tabular"
+              },
+              {
+                "name": "assembly",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "long": {
+                "id": 2,
+                "output_name": "output"
+              },
+              "paired_unpaired|fastq_input1": {
+                "id": 0,
+                "output_name": "output"
+              },
+              "paired_unpaired|fastq_input2": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "23300b42ca18",
+              "name": "unicycler",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 4,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/nml/spades/spades/3.12.0+galaxy1",
+            "tool_version": null,
+            "name": "SPAdes",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "out_contig_stats",
+                "type": "tabular"
+              },
+              {
+                "name": "out_scaffold_stats",
+                "type": "tabular"
+              },
+              {
+                "name": "out_contigs",
+                "type": "fasta"
+              },
+              {
+                "name": "out_scaffolds",
+                "type": "fasta"
+              },
+              {
+                "name": "out_log",
+                "type": "txt"
+              },
+              {
+                "name": "contig_graph",
+                "type": "txt"
+              },
+              {
+                "name": "scaffold_graph",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "libraries_0|files_0|file_type|fwd_reads": {
+                "id": 0,
+                "output_name": "output"
+              },
+              "libraries_0|files_0|file_type|rev_reads": {
+                "id": 1,
+                "output_name": "output"
+              },
+              "nanopore_reads": {
+                "id": 2,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b8c00ce5dfa0",
+              "name": "spades",
+              "owner": "nml",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 5,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_info/0.8.1+galaxy1",
+            "tool_version": null,
+            "name": "Bandage Info",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outfile",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 3,
+                "output_name": "assembly_graph"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2860df42e16",
+              "name": "bandage",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 6,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/0.8.1+galaxy2",
+            "tool_version": null,
+            "name": "Bandage Image",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outfile",
+                "type": "jpg"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 3,
+                "output_name": "assembly_graph"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2860df42e16",
+              "name": "bandage",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 7,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/0.8.1+galaxy2",
+            "tool_version": null,
+            "name": "Bandage Image",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outfile",
+                "type": "jpg"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 4,
+                "output_name": "contig_graph"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2860df42e16",
+              "name": "bandage",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 8,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_info/0.8.1+galaxy1",
+            "tool_version": null,
+            "name": "Bandage Info",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outfile",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "input_file": {
+                "id": 4,
+                "output_name": "contig_graph"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "b2860df42e16",
+              "name": "bandage",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          }
+        ],
+        "file_name": "Genomics-2-Assembly.ga",
+        "raw_download_url": "https://workflowhub.eu/workflows/5/download?format=rocrate",
+        "tools_used": [
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/unicycler/unicycler/0.4.6.0",
+            "name": "Create assemblies with Unicycler",
+            "version": null,
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/nml/spades/spades/3.12.0+galaxy1",
+            "name": "SPAdes",
+            "version": null,
+            "owner": "nml",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_info/0.8.1+galaxy1",
+            "name": "Bandage Info",
+            "version": null,
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/0.8.1+galaxy2",
+            "name": "Bandage Image",
+            "version": null,
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_image/0.8.1+galaxy2",
+            "name": "Bandage Image",
+            "version": null,
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/bandage/bandage_info/0.8.1+galaxy1",
+            "name": "Bandage Info",
+            "version": null,
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          }
+        ]
+      }
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_changelog": false,
+    "has_readme": true,
+    "readme_content": "this workflow uses illumina and oxford nanopore reads that were pre-processed to remove human-derived sequences. two assembly tools are used: spades and unicycler. in addition to assemblies (actual sequences) the two tools produce assembly graphs that can be used for visualization of assembly with bandage. more info can be found at https://covid19.galaxyproject.org/genomics/",
+    "planemo_tests": []
+  },
+  {
+    "category": "galaxyproject sars-cov-2",
+    "workflow_repository": "genomics_-_mrca_analysis",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19 - Genomics [3] MRCA analysis",
+        "number_of_steps": 10,
+        "steps": [
+          {
+            "step_id": 0,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 1,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "Remove beginning1",
+            "tool_version": "1.0.0",
+            "name": "Remove beginning",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "out_file1",
+                "type": "input"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 0,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 2,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "Convert characters1",
+            "tool_version": "1.0.0",
+            "name": "Convert",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "out_file1",
+                "type": "tabular"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 1,
+                "output_name": "out_file1"
+              }
+            },
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 3,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "Cut1",
+            "tool_version": "1.0.2",
+            "name": "Cut",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "out_file1",
+                "type": "tabular"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 2,
+                "output_name": "out_file1"
+              }
+            },
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 4,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/ncbi_acc_download/ncbi_acc_download/0.2.5+galaxy0",
+            "tool_version": "0.2.5+galaxy0",
+            "name": "NCBI Accession Download",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "input"
+              },
+              {
+                "name": "error_log",
+                "type": "txt"
+              }
+            ],
+            "input_connections": {
+              "query_source|accession_file": {
+                "id": 3,
+                "output_name": "out_file1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "1c58de56d587",
+              "name": "ncbi_acc_download",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 5,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_NormalizeFasta/2.18.2.1",
+            "tool_version": "2.18.2.1",
+            "name": "NormalizeFasta",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outFile",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 4,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "6f9c0884a3e7",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 6,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/1.1.1",
+            "tool_version": "1.1.1",
+            "name": "Text transformation",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "input"
+              }
+            ],
+            "input_connections": {
+              "infile": {
+                "id": 5,
+                "output_name": "outFile"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "0a8c6b61f0f4",
+              "name": "text_processing",
+              "owner": "bgruening",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 7,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/4.1",
+            "tool_version": "4.1",
+            "name": "Collapse Collection",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "input"
+              }
+            ],
+            "input_connections": {
+              "input_list": {
+                "id": 6,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "33151a38533a",
+              "name": "collapse_collections",
+              "owner": "nml",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 8,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/rnateam/mafft/rbc_mafft/7.221.3",
+            "tool_version": "7.221.3",
+            "name": "MAFFT",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "outputAlignment",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "inputSequences": {
+                "id": 7,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "c5908940967d",
+              "name": "mafft",
+              "owner": "rnateam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 9,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/fasttree/fasttree/2.1.10+galaxy1",
+            "tool_version": "2.1.10+galaxy1",
+            "name": "FASTTREE",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "nhx"
+              }
+            ],
+            "input_connections": {
+              "input_selector|input": {
+                "id": 8,
+                "output_name": "outputAlignment"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "e005e659ae21",
+              "name": "fasttree",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          }
+        ],
+        "file_name": "Genomics-3-MRCA.ga",
+        "raw_download_url": "https://workflowhub.eu/workflows/6/download?format=rocrate",
+        "tools_used": [
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "Remove beginning1",
+            "name": "Remove beginning",
+            "version": "1.0.0",
+            "owner": "unknown",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "Convert characters1",
+            "name": "Convert",
+            "version": "1.0.0",
+            "owner": "unknown",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "Cut1",
+            "name": "Cut",
+            "version": "1.0.2",
+            "owner": "unknown",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/ncbi_acc_download/ncbi_acc_download/0.2.5+galaxy0",
+            "name": "NCBI Accession Download",
+            "version": "0.2.5+galaxy0",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_NormalizeFasta/2.18.2.1",
+            "name": "NormalizeFasta",
+            "version": "2.18.2.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/1.1.1",
+            "name": "Text transformation",
+            "version": "1.1.1",
+            "owner": "bgruening",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/4.1",
+            "name": "Collapse Collection",
+            "version": "4.1",
+            "owner": "nml",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/rnateam/mafft/rbc_mafft/7.221.3",
+            "name": "MAFFT",
+            "version": "7.221.3",
+            "owner": "rnateam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/fasttree/fasttree/2.1.10+galaxy1",
+            "name": "FASTTREE",
+            "version": "2.1.10+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          }
+        ]
+      }
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_changelog": false,
+    "has_readme": true,
+    "readme_content": "dating the most recent common ancestor (mrca) of sars-cov-2. the workflow is used to extract full length sequences of sars-cov-2, tidy up their names in fasta files, produce a multiple sequences alignment and compute a maximum likelihood tree. more info can be found at https://covid19.galaxyproject.org/genomics/",
+    "planemo_tests": []
+  },
+  {
+    "category": "galaxyproject sars-cov-2",
+    "workflow_repository": "genomics_-_pe_variation",
+    "workflow_files": [
+      {
+        "workflow_name": "COVID-19 - Genomics [4] PE Variation",
+        "number_of_steps": 16,
+        "steps": [
+          {
+            "step_id": 0,
+            "annotation": "",
+            "type": "data_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset",
+            "inputs": [
+              {
+                "description": "",
+                "name": "GenBank file "
+              }
+            ],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 1,
+            "annotation": "",
+            "type": "data_collection_input",
+            "tool_id": null,
+            "tool_version": null,
+            "name": "Input dataset collection",
+            "inputs": [
+              {
+                "description": "",
+                "name": "Paired Collection (fastqsanger)"
+              }
+            ],
+            "outputs": [],
+            "input_connections": {},
+            "tool_shed_repository": {}
+          },
+          {
+            "step_id": 2,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/snpeff/snpEff_build_gb/4.3+T.galaxy4",
+            "tool_version": "4.3+T.galaxy4",
+            "name": "SnpEff build:",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "snpeff_output",
+                "type": "snpeffdb"
+              },
+              {
+                "name": "output_fasta",
+                "type": "fasta"
+              }
+            ],
+            "input_connections": {
+              "input_type|input_gbk": {
+                "id": 0,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "74aebe30fb52",
+              "name": "snpeff",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 3,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.5+galaxy1",
+            "tool_version": "0.19.5+galaxy1",
+            "name": "fastp",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output_paired_coll",
+                "type": "input"
+              },
+              {
+                "name": "report_html",
+                "type": "html"
+              },
+              {
+                "name": "report_json",
+                "type": "json"
+              }
+            ],
+            "input_connections": {
+              "single_paired|paired_input": {
+                "id": 1,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "1d8fe9bc4cb0",
+              "name": "fastp",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 4,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "tool_version": "0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "bam_output",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "fastq_input|fastq_input1": {
+                "id": 3,
+                "output_name": "output_paired_coll"
+              },
+              "reference_source|ref_file": {
+                "id": 2,
+                "output_name": "output_fasta"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "01ac0a5fedc3",
+              "name": "bwa",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 5,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "tool_version": "1.7.1",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "plots",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|input": {
+                "id": 3,
+                "output_name": "report_json"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "3d93dd18d9f8",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 6,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "tool_version": "1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool Filter SAM or BAM, output SAM or BAM",
+                "name": "bed_file"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output1",
+                "type": "sam"
+              }
+            ],
+            "input_connections": {
+              "input1": {
+                "id": 4,
+                "output_name": "bam_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "649a225999a5",
+              "name": "samtool_filter2",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 7,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.2+galaxy2",
+            "tool_version": "2.0.2+galaxy2",
+            "name": "Samtools stats",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "tabular"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 6,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "145f6d74ff5e",
+              "name": "samtools_stats",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 8,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/2.18.2.2",
+            "tool_version": "2.18.2.2",
+            "name": "MarkDuplicates",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "metrics_file",
+                "type": "txt"
+              },
+              {
+                "name": "outFile",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "inputFile": {
+                "id": 6,
+                "output_name": "output1"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "a1f0b3f4b781",
+              "name": "picard",
+              "owner": "devteam",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 9,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "tool_version": "1.7.1",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "plots",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|output_0|type|input": {
+                "id": 7,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "3d93dd18d9f8",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 10,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_viterbi/lofreq_viterbi/2.1.3.1+galaxy1",
+            "tool_version": "2.1.3.1+galaxy1",
+            "name": "Realign reads",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "realigned",
+                "type": "bam"
+              }
+            ],
+            "input_connections": {
+              "reads": {
+                "id": 8,
+                "output_name": "outFile"
+              },
+              "reference_source|ref": {
+                "id": 2,
+                "output_name": "output_fasta"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "cdaab621d454",
+              "name": "lofreq_viterbi",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 11,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "tool_version": "1.7.1",
+            "name": "MultiQC",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "stats",
+                "type": "input"
+              },
+              {
+                "name": "plots",
+                "type": "input"
+              },
+              {
+                "name": "html_report",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "results_0|software_cond|output_0|input": {
+                "id": 8,
+                "output_name": "metrics_file"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "3d93dd18d9f8",
+              "name": "multiqc",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 12,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_call/lofreq_call/2.1.3.1+galaxy0",
+            "tool_version": "2.1.3.1+galaxy0",
+            "name": "Call variants",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "variants",
+                "type": "vcf"
+              }
+            ],
+            "input_connections": {
+              "reads": {
+                "id": 10,
+                "output_name": "realigned"
+              },
+              "reference_source|ref": {
+                "id": 2,
+                "output_name": "output_fasta"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "03627f24605f",
+              "name": "lofreq_call",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 13,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/snpeff/snpEff/4.3+T.galaxy1",
+            "tool_version": "4.3+T.galaxy1",
+            "name": "SnpEff eff:",
+            "inputs": [
+              {
+                "description": "runtime parameter for tool SnpEff eff:",
+                "name": "intervals"
+              },
+              {
+                "description": "runtime parameter for tool SnpEff eff:",
+                "name": "transcripts"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "snpeff_output",
+                "type": "vcf"
+              },
+              {
+                "name": "statsFile",
+                "type": "html"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 12,
+                "output_name": "variants"
+              },
+              "snpDb|snpeff_db": {
+                "id": 2,
+                "output_name": "snpeff_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "74aebe30fb52",
+              "name": "snpeff",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 14,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_extractFields/4.3+t.galaxy0",
+            "tool_version": "4.3+t.galaxy0",
+            "name": "SnpSift Extract Fields",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "tabular"
+              }
+            ],
+            "input_connections": {
+              "input": {
+                "id": 13,
+                "output_name": "snpeff_output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "2b3e65a4252f",
+              "name": "snpsift",
+              "owner": "iuc",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          },
+          {
+            "step_id": 15,
+            "annotation": "",
+            "type": "tool",
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/4.1",
+            "tool_version": "4.1",
+            "name": "Collapse Collection",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "input"
+              }
+            ],
+            "input_connections": {
+              "input_list": {
+                "id": 14,
+                "output_name": "output"
+              }
+            },
+            "tool_shed_repository": {
+              "changeset_revision": "33151a38533a",
+              "name": "collapse_collections",
+              "owner": "nml",
+              "tool_shed": "toolshed.g2.bx.psu.edu"
+            }
+          }
+        ],
+        "file_name": "Genomics-4-PE_Variation.ga",
+        "raw_download_url": "https://workflowhub.eu/workflows/7/download?format=rocrate",
+        "tools_used": [
+          {
+            "id": null,
+            "name": "Input dataset",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": null,
+            "name": "Input dataset collection",
+            "version": null,
+            "owner": "unknown",
+            "category": "data_collection_input",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/snpeff/snpEff_build_gb/4.3+T.galaxy4",
+            "name": "SnpEff build:",
+            "version": "4.3+T.galaxy4",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/0.19.5+galaxy1",
+            "name": "fastp",
+            "version": "0.19.5+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/bwa/bwa_mem/0.7.17.1",
+            "name": "Map with BWA-MEM",
+            "version": "0.7.17.1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "name": "MultiQC",
+            "version": "1.7.1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtool_filter2/samtool_filter2/1.8+galaxy1",
+            "name": "Filter SAM or BAM, output SAM or BAM",
+            "version": "1.8+galaxy1",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/samtools_stats/samtools_stats/2.0.2+galaxy2",
+            "name": "Samtools stats",
+            "version": "2.0.2+galaxy2",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/devteam/picard/picard_MarkDuplicates/2.18.2.2",
+            "name": "MarkDuplicates",
+            "version": "2.18.2.2",
+            "owner": "devteam",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "name": "MultiQC",
+            "version": "1.7.1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_viterbi/lofreq_viterbi/2.1.3.1+galaxy1",
+            "name": "Realign reads",
+            "version": "2.1.3.1+galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.7.1",
+            "name": "MultiQC",
+            "version": "1.7.1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/lofreq_call/lofreq_call/2.1.3.1+galaxy0",
+            "name": "Call variants",
+            "version": "2.1.3.1+galaxy0",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/snpeff/snpEff/4.3+T.galaxy1",
+            "name": "SnpEff eff:",
+            "version": "4.3+T.galaxy1",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/iuc/snpsift/snpSift_extractFields/4.3+t.galaxy0",
+            "name": "SnpSift Extract Fields",
+            "version": "4.3+t.galaxy0",
+            "owner": "iuc",
+            "category": "tool",
+            "tool_shed_url": ""
+          },
+          {
+            "id": "toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset/4.1",
+            "name": "Collapse Collection",
+            "version": "4.1",
+            "owner": "nml",
+            "category": "tool",
+            "tool_shed_url": ""
+          }
+        ]
+      }
+    ],
+    "has_test_data": false,
+    "has_dockstore_yml": false,
+    "has_changelog": false,
+    "has_readme": true,
+    "readme_content": "analysis of variation within individual covid-19 samples using illumina paired end data. more info can be found at https://covid19.galaxyproject.org/genomics/",
+    "planemo_tests": []
+  }
+]

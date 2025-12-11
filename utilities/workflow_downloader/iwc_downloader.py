@@ -1,179 +1,236 @@
 import requests
 import json
 import os
+import zipfile
+import io
 from datetime import datetime
-from dotenv import load_dotenv
 
-# Load environment variables from .env file if it exists
-load_dotenv()
 
-GITHUB_API_URL = "https://api.github.com/repos/galaxyproject/iwc/contents/workflows"
-RAW_BASE_URL = "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows"
+# ---------------------------------------------
+# CONFIG (developer can change MAX_WORKFLOWS)
+# ---------------------------------------------
+MAX_WORKFLOWS = 5   # Set None for ALL workflows
 
-# MAX_WORKFLOWS = 5 # Uncomment to limit the number of workflows processed
-MAX_WORKFLOWS = None # Set to None to process all workflows
 
-github_token = os.getenv("GITHUB_TOKEN")
-if github_token:
-    HEADERS = {
-        "Authorization": f"token {github_token}"
-    }
-else:    
-    print("⚠️ No GITHUB_TOKEN found in environment variables. Using unauthenticated requests may hit rate limits.")
-    HEADERS = {}
-     
-def github_api_get(url):
-    resp = requests.get(url, headers=HEADERS)
+# ---------------------------------------------
+# Fetch ALL workflow IDs from WorkflowHub
+# ---------------------------------------------
+def fetch_all_workflow_ids():
+    print("🔍 Fetching workflow catalog from WorkflowHub...")
+
+    url = "https://workflowhub.eu/workflows.json"
+
+    try:
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        json_data = resp.json()
+        workflows = json_data.get("data", [])  # workflow entries list
+    except Exception as e:
+        print(f"❌ Failed to fetch workflow catalog: {e}")
+        return []
+
+    ids = []
+    for wf in workflows:
+        try:
+            wf_id = int(wf.get("id"))
+            ids.append(wf_id)
+        except:
+            continue
+
+    #  Sort ascending so workflow IDs are cleanly ordered
+    ids = sorted(ids)
+
+    print(f"📦 Found {len(ids)} workflow entries in WorkflowHub")
+    print(f"➡️ Sorted first 10 workflow IDs: {ids[:10]}")
+
+    return ids
+
+# ---------------------------------------------
+# Helper: Fetch TRS Metadata
+# ---------------------------------------------
+def fetch_trs_metadata(wf_id):
+    trs_url = f"https://workflowhub.eu/ga4gh/trs/v2/tools/{wf_id}"
+    resp = requests.get(trs_url, timeout=25)
     resp.raise_for_status()
     return resp.json()
 
-def fetch_file_content(path):
-    raw_url = f"{RAW_BASE_URL}/{path}"
-    resp = requests.get(raw_url, headers=HEADERS)
-    resp.raise_for_status()
-    return resp.text
 
-def parse_ga_content(ga_text):
+# ---------------------------------------------
+# Helper: download ROCrate ZIP and extract .ga
+# ---------------------------------------------
+def extract_ga_from_zip(zip_bytes):
     try:
-        data = json.loads(ga_text)
-        workflow_name = data.get("name", "unknown")
-        steps = data.get("steps", {})
-        number_of_steps = len(steps)
-        tools_used = []
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
+            for file in z.namelist():
+                if file.endswith(".ga"):
+                    raw = z.read(file).decode("utf-8")
+                    return file, json.loads(raw)
+    except Exception as e:
+        print(f"❌ Failed to extract GA file: {e}")
+    return None, None
 
-        for step in steps.values():
-            if step.get("type") != "tool":
-                continue
 
-            tool_id = step.get("tool_id", "")
-            name = step.get("name", "")
-            version = step.get("tool_version", "")
-            repo = step.get("tool_shed_repository", {})
+# ---------------------------------------------
+# Parse GA File (reusing your old logic)
+# ---------------------------------------------
+def parse_ga_file(ga_json):
+    try:
+        workflow_name = ga_json.get("name", "")
+        steps = ga_json.get("steps", {})
 
-            tool_info = {
-                "id": tool_id,
-                "name": name,
-                "version": version,
-                "owner": repo.get("owner", ""),
-                "category": repo.get("name", ""),
-                "tool_shed_url": repo.get("tool_shed", "")
-            }
+        step_list = []
+        for step_id, step_data in steps.items():
+            step_list.append({
+                "step_id": int(step_id),
+                "annotation": step_data.get("annotation", ""),
+                "type": step_data.get("type", ""),
+                "tool_id": step_data.get("tool_id"),
+                "tool_version": step_data.get("tool_version"),
+                "name": step_data.get("name", ""),
 
-            if tool_info not in tools_used:
-                tools_used.append(tool_info)
+                "inputs": step_data.get("inputs", []),
+                "outputs": step_data.get("outputs", []),
+                "input_connections": step_data.get("input_connections", {}),
+
+                "tool_shed_repository": step_data.get("tool_shed_repository", {})
+            })
 
         return {
             "workflow_name": workflow_name,
-            "number_of_steps": number_of_steps,
-            "tools_used": tools_used,
+            "number_of_steps": len(steps),
+            "steps": step_list
         }
-    except Exception as e:
-        print(f"❌ Failed to parse .ga JSON: {e}")
-        return {}
 
-def scan_repo(category, repo_name):
-    base_path = f"{category}/{repo_name}"
-    url = f"{GITHUB_API_URL}/{category}/{repo_name}"
-    try:
-        repo_contents = github_api_get(url)
     except Exception as e:
-        print(f"⚠️ Failed to get repo contents for {base_path}: {e}")
+        print("❌ Error parsing GA file:", e)
         return None
 
-    workflow_files = []
-    planemo_tests = []
-    files_present = set()
-    directories_present = set()
-    readme_content = None
 
-    for item in repo_contents:
-        name = item["name"]
-        if item["type"] == "file":
-            files_present.add(name)
-            if name.endswith(".ga"):
-                ga_text = fetch_file_content(f"{base_path}/{name}")
-                ga_info = parse_ga_content(ga_text)
-                
-                # Add file name and raw download URL
-                raw_url = f"{RAW_BASE_URL}/{base_path}/{name}"
-                ga_info.update({
-                    "file_name": name,
-                    "raw_download_url": raw_url
-                })
-                
-                workflow_files.append(ga_info)
+# ---------------------------------------------
+# Build Old-IWC-Compatible Output from WorkflowHub
+# ---------------------------------------------
+def process_workflowhub_workflow(wf_id):
 
-                test_file = name.replace(".ga", "-tests.yml")
-                if test_file in [f["name"] for f in repo_contents if f["type"] == "file"]:
-                    planemo_tests.append(test_file)
+    # STEP 1: TRS metadata
+    try:
+        trs = fetch_trs_metadata(wf_id)
+    except Exception as e:
+        print(f"❌ TRS metadata fetch failed for {wf_id}: {e}")
+        return None
 
-            if name == "README.md":
-                try:
-                    readme_content = fetch_file_content(f"{base_path}/{name}")
-                except Exception as e:
-                    print(f"⚠️ Failed to fetch README for {base_path}: {e}")
-                    readme_content = None
+    # Category mapping → organization.lower()
+    org_raw = trs.get("organization")
+    if isinstance(org_raw, dict):
+        org = org_raw.get("name", "")
+    elif isinstance(org_raw, str):
+        org = org_raw
+    else:
+        org = "workflowhub"
 
-        elif item["type"] == "dir":
-            directories_present.add(name)
+    category = org.lower() if org else "workflowhub"
 
-    repo_data = {
-        "category": category.lower(),
-        "workflow_repository": repo_name.lower(),
-        "workflow_files": workflow_files,
-        "planemo_tests": planemo_tests,
-        "has_test_data": "test-data" in directories_present,
-        "has_dockstore_yml": ".dockstore.yml" in files_present,
-        "has_readme": "README.md" in files_present,
-        "readme_content": readme_content,
-        "has_changelog": "CHANGELOG.md" in files_present,
+    # workflow_repository mapping → TRS.name slugified
+    repo_name = trs.get("name", "").replace(" ", "_").lower()
+
+    # STEP 2: download ROCrate
+    crate_url = f"https://workflowhub.eu/workflows/{wf_id}/download?format=rocrate"
+
+    try:
+        zip_resp = requests.get(crate_url, timeout=30)
+        zip_resp.raise_for_status()
+    except Exception as e:
+        print(f"❌ ROCrate download failed for {wf_id}: {e}")
+        return None
+
+    # STEP 3: extract GA file
+    file_name, ga_json = extract_ga_from_zip(zip_resp.content)
+    if ga_json is None:
+        print(f"⚠️ No GA file found for workflow ID {wf_id}")
+        return None
+
+    # STEP 4: parse GA
+    parsed = parse_ga_file(ga_json)
+    if parsed is None:
+        return None
+
+    # Tools extraction
+    tools_used = []
+    steps = ga_json.get("steps", {})
+
+    for sid, step in steps.items():
+        tools_used.append({
+            "id": step.get("tool_id", "unknown"),
+            "name": step.get("name", "unknown"),
+            "version": step.get("tool_version", "unknown"),
+            "owner": step.get("tool_shed_repository", {}).get("owner", "unknown"),
+            "category": step.get("type", "unknown"),
+            "tool_shed_url": step.get("tool_shed_repository", {}).get("url", "")
+        })
+
+    parsed.update({
+        "file_name": file_name,
+        "raw_download_url": crate_url,
+        "tools_used": tools_used
+    })
+
+    # TRS.description as readme_content
+    description = trs.get("description", "") or ""
+    has_readme = bool(description.strip())
+
+    # FINAL: Legacy Schema Output
+    return {
+        "category": category,
+        "workflow_repository": repo_name,
+        "workflow_files": [parsed],
+        "has_test_data": False,
+        "has_dockstore_yml": False,
+        "has_changelog": False,
+        "has_readme": has_readme,
+        "readme_content": description.lower(),
+        "planemo_tests": []
     }
-    return repo_data
 
+
+# ---------------------------------------------
+# MAIN RUNNER
+# ---------------------------------------------
 def main():
-    print("🔍 Fetching top-level categories...")
-    categories = github_api_get(GITHUB_API_URL)
+    print("🚀 Starting WorkflowHub Downloader...")
+
+    all_ids = fetch_all_workflow_ids()
+    if not all_ids:
+        print("❌ No workflow IDs found. Exiting.")
+        return
+
     all_data = []
-    workflow_count = 0
+    processed = 0
 
-    for cat in categories:
-        if cat["type"] != "dir":
-            continue
-        category = cat["name"]
-        print(f"\n📂 Scanning category: {category}")
-        try:
-            repos = github_api_get(f"{GITHUB_API_URL}/{category}")
-        except Exception as e:
-            print(f"⚠️ Failed to get contents for {category}: {e}")
-            continue
+    print(f"🔧 MAX_WORKFLOWS = {MAX_WORKFLOWS}")
 
-        for repo in repos:
-            if repo["type"] != "dir":
-                continue
-            if MAX_WORKFLOWS is not None and workflow_count >= MAX_WORKFLOWS:
-                print(f"\n✅ Reached MAX_WORKFLOWS limit: {MAX_WORKFLOWS}")
-                break
+    for wf_id in all_ids:
 
-            repo_name = repo["name"]
-            print(f"  📁 Scanning workflow repo: {repo_name}")
-            repo_data = scan_repo(category, repo_name)
-            if repo_data:
-                all_data.append(repo_data)
-                workflow_count += 1
-
-        if MAX_WORKFLOWS is not None and workflow_count >= MAX_WORKFLOWS:
+        if MAX_WORKFLOWS is not None and processed >= MAX_WORKFLOWS:
             break
 
-    # Save output with timestamp
+        print(f"\n📦 Processing WorkflowHub ID: {wf_id}")
+
+        entry = process_workflowhub_workflow(wf_id)
+        if entry:
+            all_data.append(entry)
+            processed += 1
+
+    # Save output
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = os.path.join(os.path.dirname(__file__), "data")
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"galaxy_iwc_workflows_{timestamp}.json")
+    out_dir = os.path.join(os.path.dirname(__file__), "data")
+    os.makedirs(out_dir, exist_ok=True)
+
+    output_file = os.path.join(out_dir, f"workflowhub_cleaned_{timestamp}.json")
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
 
-    print(f"\n📦 Saved summary to {output_file}")
+    print(f"\n✅ Successfully saved {processed} cleaned workflows → {output_file}")
+
 
 if __name__ == "__main__":
     main()
