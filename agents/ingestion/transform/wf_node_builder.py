@@ -22,7 +22,8 @@ class NodeBuilder:
                 "has_readme": data.get("has_readme", False),
                 "has_changelog": data.get("has_changelog", False),
                 "has_test_data": data.get("has_test_data", False),
-                "planemo_tests": data.get("planemo_tests", [])
+                "planemo_tests": data.get("planemo_tests", []),
+                "embedding": data.get("embedding")  # Added for GraphRAG
             }
         }
 
@@ -33,9 +34,8 @@ class NodeBuilder:
         step_uid = self._generate_id(workflow_id, step.get("step_id"))
         tool_repo = step.get("tool_shed_repository", {})
 
-        # Correct Step Name Logic
         if step.get("tool_id"):
-            step_name = step["tool_id"]          # always use the real tool ID
+            step_name = step["tool_id"]
         elif step.get("name"):
             step_name = step["name"]
         else:
@@ -55,17 +55,14 @@ class NodeBuilder:
                 "input_connections": __import__("json").dumps(step.get("input_connections", {})),
                 "tool_owner": tool_repo.get("owner"),
                 "tool_repo": tool_repo.get("name"),
-                "tool_shed_url": tool_repo.get("tool_shed"),
+                "tool_shed_url": tool_repo.get("tool_shed")
+            }
         }
-    }
 
     # -----------------------
     # Tool Node
     # -----------------------
-    def create_tool(self, tool_id, version=None, repo_name=None, owner=None):
-        """
-        Create a Tool node to be used by USES_TOOL edges
-        """
+    def create_tool(self, tool_id, version=None, repo_name=None, owner=None, embedding=None):
         node_id = self._generate_id(tool_id, version)
         return {
             "label": "Tool",
@@ -74,7 +71,8 @@ class NodeBuilder:
                 "tool_uid": node_id,
                 "version": version,
                 "repo_name": repo_name,
-                "owner": owner
+                "owner": owner,
+                "embedding": embedding  # Added for GraphRAG
             }
         }
 
