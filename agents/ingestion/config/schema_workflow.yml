@@ -12,7 +12,8 @@ nodes:
       - has_readme         
       - has_changelog       
       - has_test_data      
-      - planemo_tests       
+      - planemo_tests
+      - embedding           # vector embedding for GraphRAG
 
   Step:
     unique: step_uid        
