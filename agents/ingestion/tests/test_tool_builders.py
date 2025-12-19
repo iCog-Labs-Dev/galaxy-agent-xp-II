@@ -62,3 +62,17 @@ def test_build_category_and_io_nodes():
     assert out_node["label"] == "ToolOutput"
     assert out_node["properties"]["output_uid"].startswith("t1::output::out1")
     assert out_node["properties"]["format"] == "fasta"
+def test_tool_embedding_included():
+    b = ToolMetadataBuilder()
+    tool = {
+        "id": "t2",
+        "name": "EmbedTool",
+        "description": "embeds X",
+        "version": "0.2",
+        "help": "usage",
+        "embedding": [0.1, 0.2, 0.3]  # simulated embedding
+    }
+    node = b.build_tool(tool)
+    props = node["properties"]
+    assert "embedding" in props
+    assert props["embedding"] == [0.1, 0.2, 0.3]
