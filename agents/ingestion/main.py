@@ -5,20 +5,21 @@ from Load.tool_loader import ToolLoader
 from tqdm import tqdm
 
 def load_config(path="agents/graphRAG/config/graph_db_config.yml"):
+    """Load Neo4j configuration from YAML file."""
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def main():
     print("🚀 Starting ETL process...")
 
-    # Load config
+    # Load configuration
     config = load_config()
     
     # Connect to Neo4j
     print("🔌 Connecting to Neo4j...")
     neo = Neo4jClient(config_path="agents/graphRAG/config/graph_db_config.yml")
 
-    # Optional: create indexes
+    # Optional: create indexes if specified in config
     if config.get("indexes", {}).get("create_on_start", False):
         print("📊 Creating indexes...")
         try:
@@ -47,7 +48,7 @@ def main():
     )
     print("✅ Tools ETL completed!")
 
-    # Close connection
+    # Close Neo4j connection
     neo.close()
     print("🎉 ETL process finished successfully!")
 
