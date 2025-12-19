@@ -5,6 +5,7 @@ nodes:
       - name
       - category        # category string
       - readme          # cleaned description text
+      - embedding       # vector embedding
 
   Tool:
     unique: name
@@ -13,6 +14,7 @@ nodes:
       - description
       - version
       - help
+      - embedding       # vector embedding
 
   Category:
     unique: name
