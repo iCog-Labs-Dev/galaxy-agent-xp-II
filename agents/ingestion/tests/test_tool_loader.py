@@ -27,6 +27,7 @@ ToolLoader = mod.ToolLoader
 
 
 class DummyNeo:
+    """Mock Neo4j client for unit testing ToolLoader"""
     def __init__(self):
         self.merged_nodes = []
         self.merged_rels = []
@@ -34,12 +35,12 @@ class DummyNeo:
     def merge_node(self, label, properties, unique_key=None):
         self.merged_nodes.append((label, dict(properties), unique_key))
 
-    def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props):
+    def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props=None):
         self.merged_rels.append((type, from_label, from_props, to_label, to_props, rel_props))
 
 
-def make_tool_dict():
-    return {
+def make_tool_dict(include_embedding=False):
+    tool = {
         "id": "tool_x",
         "name": "Tool X",
         "description": "desc",
@@ -49,17 +50,18 @@ def make_tool_dict():
         "outputs": [{"name": "outA", "format": "csv"}],
         "help": ""
     }
+    if include_embedding:
+        tool["embedding"] = [0.1, 0.2, 0.3]
+    return tool
 
 
 def test_tool_loader_process_tool_creates_nodes_and_rels(tmp_path):
     neo = DummyNeo()
-    # Instantiate ToolLoader without running its __init__ to avoid import
-    # issues for package-relative imports during tests.
+    # Instantiate ToolLoader without running __init__
     tl = ToolLoader.__new__(ToolLoader)
     tl.neo = neo
 
-    # Load builder classes directly from files
-    import importlib.util
+    # Load builder classes dynamically
     node_builder_path = ROOT / "agents" / "ingestion" / "transform" / "tool_node_builder.py"
     rel_builder_path = ROOT / "agents" / "ingestion" / "transform" / "tool_rel_builder.py"
 
@@ -76,23 +78,30 @@ def test_tool_loader_process_tool_creates_nodes_and_rels(tmp_path):
     tl.build = ToolMetadataBuilder()
     tl.rel = ToolMetadataRelations()
 
-    t = make_tool_dict()
+    # Create a test tool including embedding
+    t = make_tool_dict(include_embedding=True)
 
-    # process single tool
+    # Process the tool
     tl.process_tool(t)
 
-    # Expect Tool node merged
-    labels = [n[0] for n in neo.merged_nodes]
-    assert "Tool" in labels
+    # Check Tool node merged
+    tool_nodes = [n for n in neo.merged_nodes if n[0] == "Tool"]
+    assert len(tool_nodes) == 1
+    tool_node_props = tool_nodes[0][1]
+    assert tool_node_props["tool_id"] == "tool_x"
+    assert tool_node_props["name"] == "Tool X"
+    # Embedding check
+    assert "embedding" in tool_node_props
+    assert tool_node_props["embedding"] == [0.1, 0.2, 0.3]
 
-    # Expect ToolCategory node merged
+    # Check ToolCategory node merged
     assert any(n[0] == "ToolCategory" for n in neo.merged_nodes)
 
-    # Inputs and outputs merged
+    # Check inputs and outputs merged
     assert any(n[0] == "ToolInput" for n in neo.merged_nodes)
     assert any(n[0] == "ToolOutput" for n in neo.merged_nodes)
 
-    # Relationships created
+    # Check relationships
     rel_types = [r[0] for r in neo.merged_rels]
     assert "BELONGS_TO" in rel_types
     assert "TOOL_HAS_INPUT" in rel_types
