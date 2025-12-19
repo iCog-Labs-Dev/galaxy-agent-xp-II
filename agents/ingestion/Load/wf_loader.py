@@ -41,7 +41,8 @@ class GraphLoader:
             "has_readme": wf_root.get("has_readme", False),
             "has_changelog": wf_root.get("has_changelog", False),
             "has_test_data": wf_root.get("has_test_data", False),
-            "planemo_tests": wf_root.get("planemo_tests", [])
+            "planemo_tests": wf_root.get("planemo_tests", []),
+            "embedding": wf_root.get("embedding")  # <-- Add embedding here if available
         })
         workflow_id = workflow_node["properties"]["workflow_id"]
         self.neo.merge_node(workflow_node["label"], workflow_node["properties"], unique_key="workflow_id")
@@ -67,11 +68,8 @@ class GraphLoader:
             self.neo.merge_rel(*self.rels.workflow_output(workflow_node, output_node))
 
     def _process_step(self, step, workflow_id, workflow_node):
-        # Step node
         step_node = self.nodes.create_step(step, workflow_id)
         self.neo.merge_node("Step", step_node["properties"], unique_key="step_uid")
-
-        # Workflow → Step
         self.neo.merge_rel(*self.rels.workflow_step(workflow_node, step_node))
 
         # Step → Tool (USES_TOOL)
@@ -83,6 +81,10 @@ class GraphLoader:
                 step.get("tool_repo", ""),
                 step.get("tool_owner", "")
             )
+            # Add embedding if available in the step/tool
+            if "embedding" in step:
+                tool_node["properties"]["embedding"] = step["embedding"]
+
             self.neo.merge_node(tool_node["label"], tool_node["properties"], unique_key="tool_id")
             self.neo.merge_rel(*self.rels.step_tool(step_node, tool_node))
 
