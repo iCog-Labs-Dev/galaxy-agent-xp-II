@@ -42,7 +42,6 @@ class WorkflowParser:
 
     def _extract_list_items(self, block: str):
         lines = block.split("\n")
-
         items = []
         for line in lines:
             line = line.strip()
@@ -52,5 +51,29 @@ class WorkflowParser:
                 line = re.sub(r"^[-*•]\s+", "", line)
                 line = re.sub(r"^\d+[\.\)]\s+", "", line)
                 items.append(line.strip())
-
         return items
+
+    # ------------------- Canonical text for embedding -------------------
+    def build_workflow_text(self, workflow: dict) -> str:
+        """
+        Build canonical text for embedding a workflow entity.
+        """
+        repo = workflow.get("workflow_repository", "")
+        category = workflow.get("category", "")
+        readme = workflow.get("readme_cleaned", "")
+
+        # Extract inputs and outputs
+        inputs, outputs = self.extract_io(readme)
+
+        tools = workflow.get("tool_names", [])
+
+        text_parts = [
+            f"Repository: {repo}",
+            f"Category: {category}",
+            f"Description: {readme}",
+            f"Tools: {', '.join(tools)}",
+            f"Inputs: {', '.join(inputs)}",
+            f"Outputs: {', '.join(outputs)}"
+        ]
+
+        return " ".join(filter(None, text_parts))
