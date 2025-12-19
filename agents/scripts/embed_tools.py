@@ -84,7 +84,7 @@ def main():
     parser.add_argument("--output-dir", type=str, default="embeddings", help="Directory to save embeddings and metadata.")
     parser.add_argument("--model", type=str, default="BAAI/bge-base-en-v1.5", help="Embedding model to use.")
     args = parser.parse_args()
-
+    
     # Load input JSON
     with open(args.input, "r", encoding="utf-8") as f:
         tools = json.load(f)

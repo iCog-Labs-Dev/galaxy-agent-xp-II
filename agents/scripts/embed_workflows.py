@@ -1,98 +1,136 @@
+"""
+Generate embeddings for Galaxy / IWC Workflow metadata.
+
+Steps:
+1. Load cleaned workflow JSON.
+2. Build semantic text per workflow.
+3. Encode using BAAI/bge-base-en-v1.5.
+4. Save embeddings + metadata (Neo4j-ready).
+"""
+
 import argparse
 import json
-import os
 import time
+from pathlib import Path
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
-def main(args):
-    # Load workflow metadata
-    with open(args.input, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Structure texts for embedding
+def build_workflow_texts(workflows: list[dict]) -> list[str]:
+    """
+    Convert each workflow record into a single semantic text string for embedding.
+    """
     texts = []
-    metadata_for_saving = []   # Store metadata with download URLs for saving
-    for entry in data:
-        workflow_repo = entry.get("workflow_repository", "")
-        category = entry.get("category", "")
-        readme = entry.get("readme_cleaned", "")
-        tools = entry.get("tool_names", [])
-        raw_download_url = entry.get("raw_download_url", "") 
-        
+    for wf in workflows:
+        repo = wf.get("workflow_repository") or ""
+        category = wf.get("category") or ""
+        readme = wf.get("readme_cleaned") or ""
+        tools = wf.get("tool_names") or []
 
-        # Build structured text embedding
+        tools_str = ", ".join(tools)
+
         text = (
-            f"Workflow Repository: {workflow_repo}. "
+            f"Workflow repository: {repo}. "
             f"Category: {category}. "
             f"Description: {readme}. "
-            f"Tools Used: {', '.join(tools)}."
-            f"Download URL: {raw_download_url}" 
+            f"Tools used: {tools_str}."
         )
         texts.append(text)
 
-            # Store complete metadata including download URL for saving
-        metadata_for_saving.append({
-            "workflow_repository": workflow_repo,
-            "category": category,
-            "tool_names": tools,
-            "readme_cleaned": readme,
-            "raw_download_url": raw_download_url})
+    return texts
 
-    # Load model
-    print(f"Loading model: {args.model}")
-    model = SentenceTransformer(args.model)
 
-    # Encode workflows
+def encode_workflows(workflows: list[dict], model_name: str) -> np.ndarray:
+    """
+    Encode workflow texts into normalized embeddings.
+    """
+    print(f"🔄 Loading model: {model_name}")
+    model = SentenceTransformer(model_name)
+
+    texts = build_workflow_texts(workflows)
+
     embeddings = model.encode(
         texts,
+        convert_to_numpy=True,
         show_progress_bar=True,
-        convert_to_numpy=True
+        normalize_embeddings=True  
     )
+    return embeddings
 
-    # Ensure output dir exists
-    os.makedirs(args.output_dir, exist_ok=True)
 
-    # Timestamp for versioning
+def save_embeddings(
+    workflows: list[dict],
+    embeddings: np.ndarray,
+    output_dir: str
+) -> None:
+    """
+    Save embeddings and workflow metadata together.
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
 
-    # Save embeddings + metadata
-    emb_path = os.path.join(args.output_dir, f"iwc_workflow_embeddings_{timestamp}.npy")
-    meta_path = os.path.join(args.output_dir, f"iwc_workflow_metadata_{timestamp}.json")
-
+    # Save raw embeddings
+    emb_path = Path(output_dir) / f"workflow_embeddings_{timestamp}.npy"
     np.save(emb_path, embeddings)
+
+    # Merge embeddings into metadata (Neo4j-ready)
+    workflows_with_emb = [
+        {
+            "workflow_repository": wf.get("workflow_repository"),
+            "category": wf.get("category"),
+            "tool_names": wf.get("tool_names"),
+            "readme_cleaned": wf.get("readme_cleaned"),
+            "raw_download_url": wf.get("raw_download_url"),
+            "embedding": emb.tolist()
+        }
+        for wf, emb in zip(workflows, embeddings)
+    ]
+
+    meta_path = Path(output_dir) / f"workflow_metadata_with_embeddings_{timestamp}.json"
     with open(meta_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(workflows_with_emb, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Encoded {len(embeddings)} workflows")
     print(f"💾 Embeddings saved to: {emb_path}")
-    print(f"💾 Metadata saved to: {meta_path}")
-    print(f"📥 Download URLs included in both embedded text and metadata")
+    print(f"💾 Metadata + embeddings saved to: {meta_path}")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate embeddings for IWC workflows metadata.")
 
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate workflow embeddings for Neo4j ingestion."
+    )
     parser.add_argument(
         "--input",
         type=str,
         required=True,
-        help="Path to the preprocessed IWC workflows JSON file."
+        help="Path to cleaned workflow metadata JSON file."
     )
-
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="agents/embeddings",
-        help="Directory where embeddings and metadata will be saved."
+        default="embeddings",
+        help="Directory to save embeddings and metadata."
     )
-
     parser.add_argument(
         "--model",
         type=str,
-        default="johnnas12/e5-galaxy-finetuned",
+        default="BAAI/bge-base-en-v1.5",
         help="SentenceTransformer model to use."
     )
 
     args = parser.parse_args()
-    main(args)
+
+    # Load workflows
+    with open(args.input, "r", encoding="utf-8") as f:
+        workflows = json.load(f)
+
+    # Encode embeddings
+    embeddings = encode_workflows(workflows, args.model)
+
+    # Save results
+    save_embeddings(workflows, embeddings, args.output_dir)
+
+
+if __name__ == "__main__":
+    main()

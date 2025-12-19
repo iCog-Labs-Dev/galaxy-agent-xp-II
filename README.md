@@ -4,18 +4,31 @@ Galaxy Agent XP-II is a **FastAPI-powered AI assistant** that recommends **Galax
 
 ## Table of Contents
 
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Quick Start](#-quick-start)
-  - [Prerequisites](#1-prerequisites)
-  - [Installation](#2-installation)
-  - [Configuration](#3-configuration)
-  - [Data Preparation & Embeddings](#4-data-preparation--embeddings)
-- [API Endpoints](#-api-endpoints)
-- [How It Works](#-how-it-works)
-- [Example Usage](#-example-usage)
-- [Tech Stack](#-tech-stack)
-- [Security Notes](#-security-notes)
+- [Galaxy Agent XP-II – AI-Powered Galaxy Tool \& Workflow Recommender](#galaxy-agent-xp-ii--ai-powered-galaxy-tool--workflow-recommender)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+    - [Workflow](#workflow)
+  - [Quick Start](#quick-start)
+    - [1️⃣ Prerequisites](#1️⃣-prerequisites)
+    - [2️⃣ Installation](#2️⃣-installation)
+    - [3️⃣ Configuration](#3️⃣-configuration)
+      - [Environment Variables](#environment-variables)
+      - [Application Configuration](#application-configuration)
+    - [4️⃣ Data Preparation \& Embeddings](#4️⃣-data-preparation--embeddings)
+      - [Fetch Galaxy Tools \& Workflows](#fetch-galaxy-tools--workflows)
+      - [Generate Embeddings](#generate-embeddings)
+    - [5️⃣ Run the FastAPI Backend](#5️⃣-run-the-fastapi-backend)
+  - [API Endpoints](#api-endpoints)
+    - [Health Check](#health-check)
+    - [Tool Recommendation](#tool-recommendation)
+    - [Workflow Recommendation](#workflow-recommendation)
+    - [Unified Recommendation Endpoint](#unified-recommendation-endpoint)
+  - [How It Works](#how-it-works)
+  - [Key Notes](#key-notes)
+  - [Example Usage](#example-usage)
+  - [Tech Stack](#tech-stack)
+  - [Security Notes](#security-notes)
 
 
 ##  Features
@@ -118,7 +131,6 @@ python utilities/tools_metadata_downloader/run.py
 # Fetch and preprocess publicly available workflows
 python utilities/workflow_downloader/run.py
 ```
-
 #### Generate Embeddings
 
 Generate embeddings for semantic search:
