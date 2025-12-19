@@ -1,0 +1,172 @@
+{
+  "nodes": {
+    "Workflow": {
+      "unique": "workflow_id",
+      "fields": [
+        "workflow_id",
+        "name",
+        "category",
+        "file_name",
+        "download_url",
+        "number_of_steps",
+        "readme",
+        "has_readme",
+        "has_changelog",
+        "has_test_data",
+        "planemo_tests"
+      ],
+      "alias": "w"
+    },
+    "Step": {
+      "unique": "step_uid",
+      "fields": [
+        "step_uid",
+        "workflow_id",
+        "step_id",
+        "name",
+        "type",
+        "annotation",
+        "tool_id",
+        "tool_version",
+        "input_connections",
+        "tool_owner",
+        "tool_repo",
+        "tool_shed_url"
+      ],
+      "alias": "s"
+    },
+    "Input": {
+      "unique": "input_uid",
+      "fields": ["input_uid","workflow_id","step_id","name","description"],
+      "alias": "i"
+    },
+    "Output": {
+      "unique": "output_uid",
+      "fields": ["output_uid","workflow_id","step_id","name","description"],
+      "alias": "o"
+    },
+    "Tool": {
+      "unique": "tool_id",
+      "fields": ["tool_id","tool_uid","name","version","repo_name","owner","description","help"],
+      "alias": "t"
+    },
+    "ToolCategory": {
+      "unique": "category_id",
+      "fields": ["category_id","name"],
+      "alias": "tc"
+    },
+    "ToolInput": {
+      "unique": "input_uid",
+      "fields": ["input_uid","tool_id","name","type","accepts"],
+      "alias": "ti"
+    },
+    "ToolOutput": {
+      "unique": "output_uid",
+      "fields": ["output_uid","tool_id","name","format"],
+      "alias": "to"
+    },
+    "Category": {
+      "unique": "category_id",
+      "fields": ["category_id","name"],
+      "alias": "c"
+    },
+    "Keyword": {
+      "unique": "name",
+      "fields": ["name"],
+      "alias": "k"
+    }
+  },
+  "relationships": {
+    "HAS_WORKFLOW": {
+      "from": "Category",
+      "to": "Workflow",
+      "return_properties": [],
+      "alias_from": "c",
+      "alias_to": "w"
+    },
+    "HAS_STEP": {
+      "from": "Workflow",
+      "to": "Step",
+      "return_properties": ["step_id","name","tool_id"],
+      "alias_from": "w",
+      "alias_to": "s"
+    },
+    "USES_TOOL": {
+      "from": "Step",
+      "to": "Tool",
+      "return_properties": ["tool_id","name","version"],
+      "alias_from": "s",
+      "alias_to": "t"
+    },
+    "REQUIRES": {
+      "from": "Workflow",
+      "to": "Input",
+      "return_properties": ["name","description"],
+      "alias_from": "w",
+      "alias_to": "i"
+    },
+    "GENERATES": {
+      "from": "Workflow",
+      "to": "Output",
+      "return_properties": ["name","description"],
+      "alias_from": "w",
+      "alias_to": "o"
+    },
+    "STEP_REQUIRES": {
+      "from": "Step",
+      "to": "Input",
+      "return_properties": ["name","description"],
+      "alias_from": "s",
+      "alias_to": "i"
+    },
+    "STEP_GENERATES": {
+      "from": "Step",
+      "to": "Output",
+      "return_properties": ["name","description"],
+      "alias_from": "s",
+      "alias_to": "o"
+    },
+    "BELONGS_TO": {
+      "from": "Tool",
+      "to": "ToolCategory",
+      "return_properties": ["name"],
+      "alias_from": "t",
+      "alias_to": "tc"
+    },
+    "TOOL_HAS_INPUT": {
+      "from": "Tool",
+      "to": "ToolInput",
+      "return_properties": ["name","type","accepts"],
+      "alias_from": "t",
+      "alias_to": "ti"
+    },
+    "TOOL_HAS_OUTPUT": {
+      "from": "Tool",
+      "to": "ToolOutput",
+      "return_properties": ["format"],
+      "alias_from": "t",
+      "alias_to": "to"
+    },
+    "HAS_KEYWORD": {
+      "from": "Workflow",
+      "to": "Keyword",
+      "return_properties": ["name"],
+      "alias_from": "w",
+      "alias_to": "k"
+    },
+    "TOOL_HAS_KEYWORD": {
+      "from": "Tool",
+      "to": "Keyword",
+      "return_properties": ["name"],
+      "alias_from": "t",
+      "alias_to": "k"
+    },
+    "SIMILAR_TO": {
+      "from": "Tool",
+      "to": "Tool",
+      "return_properties": ["score"],
+      "alias_from": "t",
+      "alias_to": "t"
+    }
+  }
+}

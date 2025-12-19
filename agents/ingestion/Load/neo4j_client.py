@@ -113,3 +113,25 @@ class Neo4jClient:
         except Exception as e:
             logger.error(f"Error merging relationship {type} from {from_label} to {to_label}: {e}")
             raise
+
+    # -----------------------------
+    # Convenience method for Step → Tool
+    # -----------------------------
+    def merge_step_tool(self, step_node_props, tool_node_props):
+        """
+        Merge a USES_TOOL relationship from Step to Tool.
+        """
+        if "step_uid" not in step_node_props or "tool_id" not in tool_node_props:
+            raise ValueError("Step node must have 'step_uid' and Tool node must have 'tool_id'")
+
+        try:
+            self.merge_rel(
+                type="USES_TOOL",
+                from_label="Step",
+                from_props={"step_uid": step_node_props["step_uid"]},
+                to_label="Tool",
+                to_props={"tool_id": tool_node_props["tool_id"]},
+            )
+        except Exception as e:
+            logger.error(f"Error creating USES_TOOL relationship for Step {step_node_props.get('step_uid')}: {e}")
+            raise

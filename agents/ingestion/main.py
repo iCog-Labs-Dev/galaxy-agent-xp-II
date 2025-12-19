@@ -2,50 +2,54 @@ import yaml
 from Load.neo4j_client import Neo4jClient
 from Load.wf_loader import GraphLoader
 from Load.tool_loader import ToolLoader
+from tqdm import tqdm
 
-# Helper to load YAML config
-def load_config(path = "agents/graphRAG/config/graph_db_config.yml"):
+def load_config(path="agents/graphRAG/config/graph_db_config.yml"):
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def main():
-    # Load Neo4j config from YAML
+    print("🚀 Starting ETL process...")
+
+    # Load config
     config = load_config()
-    neo_cfg = config["neo4j"]
+    
+    # Connect to Neo4j
+    print("🔌 Connecting to Neo4j...")
+    neo = Neo4jClient(config_path="agents/graphRAG/config/graph_db_config.yml")
 
-    # Connect to Neo4j using config
-    neo = Neo4jClient(
-        uri=neo_cfg["uri"],
-        user=neo_cfg["user"],
-        password=neo_cfg["password"]
-    )
-
-    # Create indexes if configured
+    # Optional: create indexes
     if config.get("indexes", {}).get("create_on_start", False):
+        print("📊 Creating indexes...")
         try:
             neo.create_indexes()
+            print("✅ Indexes created")
         except Exception as e:
-            print(f"Warning: failed to create indexes: {e}")
+            print(f"⚠️ Warning: failed to create indexes: {e}")
 
     # -----------------------
     # 1. Workflows ETL
     # -----------------------
+    print("📥 Loading workflows...")
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
         "utilities/workflow_downloader/data/galaxy_iwc_workflows_20251205_162934.json"
     )
+    print("✅ Workflows ETL completed!")
 
     # -----------------------
     # 2. Tools ETL
     # -----------------------
+    print("📥 Loading tools...")
     tool_loader = ToolLoader(neo)
     tool_loader.import_file(
         "utilities/tools_metadata_downloader/data/galaxy_instance_tools_2025-12-04_23-58-00.json"
     )
+    print("✅ Tools ETL completed!")
 
     # Close connection
     neo.close()
-    print("Workflows ETL completed!")
+    print("🎉 ETL process finished successfully!")
 
 if __name__ == "__main__":
     main()

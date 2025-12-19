@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Generate text embeddings for Galaxy workflow/tool metadata.
+Generate embeddings for Galaxy Tool metadata in a production-ready way.
 
 Steps:
-1. Read a JSON file that matches the Galaxy metadata schema.
-2. Convert each record into a single text string for embedding.
-3. Encode those strings using a SentenceTransformer model.
-4. Save both the embeddings and the original metadata with a timestamp.
+1. Load JSON metadata.
+2. Build descriptive text per Tool for embeddings.
+3. Encode texts using a SentenceTransformer model.
+4. Save embeddings along with metadata (for Neo4j ingestion).
 """
 
 import argparse
@@ -19,94 +19,82 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
-def build_texts(data: list[dict]) -> list[str]:
+def build_tool_texts(tools: list[dict]) -> list[str]:
     """
-    Convert each metadata record into a single descriptive text string.
-
-    - Joins category values into a comma-separated string.
-    - Replaces nulls with an empty string.
+    Convert each Tool record into a single text string for embedding.
     """
     texts = []
-    for entry in data:
-        # Safely get categories as a comma-separated string
-        categories = entry.get("categories") or []
+    for tool in tools:
+        tool_id = tool.get("id") or ""
+        name = tool.get("name") or ""
+        description = tool.get("description") or ""
+        version = tool.get("version") or ""
+        help_text = tool.get("help") or ""
+        categories = tool.get("categories") or []
         categories_str = ", ".join([c for c in categories if c])
 
-        help_text = entry.get("help") or ""
-        # Safely get required fields, fallback to empty string if missing or None
-        tool_id = entry.get("id") or ""
-        name = entry.get("name") or ""
-        description = entry.get("description") or ""
-        version = entry.get("version") or ""
-
-        # Build the combined text for embedding
-        text = (
-            f"{tool_id} - {name} - {description} - "
-            f"{categories_str} - {version} - {help_text}"
-        )
+        text = f"{tool_id} - {name} - {description} - {categories_str} - {version} - {help_text}"
         texts.append(text)
     return texts
 
 
-def main(args: argparse.Namespace) -> None:
-    # Load JSON metadata
-    with open(args.input, "r", encoding="utf-8") as f:
-        data = json.load(f)
+def encode_tools(tools: list[dict], model_name: str) -> list[np.ndarray]:
+    """
+    Encode the list of tool texts into embeddings using a SentenceTransformer model.
+    """
+    print(f"🔄 Loading model: {model_name}")
+    model = SentenceTransformer(model_name)
 
-    # Prepare text for embedding
-    texts = build_texts(data)
-
-    # Load the sentence-transformer model
-    print(f"🔄 Loading model: {args.model}")
-    model = SentenceTransformer(args.model)
-
-    # Encode texts into embeddings
+    texts = build_tool_texts(tools)
     embeddings = model.encode(
         texts,
+        convert_to_numpy=True,
         show_progress_bar=True,
-        convert_to_numpy=True
+        normalize_embeddings=True  # normalize for cosine similarity
     )
+    return embeddings
 
-    # Ensure output directory exists
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Timestamped filenames for versioning
+def save_embeddings(tools: list[dict], embeddings: np.ndarray, output_dir: str) -> None:
+    """
+    Save embeddings and metadata to the output directory with a timestamp.
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    emb_path = output_dir / f"galaxy_embeddings_{timestamp}.npy"
-    meta_path = output_dir / f"galaxy_metadata_{timestamp}.json"
 
-    # Save embeddings and original metadata
+    # Save embeddings as NumPy file
+    emb_path = Path(output_dir) / f"tool_embeddings_{timestamp}.npy"
     np.save(emb_path, embeddings)
-    with open(meta_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Encoded {len(embeddings)} texts")
-    print(f"💾 Embeddings saved to: {emb_path}")
-    print(f"💾 Metadata saved to:  {meta_path}")
+    # Merge embeddings into metadata and save as JSON
+    tools_with_emb = [
+        {**tool, "embedding": emb.tolist()} for tool, emb in zip(tools, embeddings)
+    ]
+    meta_path = Path(output_dir) / f"tool_metadata_with_embeddings_{timestamp}.json"
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(tools_with_emb, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Saved {len(embeddings)} embeddings to {emb_path}")
+    print(f"✅ Saved metadata + embeddings to {meta_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate Tool embeddings for Neo4j ingestion.")
+    parser.add_argument("--input", type=str, required=True, help="Path to JSON file with tool metadata.")
+    parser.add_argument("--output-dir", type=str, default="embeddings", help="Directory to save embeddings and metadata.")
+    parser.add_argument("--model", type=str, default="BAAI/bge-base-en-v1.5", help="Embedding model to use.")
+    args = parser.parse_args()
+
+    # Load input JSON
+    with open(args.input, "r", encoding="utf-8") as f:
+        tools = json.load(f)
+
+    # Encode embeddings
+    embeddings = encode_tools(tools, args.model)
+
+    # Save embeddings and combined metadata
+    save_embeddings(tools, embeddings, args.output_dir)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate embeddings for Galaxy metadata."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to the preprocessed JSON input file."
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="agents/embeddings",
-        help="Directory where embeddings and metadata will be saved."
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default="johnnas12/e5-galaxy-finetuned",
-        help="SentenceTransformer model to use."
-    )
-
-    main(parser.parse_args())
+    main()

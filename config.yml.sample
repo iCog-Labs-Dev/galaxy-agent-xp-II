@@ -17,7 +17,7 @@ comparison:
   output_excel: "galaxy_tools_comparison.xlsx"
 
 agent:
-  base_model: "intfloat/e5-base-v2"
+  base_model: "BAAI/e5-base-en-v1.5"
   finetuned_model: "agents/models/e5-galaxy-finetuned"
   tools_embeddings_path: "agents/embeddings/galaxy_embeddings_20250818_104503.npy"
   tools_metadata_path: "agents/embeddings/galaxy_metadata_20250818_104503.json"

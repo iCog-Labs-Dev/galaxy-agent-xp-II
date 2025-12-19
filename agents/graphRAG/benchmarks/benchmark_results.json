@@ -1,0 +1,56 @@
+{
+    "summary": {
+        "avg_recall@k": 0.0,
+        "avg_precision@k": 0.0,
+        "avg_mrr": 0.0,
+        "avg_latency_sec": 0.3070322275161743,
+        "num_tests": 4,
+        "timestamp": "2025-12-15T10:03:34.017409"
+    },
+    "results": [
+        {
+            "prompt": "How many workflows are in the database?",
+            "predicted": [],
+            "relevant": [
+                "10"
+            ],
+            "recall@k": 0.0,
+            "precision@k": 0.0,
+            "mrr": 0.0,
+            "latency_sec": 0.8155243396759033
+        },
+        {
+            "prompt": "What is the category of workflow 'assembly-hifi-hic-phasing-vgp4'?",
+            "predicted": [],
+            "relevant": [
+                "vgp-assembly-v2"
+            ],
+            "recall@k": 0.0,
+            "precision@k": 0.0,
+            "mrr": 0.0,
+            "latency_sec": 0.13406586647033691
+        },
+        {
+            "prompt": "How many steps are in workflow 'Genome Assembly from Hifi reads with HiC phasing - VGP4'?",
+            "predicted": [],
+            "relevant": [
+                "75"
+            ],
+            "recall@k": 0.0,
+            "precision@k": 0.0,
+            "mrr": 0.0,
+            "latency_sec": 0.13842177391052246
+        },
+        {
+            "prompt": "What is the raw download URL for workflow 'Assembly-Hifi-only-VGP3'?",
+            "predicted": [],
+            "relevant": [
+                "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/VGP-assembly-v2/Assembly-Hifi-only-VGP3/Assembly-Hifi-only-VGP3.ga"
+            ],
+            "recall@k": 0.0,
+            "precision@k": 0.0,
+            "mrr": 0.0,
+            "latency_sec": 0.14011693000793457
+        }
+    ]
+}

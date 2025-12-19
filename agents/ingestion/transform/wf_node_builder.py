@@ -32,24 +32,32 @@ class NodeBuilder:
     def create_step(self, step, workflow_id):
         step_uid = self._generate_id(workflow_id, step.get("step_id"))
         tool_repo = step.get("tool_shed_repository", {})
+
+        # Correct Step Name Logic
+        if step.get("tool_id"):
+            step_name = step["tool_id"]          # always use the real tool ID
+        elif step.get("name"):
+            step_name = step["name"]
+        else:
+            step_name = f"Step_{step.get('step_id', step_uid)}"
+
         return {
             "label": "Step",
             "properties": {
                 "step_uid": step_uid,
                 "workflow_id": workflow_id,
                 "step_id": step.get("step_id"),
-                "name": step.get("name"),
+                "name": step_name,
                 "type": step.get("type"),
                 "annotation": step.get("annotation"),
                 "tool_id": step.get("tool_id"),
                 "tool_version": step.get("tool_version"),
-                # input_connections can contain nested maps; serialize to JSON string
                 "input_connections": __import__("json").dumps(step.get("input_connections", {})),
                 "tool_owner": tool_repo.get("owner"),
                 "tool_repo": tool_repo.get("name"),
                 "tool_shed_url": tool_repo.get("tool_shed"),
-            }
         }
+    }
 
     # -----------------------
     # Tool Node

@@ -22,12 +22,10 @@ class GraphLoader:
             self._process_workflow(wf)
 
     def _process_workflow(self, wf):
-        # Category node
         category_name = self.norm.normalize_category(wf["category"])
         category_node = self.nodes.create_category(category_name)
         self.neo.merge_node(category_node["label"], category_node["properties"], unique_key="category_id")
 
-        # Iterate workflow files
         for wf_file in wf.get("workflow_files", []):
             self._process_workflow_file(wf_file, wf, category_node)
 
@@ -56,7 +54,7 @@ class GraphLoader:
         for step in wf_file.get("steps", []):
             self._process_step(step, workflow_id, workflow_node)
 
-        # Workflow-level inputs/outputs from README
+        # Workflow-level inputs/outputs
         inputs, outputs = self.parser.extract_io(wf_root.get("readme_content", ""))
         for inp in inputs:
             input_node = self.nodes.create_input_node(workflow_id, None, inp, inp)
@@ -68,45 +66,34 @@ class GraphLoader:
             self.neo.merge_node(output_node["label"], output_node["properties"], unique_key="output_uid")
             self.neo.merge_rel(*self.rels.workflow_output(workflow_node, output_node))
 
-        def _process_step(self, step, workflow_id, workflow_node):
-            # Create Step node
-            step_node = self.nodes.create_step(step, workflow_id)
-            try:
-                self.neo.merge_node("Step", step_node["properties"], unique_key="step_uid")
-            except Exception as e:
-                print(f"[wf_loader][error] failed to merge Step node: {e}")
-                return
+    def _process_step(self, step, workflow_id, workflow_node):
+        # Step node
+        step_node = self.nodes.create_step(step, workflow_id)
+        self.neo.merge_node("Step", step_node["properties"], unique_key="step_uid")
 
-            # Workflow → Step
-            rel = self.rels.workflow_step(workflow_node, step_node)
-            try:
-                self.neo.merge_rel(*rel)
-            except Exception as e:
-                print(f"[wf_loader][error] failed to merge workflow->step rel: {e}")
-                return
+        # Workflow → Step
+        self.neo.merge_rel(*self.rels.workflow_step(workflow_node, step_node))
 
-            # Step → Tool (USES_TOOL)
-            tool_id = step.get("tool_id")
-            if tool_id:
-                # Ensure Tool node exists
-                tool_node = self.nodes.create_tool(tool_id, step.get("tool_version", ""), step.get("tool_repo", ""), step.get("tool_owner", ""))
-                try:
-                    self.neo.merge_node(tool_node["label"], tool_node["properties"], unique_key="tool_id")
-                    # Create USES_TOOL relationship
-                    rel = self.rels.step_tool(step_node, tool_id)
-                    self.neo.merge_rel(*rel)
-                except Exception as e:
-                    print(f"[wf_loader][error] failed to merge Step->Tool rel: {e}")
+        # Step → Tool (USES_TOOL)
+        tool_id = step.get("tool_id")
+        if tool_id:
+            tool_node = self.nodes.create_tool(
+                tool_id,
+                step.get("tool_version", ""),
+                step.get("tool_repo", ""),
+                step.get("tool_owner", "")
+            )
+            self.neo.merge_node(tool_node["label"], tool_node["properties"], unique_key="tool_id")
+            self.neo.merge_rel(*self.rels.step_tool(step_node, tool_node))
 
-            # Step Inputs
-            for inp in step.get("inputs", []):
-                input_node = self.nodes.create_input_node(workflow_id, step.get("step_id"), inp.get("name", ""), inp.get("description", ""))
-                self.neo.merge_node(input_node["label"], input_node["properties"], unique_key="input_uid")
-                self.neo.merge_rel(*self.rels.step_input(step_node, input_node))
+        # Step Inputs
+        for inp in step.get("inputs", []):
+            input_node = self.nodes.create_input_node(workflow_id, step.get("step_id"), inp.get("name", ""), inp.get("description", ""))
+            self.neo.merge_node(input_node["label"], input_node["properties"], unique_key="input_uid")
+            self.neo.merge_rel(*self.rels.step_input(step_node, input_node))
 
-            # Step Outputs
-            for out in step.get("outputs", []):
-                output_node = self.nodes.create_output_node(workflow_id, step.get("step_id"), out.get("name", ""), out.get("description", ""))
-                self.neo.merge_node(output_node["label"], output_node["properties"], unique_key="output_uid")
-                self.neo.merge_rel(*self.rels.step_output(step_node, output_node))
-
+        # Step Outputs
+        for out in step.get("outputs", []):
+            output_node = self.nodes.create_output_node(workflow_id, step.get("step_id"), out.get("name", ""), out.get("description", ""))
+            self.neo.merge_node(output_node["label"], output_node["properties"], unique_key="output_uid")
+            self.neo.merge_rel(*self.rels.step_output(step_node, output_node))

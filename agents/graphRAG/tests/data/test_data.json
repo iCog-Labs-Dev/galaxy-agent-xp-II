@@ -1,0 +1,18 @@
+[
+  {
+    "prompt": "How many workflows are in the database?",
+    "expected_answer": "10"
+  },
+  {
+    "prompt": "What is the category of workflow 'assembly-hifi-hic-phasing-vgp4'?",
+    "expected_answer": "vgp-assembly-v2"
+  },
+  {
+    "prompt": "How many steps are in workflow 'Genome Assembly from Hifi reads with HiC phasing - VGP4'?",
+    "expected_answer": "75"
+  },
+  {
+    "prompt": "What is the raw download URL for workflow 'Assembly-Hifi-only-VGP3'?",
+    "expected_answer": "https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/VGP-assembly-v2/Assembly-Hifi-only-VGP3/Assembly-Hifi-only-VGP3.ga"
+  }
+]

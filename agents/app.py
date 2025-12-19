@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 from agents.utils.response_models import (
     SuggestionRequest, SuggestionResponse, WorkflowSuggestionResponse
@@ -12,6 +13,9 @@ from agents.suggesting_agent import ToolSuggestionAgent
 from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
 from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 from agents.classification_service import classify_query
+from agents.graphRAG.retrieval.gemini_llm import GeminiLLM
+from agents.graphRAG.pipeline.rag_pipeline import GraphRAGPipeline
+from agents.ingestion.Load.neo4j_client import Neo4jClient
 
 # ---------------- CONFIGURATION ---------------- #
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +47,19 @@ except Exception as e:
     agent = None
     workflow_agent = None
 
+# ---------------- GRAPH RAG INITIALIZATION ---------------- #
+try:
+    neo4j_client = Neo4jClient()
+    llm = GeminiLLM()
+    rag = GraphRAGPipeline(neo4j_client.driver, llm)
+    logger.info(f"Pipeline initialized: {rag}")
+except Exception as e:
+    logger.warning(f"GraphRAG initialization failed: {e}")
+    rag = None
+
+# ---------------- REQUEST MODELS ---------------- #
+class NLQueryRequest(BaseModel):
+    query: str
 # ---------------- BASIC ROUTES ---------------- #
 @app.get("/")
 def root():
@@ -120,6 +137,25 @@ async def recommend(request: SuggestionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ---------------- GRAPH RAG ENDPOINT ---------------- #
+@app.post("/query-graphrag")
+def query_graphrag(request: NLQueryRequest):
+    """
+    Accepts natural language query, converts to Cypher, executes, 
+    and returns ONLY the Cypher and concise human-readable answer.
+    """
+    if not rag:
+        raise HTTPException(status_code=500, detail="GraphRAG pipeline not initialized.")
+    try:
+        result = rag.run(request.query)
+        return {
+            "cypher": result.get("cypher"),
+            "answer": result.get("answer")
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"GraphRAG query failed: {e}")
+    
 
 # ---------------- ENTRYPOINT (for local run only) ---------------- #
 if __name__ == "__main__":

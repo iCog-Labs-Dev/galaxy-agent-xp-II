@@ -47,3 +47,13 @@ class RelationshipBuilder:
             "Output", output_node["properties"],
             {}
         )
+    def step_tool(self, step, tool):
+        """
+        Create the Step → Tool relationship (USES_TOOL)
+        """
+        return (
+            "USES_TOOL",
+            "Step", step["properties"],
+            "Tool", tool["properties"],
+            {}
+        )
