@@ -1,12 +1,12 @@
 class ToolMetadataBuilder:
-    """Build node dictionaries for tools, categories, inputs and outputs.
+    """Build node dictionaries for tools, categories, inputs, and outputs.
 
     Each method returns a dict with keys `label` and `properties` suitable for
     use with `Neo4jClient.merge_node(label, properties, unique_key=...)`.
     """
 
     def build_tool(self, tool: dict) -> dict:
-        # Use explicit unique key `tool_id` from the source `id` field
+        # Include embedding if it exists
         return {
             "label": "Tool",
             "properties": {
@@ -14,7 +14,8 @@ class ToolMetadataBuilder:
                 "name": tool.get("name"),
                 "description": tool.get("description", ""),
                 "version": tool.get("version", ""),
-                "help": tool.get("help", "")
+                "help": tool.get("help", ""),
+                "embedding": tool.get("embedding")  # embedding added here
             }
         }
 
@@ -30,7 +31,6 @@ class ToolMetadataBuilder:
         }
 
     def build_input_node(self, tool_id: str, inp: dict) -> dict:
-        # Build a ToolInput node describing an input parameter or dataset
         name = inp.get("name") or inp.get("id") or ""
         accepts = inp.get("accepts") or inp.get("formats") or None
         accepts_val = None
