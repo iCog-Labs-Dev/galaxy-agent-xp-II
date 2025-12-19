@@ -1,9 +1,9 @@
 class RelationshipBuilder:
     def workflow_category(self, workflow, category):
         return (
-            "HAS_WORKFLOW",
-            "Category", category["properties"],
+            "BELONGS_TO",   # update type
             "Workflow", workflow["properties"],
+            "Category", category["properties"],
             {}
         )
 
@@ -15,10 +15,9 @@ class RelationshipBuilder:
             {"step_id": step["properties"].get("step_id")}
         )
 
-
     def workflow_input(self, workflow, input_node):
         return (
-            "REQUIRES",
+            "HAS_INPUT",
             "Workflow", workflow["properties"],
             "Input", input_node["properties"],
             {}
@@ -26,7 +25,7 @@ class RelationshipBuilder:
 
     def workflow_output(self, workflow, output_node):
         return (
-            "GENERATES",
+            "HAS_OUTPUT",
             "Workflow", workflow["properties"],
             "Output", output_node["properties"],
             {}
@@ -47,10 +46,8 @@ class RelationshipBuilder:
             "Output", output_node["properties"],
             {}
         )
+
     def step_tool(self, step, tool):
-        """
-        Create the Step → Tool relationship (USES_TOOL)
-        """
         return (
             "USES_TOOL",
             "Step", step["properties"],
