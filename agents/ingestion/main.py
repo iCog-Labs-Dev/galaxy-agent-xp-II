@@ -34,7 +34,7 @@ def main():
     print("📥 Loading workflows...")
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
-        "utilities/workflow_downloader/data/galaxy_iwc_workflows_20251205_162934.json"
+        "utilities/workflow_downloader/data/workflow_metadata_with_embeddings_20251220_000757.json"
     )
     print("✅ Workflows ETL completed!")
 

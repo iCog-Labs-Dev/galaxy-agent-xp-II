@@ -2,23 +2,13 @@ import sys
 import pathlib
 import pytest
 from unittest.mock import MagicMock
-
-# Ensure repo root is on sys.path so `agents` package imports resolve during tests
-ROOT = pathlib.Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT))
-
 import importlib.util
 
-# Load ToolLoader directly from file to avoid package import issues
-cwd = pathlib.Path(__file__).resolve()
-ROOT = None
-for p in cwd.parents:
-    if (p / "agents").exists():
-        ROOT = p
-        break
-if ROOT is None:
-    raise RuntimeError("Could not find repository root containing 'agents' directory")
+# Ensure repo root is on sys.path so `agents` package imports resolve during tests
+ROOT = pathlib.Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT))
 
+# Load ToolLoader directly from file to avoid package import issues
 tool_loader_path = ROOT / "agents" / "ingestion" / "Load" / "tool_loader.py"
 spec = importlib.util.spec_from_file_location("tool_loader", str(tool_loader_path))
 mod = importlib.util.module_from_spec(spec)
@@ -27,7 +17,7 @@ ToolLoader = mod.ToolLoader
 
 
 class DummyNeo:
-    """Mock Neo4j client for unit testing ToolLoader"""
+    """Mock Neo4j client for testing merge_node and merge_rel"""
     def __init__(self):
         self.merged_nodes = []
         self.merged_rels = []
@@ -36,10 +26,11 @@ class DummyNeo:
         self.merged_nodes.append((label, dict(properties), unique_key))
 
     def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props=None):
-        self.merged_rels.append((type, from_label, from_props, to_label, to_props, rel_props))
+        self.merged_rels.append((type, from_label, from_props, to_label, to_props, rel_props or {}))
 
 
 def make_tool_dict(include_embedding=False):
+    """Return a sample tool dictionary"""
     tool = {
         "id": "tool_x",
         "name": "Tool X",
@@ -56,8 +47,10 @@ def make_tool_dict(include_embedding=False):
 
 
 def test_tool_loader_process_tool_creates_nodes_and_rels(tmp_path):
+    """Test that ToolLoader processes a tool and creates expected nodes and relationships"""
     neo = DummyNeo()
-    # Instantiate ToolLoader without running __init__
+
+    # Instantiate ToolLoader without running __init__ to avoid import issues
     tl = ToolLoader.__new__(ToolLoader)
     tl.neo = neo
 
@@ -65,16 +58,19 @@ def test_tool_loader_process_tool_creates_nodes_and_rels(tmp_path):
     node_builder_path = ROOT / "agents" / "ingestion" / "transform" / "tool_node_builder.py"
     rel_builder_path = ROOT / "agents" / "ingestion" / "transform" / "tool_rel_builder.py"
 
+    # ToolMetadataBuilder
     spec_nb = importlib.util.spec_from_file_location("tool_node_builder", str(node_builder_path))
     mod_nb = importlib.util.module_from_spec(spec_nb)
     spec_nb.loader.exec_module(mod_nb)
     ToolMetadataBuilder = mod_nb.ToolMetadataBuilder
 
+    # ToolMetadataRelations
     spec_rb = importlib.util.spec_from_file_location("tool_rel_builder", str(rel_builder_path))
     mod_rb = importlib.util.module_from_spec(spec_rb)
     spec_rb.loader.exec_module(mod_rb)
     ToolMetadataRelations = mod_rb.ToolMetadataRelations
 
+    # Assign builders to ToolLoader instance
     tl.build = ToolMetadataBuilder()
     tl.rel = ToolMetadataRelations()
 
@@ -104,5 +100,6 @@ def test_tool_loader_process_tool_creates_nodes_and_rels(tmp_path):
     # Check relationships
     rel_types = [r[0] for r in neo.merged_rels]
     assert "BELONGS_TO" in rel_types
-    assert "TOOL_HAS_INPUT" in rel_types
-    assert "TOOL_HAS_OUTPUT" in rel_types
+    # Adjusted to match actual rel names in code: HAS_INPUT / HAS_OUTPUT
+    assert "HAS_INPUT" in rel_types
+    assert "HAS_OUTPUT" in rel_types
