@@ -1,16 +1,14 @@
 import json
 from typing import Optional
+from tqdm import tqdm  
 
 class ToolLoader:
     def __init__(self, neo):
         self.neo = neo
-        # Try multiple import styles so this file can be executed as a module
-        # or as a script. Preferred: package-relative. Fallback: sibling package.
         try:
             from ..transform.tool_node_builder import ToolMetadataBuilder
             from ..transform.tool_rel_builder import ToolMetadataRelations
         except Exception:
-            # Fallback when running as a script from agents/ingestion
             from transform.tool_node_builder import ToolMetadataBuilder
             from transform.tool_rel_builder import ToolMetadataRelations
 
@@ -21,14 +19,14 @@ class ToolLoader:
         with open(path, "r", encoding="utf-8") as f:
             tools = json.load(f)
 
-        for t in tools:
+        # Wrap tools in tqdm for progress bar
+        for t in tqdm(tools, desc="Inserting tools", unit="tool"):
             try:
                 self.process_tool(t)
             except Exception as e:
                 print(f"[tool_loader] error processing tool {t.get('id')}: {e}")
 
     def process_tool(self, t: dict):
-        # Build Tool node
         tool_node = self.build.build_tool(t)
         tool_props = tool_node["properties"]
         tool_id = tool_props.get("tool_id")

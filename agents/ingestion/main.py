@@ -34,7 +34,7 @@ def main():
     print("📥 Loading workflows...")
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
-        "utilities/workflow_downloader/data/workflow_metadata_with_embeddings_20251220_000757.json"
+        "embeddings/workflow_metadata_with_embeddings_20251220_000757.json"
     )
     print("✅ Workflows ETL completed!")
 
@@ -44,7 +44,7 @@ def main():
     print("📥 Loading tools...")
     tool_loader = ToolLoader(neo)
     tool_loader.import_file(
-        "utilities/tools_metadata_downloader/data/galaxy_instance_tools_2025-12-04_23-58-00.json"
+        "embeddings/tool_metadata_with_embeddings_20251220_122958.json"
     )
     print("✅ Tools ETL completed!")
 
