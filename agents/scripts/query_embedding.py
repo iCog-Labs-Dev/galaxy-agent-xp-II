@@ -3,7 +3,7 @@
 Query Embedding Service
 
 Generates embeddings for user queries using BAAI/bge-base-en-v1.5.
-This service is importable and also testable from command line.
+Importable and callable from other modules.
 """
 
 from sentence_transformers import SentenceTransformer
@@ -18,45 +18,37 @@ class QueryEmbeddingService:
     def __init__(self, model_name: str = MODEL_NAME):
         self.model_name = model_name
         self.model = SentenceTransformer(model_name)
-        print(f"🔄 Loaded embedding model: {model_name}")
+        print(f" Loaded embedding model: {model_name}")
 
     def embed_query(self, query: Union[str, List[str]]) -> np.ndarray:
         """
         Generate normalized embeddings for a single query or list of queries.
-
-        Args:
-            query (str | List[str]): Single query string or list of query strings.
-
-        Returns:
-            np.ndarray: Normalized embedding vector(s).
         """
-        embeddings = self.model.encode(
+        return self.model.encode(
             query,
             convert_to_numpy=True,
             normalize_embeddings=True,
             show_progress_bar=False
         )
-        return embeddings
 
 
-# ------------------ CLI Test Interface ------------------ #
-def main():
-    service = QueryEmbeddingService()
-    print("\n Query Embedding Test")
-    print("Type 'exit' to quit.\n")
-
-    while True:
-        query = input("Enter a query: ").strip()
-        if query.lower() == "exit":
-            break
-        if not query:
-            print(" Please enter a non-empty query.\n")
-            continue
-
-        vector = service.embed_query(query)
-        print(f"\nEmbedding vector shape: {vector.shape}")
-        print("First 10 values:", vector[:10], "\n")
+# ------------------ Singleton Instance ------------------ #
+_embedding_service: QueryEmbeddingService | None = None
 
 
-if __name__ == "__main__":
-    main()
+def get_query_embedding(query: Union[str, List[str]]) -> np.ndarray:
+    """
+    Generate embedding vector(s) for a query or list of queries.
+
+    Args:
+        query (str | List[str]): Query text(s)
+
+    Returns:
+        np.ndarray: Normalized embedding vector(s)
+    """
+    global _embedding_service
+
+    if _embedding_service is None:
+        _embedding_service = QueryEmbeddingService()
+
+    return _embedding_service.embed_query(query)
