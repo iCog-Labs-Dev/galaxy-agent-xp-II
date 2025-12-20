@@ -6,4 +6,4 @@ neo4j:
   password: "Henokneo4j@415"   # Neo4j password
 
 indexes:
-  create_on_start: false         
+  create_on_start: true      

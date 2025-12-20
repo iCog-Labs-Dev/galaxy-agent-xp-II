@@ -6,6 +6,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+import logging
+logging.getLogger("neo4j").setLevel(logging.WARNING)
+
 
 class Neo4jClient:
     def __init__(self, config_path: str = "agents/graphRAG/config/graph_db_config.yml"):
@@ -56,36 +59,23 @@ class Neo4jClient:
             logger.error(f"Error creating indexes: {e}")
             raise
 
-    def merge_node(self, label, properties, unique_key=None):
-        """
-        Merge a node using its unique key and update other properties.
-        """
-        if unique_key is None:
-            raise ValueError("unique_key must be specified for MERGE")
-        if unique_key not in properties or properties[unique_key] is None:
-            raise ValueError(f"unique_key '{unique_key}' missing or None in properties: {properties}")
+    def merge_node(self, label, properties, unique_key):
+        if unique_key not in properties:
+            raise ValueError(f"{unique_key} missing in {label}")
 
-        merge_value = properties[unique_key]
-        set_props = {k: v for k, v in properties.items() if k != unique_key and v is not None}
+        clean_props = {k: v for k, v in properties.items() if v is not None}
 
-        merge_str = f"{unique_key}: ${unique_key}"
-        set_str = ", ".join([f"n.{k} = ${k}" for k in set_props.keys()])
+        merge_key = clean_props[unique_key]
+        set_props = {k: v for k, v in clean_props.items() if k != unique_key}
 
         query = f"""
-        MERGE (n:{label} {{ {merge_str} }})
-        {"SET " + set_str if set_props else ""}
-        RETURN elementId(n)
+        MERGE (n:{label} {{ {unique_key}: ${unique_key} }})
+        SET n += $props
         """
 
-        params = {unique_key: merge_value}
-        params.update(set_props)
+        with self.driver.session() as s:
+            s.run(query, **{unique_key: merge_key, "props": set_props})
 
-        try:
-            with self.driver.session() as s:
-                s.run(query, **params)
-        except Exception as e:
-            logger.error(f"Error merging node {label} ({unique_key}={merge_value}): {e}")
-            raise
 
     def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props=None):
         """

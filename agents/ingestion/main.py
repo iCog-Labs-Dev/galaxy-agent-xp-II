@@ -37,7 +37,7 @@ def main():
         "embeddings/workflow_metadata_with_embeddings_20251220_000757.json"
     )
     print("✅ Workflows ETL completed!")
-
+    """
     # -----------------------
     # 2. Tools ETL
     # -----------------------
@@ -47,7 +47,7 @@ def main():
         "embeddings/tool_metadata_with_embeddings_20251220_122958.json"
     )
     print("✅ Tools ETL completed!")
-
+    """
     # Close Neo4j connection
     neo.close()
     print("🎉 ETL process finished successfully!")
