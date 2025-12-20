@@ -1,13 +1,23 @@
-# agents/services/classification_service.py
+#!/usr/bin/env python3
+"""
+LLM Intent Classification Service for Galaxy Agent.
+
+Purpose:
+- Classify user queries as "tool", "workflow", or "both".
+- Does NOT generate embeddings (handled separately in the embedding service).
+
+Priority: Gemini → OpenAI
+"""
+
 import os
 import json
-from typing import Literal, TypedDict, Union
+from typing import Literal, TypedDict
 from dotenv import load_dotenv
 
 # --- Load environment variables ---
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # --- Expected classification return values ---
 Classification = Literal["tool", "workflow", "both"]
@@ -18,21 +28,10 @@ class ClassificationResult(TypedDict):
     reasoning: str
 
 # --- Lazy-loaded clients ---
-_openai_client = None
 _gemini_initialized = False
+_openai_client = None
 
-def _init_openai_client():
-    global _openai_client
-    if not OPENAI_API_KEY:
-        return None
-    if _openai_client is None:
-        try:
-            from openai import OpenAI
-            _openai_client = OpenAI(api_key=OPENAI_API_KEY)
-        except Exception as e:
-            print(f"⚠️ Failed to initialize OpenAI client: {e}")
-            _openai_client = None
-    return _openai_client
+# ------------------ Helper Functions ------------------ #
 
 def _init_gemini():
     global _gemini_initialized
@@ -48,30 +47,46 @@ def _init_gemini():
             _gemini_initialized = False
     return _gemini_initialized
 
-# ------------------ MAIN FUNCTION ------------------ #
-def classify_query(query: str) -> Classification:
-    """
-    Classifies a query into 'tool', 'workflow', or 'both' using available LLM.
-    Priority: OpenAI → Gemini
-    Falls back safely if one provider is unavailable.
-    """
+def _init_openai_client():
+    global _openai_client
+    if not OPENAI_API_KEY:
+        return None
+    if _openai_client is None:
+        try:
+            from openai import OpenAI
+            _openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        except Exception as e:
+            print(f"⚠️ Failed to initialize OpenAI client: {e}")
+            _openai_client = None
+    return _openai_client
 
-    prompt = f"""
+# ------------------ Main Classification ------------------ #
+
+def classify_query(query: str) -> ClassificationResult:
+    """
+    Classify a user query as 'tool', 'workflow', or 'both'.
+    Uses Gemini first, falls back to OpenAI.
+    """
+    label: Classification = "both"
+    confidence = 0.5
+    reasoning = "Fallback classification"
+    raw_output = ""
+
+    try:
+        prompt = f"""
 You are a Galaxy Project classification assistant.
 
-Your task:
-1️⃣ Analyze the user query and reason in one or two sentences.
-2️⃣ Then output a JSON object with keys:
-- reasoning: short reasoning text
-- label: "tool", "workflow", or "both"
-- confidence: number between 0 and 1 indicating certainty.
+Task:
+- Analyze the user query and reason in 1-2 sentences.
+- Output JSON with keys:
+  - reasoning: short reasoning text
+  - label: "tool", "workflow", or "both"
+  - confidence: number between 0 and 1
 
 Classification rules:
-- "tool" → the user clearly refers to a single Galaxy tool or function.
-- "workflow" → the user clearly refers to a multi-step analysis or pipeline.
-- "both" → ambiguous, general, or could involve both tool and workflow.
-
-Respond ONLY with valid JSON, no extra text.
+- "tool" → the user clearly refers to a single Galaxy tool or function
+- "workflow" → the user clearly refers to a multi-step analysis or pipeline
+- "both" → ambiguous/general or could involve both
 
 Example format:
 {{
@@ -80,54 +95,49 @@ Example format:
   "confidence": 0.82
 }}
 
-Now classify this query:
-"{query}"
+Respond ONLY with JSON, no extra text.
+
+Query: "{query}"
 """
 
-    raw_output = ""
-    parsed: Union[ClassificationResult, None] = None
-
-    try:
-        # --- Try OpenAI first ---
-        client = _init_openai_client()
-        if client:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.2,
-            )
-            raw_output = response.choices[0].message.content.strip()
-
-        # --- Fall back to Gemini ---
-        elif _init_gemini():
+        # --- Gemini first ---
+        if _init_gemini():
             import google.generativeai as genai
             model = genai.GenerativeModel("models/gemini-2.5-flash")
             response = model.generate_content(prompt)
             raw_output = response.text.strip()
 
+        # --- Fall back to OpenAI ---
         else:
-            print("⚠️ No API keys available for classification. Returning 'both'.")
-            return "both"
+            client = _init_openai_client()
+            if client:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                )
+                raw_output = response.choices[0].message.content.strip()
+            else:
+                print("⚠️ No API keys available for classification. Returning 'both'.")
+                return ClassificationResult(label="both", confidence=0.5, reasoning="No API keys available")
 
-        # ------------------ SAFE JSON PARSING ------------------ #
+        # ------------------ Parse JSON safely ------------------ #
         cleaned = raw_output.strip("`").replace("json", "").strip()
         parsed = json.loads(cleaned)
-
-        label = parsed.get("label", "").lower().strip()
-        confidence = float(parsed.get("confidence", 0))
-        reasoning = parsed.get("reasoning", "").strip()
-
-        if label not in ["tool", "workflow", "both"]:
-            label = "both"
-
-        print(f"[LLM: {'OpenAI' if client else 'Gemini'}]")
-        print(f"Query: {query}")
-        print(f"Reasoning: {reasoning}")
-        print(f"Label: {label} | Confidence: {confidence}\n")
-
-        return label
+        reasoning = parsed.get("reasoning", reasoning)
+        confidence = float(parsed.get("confidence", confidence))
+        label_candidate = parsed.get("label", "").lower().strip()
+        if label_candidate in ["tool", "workflow", "both"]:
+            label = label_candidate
 
     except Exception as e:
-        print(f"⚠️ Classification parsing failed: {e}")
-        print(f"Raw output: {raw_output}")
-        return "both"
+        print(f"⚠️ Classification failed: {e}")
+        print(f"Raw LLM output: {raw_output}")
+
+    return ClassificationResult(label=label, confidence=confidence, reasoning=reasoning)
+
+# ------------------ Example Usage ------------------ #
+if __name__ == "__main__":
+    q = input("Enter your query: ")
+    result = classify_query(q)
+    print(json.dumps(result, indent=2))
