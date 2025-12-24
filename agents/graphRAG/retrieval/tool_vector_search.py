@@ -8,7 +8,6 @@ logging.getLogger("neo4j").setLevel(logging.WARNING)
 class ToolVectorSearch:
     """
     Production-ready vector search for Tool nodes in Neo4j 5.x+
-    Uses db.index.vector.queryNodes().
     """
 
     def __init__(self, neo_client: Neo4jClient, index_name="tool_embedding_index"):
