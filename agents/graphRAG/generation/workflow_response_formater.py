@@ -14,7 +14,6 @@ def format_workflow_results(workflows: List[Dict], query: str = "") -> Dict:
         workflow = wf.get("workflow", wf)
         category = wf.get("category", {}) or workflow.get("category", "Unknown")
 
-        # safe similarity score
         try:
             score = round(float(wf.get("similarity_score", 0.0)), 4)
         except (TypeError, ValueError):
