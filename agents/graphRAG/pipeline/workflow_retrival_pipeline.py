@@ -55,7 +55,7 @@ class WorkflowRetrievalPipeline:
         # Step 3: get graph context
         structured_context = self.graph_context.get_workflow_context(workflow_ids)
 
-        # Step 4: attach similarity scores safely
+        # Step 4: attach similarity scores 
         score_map = {}
         for wf_id, score in top_workflows:
             try:
