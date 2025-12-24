@@ -58,5 +58,5 @@ class ToolGraphContext:
         if not node:
             return {}
         data = dict(node)
-        data.pop("embedding", None)  # Remove embeddings from context
+        data.pop("embedding", None)  
         return data
