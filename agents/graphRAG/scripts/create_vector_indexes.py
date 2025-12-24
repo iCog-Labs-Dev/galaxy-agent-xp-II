@@ -18,7 +18,7 @@ def load_config(path: str) -> dict:
 
 
 def create_vector_indexes(driver):
-    """Create vector indexes for Tool and Workflow nodes."""
+    """Create vector indexes for Tool and Workflow nodes in neo4j."""
     queries = [
         # Tool vector index
         """
