@@ -1,9 +1,8 @@
 from typing import List, Dict
 from agents.summary_agent import SummaryAgent
 
-# --------------------------------------------------
-# Deduplication (KEEP BEST SCORE PER TOOL)
-# --------------------------------------------------
+
+# Deduplication 
 def deduplicate_tools(tools: List[Dict]) -> List[Dict]:
     seen = {}
 
@@ -18,17 +17,15 @@ def deduplicate_tools(tools: List[Dict]) -> List[Dict]:
     return list(seen.values())
 
 
-# --------------------------------------------------
 # Formatter
-# --------------------------------------------------
 def format_tool_results(tools: List[Dict], query: str = "") -> Dict:
     if not tools:
         return {"results": []}
 
-    # 1️⃣ Deduplicate first
+    # Deduplicate first
     tools = deduplicate_tools(tools)
 
-    # 2️⃣ Summarize using unified SummaryAgent
+    # 2️Summarize using unified SummaryAgent
     summary_agent = SummaryAgent()
     summary_text = (
         summary_agent.summarize_tools_suggestions(
