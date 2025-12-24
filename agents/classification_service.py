@@ -2,9 +2,7 @@
 """
 LLM Intent Classification Service for Galaxy Agent.
 
-Purpose:
-- Classify user queries as "tool", "workflow", or "both".
-- Uses multiple Gemini models to handle rate limits.
+Priority: Gemini (multi-model) → OpenAI
 """
 
 import os
@@ -14,11 +12,12 @@ from typing import Literal, TypedDict
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-# --- Load environment variables ---
+# --------------------- Load environment variables ---------------------
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# --- Expected classification return values ---
+# --------------------- Expected output types -------------------------
 Classification = Literal["tool", "workflow", "both"]
 
 class ClassificationResult(TypedDict):
@@ -26,17 +25,13 @@ class ClassificationResult(TypedDict):
     confidence: float
     reasoning: str
 
-# --- Lazy-loaded clients ---
+# --------------------- Gemini setup ---------------------------------
 _gemini_initialized = False
-
-# --- Gemini models for rotation ---
 GEMINI_MODELS = [
     "models/gemini-2.5-flash",
     "models/gemini-2.5-beta",
     "models/gemini-2.5-light"
 ]
-
-# ------------------ Helper Functions ------------------ #
 
 def _init_gemini():
     global _gemini_initialized
@@ -51,82 +46,89 @@ def _init_gemini():
             _gemini_initialized = False
     return _gemini_initialized
 
-# ------------------ Main Classification ------------------ #
+# --------------------- OpenAI helper --------------------------------
+def _classify_with_openai(prompt: str) -> str | None:
+    if not OPENAI_API_KEY:
+        return None
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"⚠️ OpenAI failed: {e}")
+        return None
 
+# --------------------- Main classification -------------------------
 def classify_query(query: str) -> ClassificationResult:
-    """
-    Classify a user query as 'tool', 'workflow', or 'both'.
-    Uses multiple Gemini models to handle rate limits.
-    """
     label: Classification = "both"
     confidence = 0.5
     reasoning = "Fallback classification"
     raw_output = ""
 
-    if not _init_gemini():
-        print("⚠️ Gemini API key not available. Returning default 'both'.")
-        return ClassificationResult(label="both", confidence=0.5, reasoning="No Gemini API key")
-
     prompt = f"""
 You are a Galaxy Project classification assistant.
 
-Task:
-- Analyze the user query and reason in 1-2 sentences.
-- Output JSON with keys:
-  - reasoning: short reasoning text
-  - label: "tool", "workflow", or "both"
-  - confidence: number between 0 and 1
-
-Classification rules:
-- "tool" → the user clearly refers to a single Galaxy tool or function
-- "workflow" → the user clearly refers to a multi-step analysis or pipeline
-- "both" → ambiguous/general or could involve both
-
-Example format:
+Return ONLY JSON:
 {{
-  "reasoning": "The user mentions RNA-seq alignment which involves multiple tools.",
-  "label": "workflow",
-  "confidence": 0.82
+  "reasoning": "...",
+  "label": "tool | workflow | both",
+  "confidence": 0.0
 }}
-
-Respond ONLY with JSON, no extra text.
 
 Query: "{query}"
 """
 
-    for model_name in GEMINI_MODELS:
-        try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(prompt)
-            raw_output = response.text.strip()
-            break  # Success!
-        except Exception as e:
-            if "ResourceExhausted" in str(e) or "429" in str(e):
-                print(f"⚠️ {model_name} limit reached, switching to next model...")
-                continue  # Try next model
-            else:
-                raise e
-    else:
-        # All models exhausted
-        print("⚠️ All Gemini models have reached their limits. Please wait and retry later.")
-        return ClassificationResult(label="both", confidence=0.5, reasoning="All Gemini models exhausted")
+    # -------- Gemini first --------
+    if _init_gemini():
+        for model_name in GEMINI_MODELS:
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
+                raw_output = response.text.strip()
+                break
+            except Exception as e:
+                if "429" in str(e) or "ResourceExhausted" in str(e):
+                    print(f"⚠️ {model_name} limit reached, switching to next model...")
+                    continue
+                else:
+                    raise e
 
-    # ------------------ Parse JSON safely ------------------ #
+    # -------- OpenAI fallback --------
+    if not raw_output:
+        raw_output = _classify_with_openai(prompt) or ""
+
+    # -------- If all failed --------
+    if not raw_output:
+        return ClassificationResult(
+            label="both",
+            confidence=0.5,
+            reasoning="All LLMs exhausted"
+        )
+
+    # -------- Parse JSON safely --------
     try:
         cleaned = raw_output.strip("`").replace("json", "").strip()
         parsed = json.loads(cleaned)
-        reasoning = parsed.get("reasoning", reasoning)
-        confidence = float(parsed.get("confidence", confidence))
-        label_candidate = parsed.get("label", "").lower().strip()
+        label_candidate = parsed.get("label", label).lower().strip()
         if label_candidate in ["tool", "workflow", "both"]:
             label = label_candidate
-    except Exception as e:
-        print(f"⚠️ Failed to parse LLM output: {e}")
-        print(f"Raw output: {raw_output}")
+        confidence = float(parsed.get("confidence", confidence))
+        reasoning = parsed.get("reasoning", reasoning)
+    except Exception:
+        print(f"⚠️ Failed to parse LLM output: {raw_output}")
 
-    return ClassificationResult(label=label, confidence=confidence, reasoning=reasoning)
+    return ClassificationResult(
+        label=label,
+        confidence=confidence,
+        reasoning=reasoning
+    )
 
-# ------------------ Example Usage ------------------ #
+# --------------------- Example CLI ----------------------------------
 if __name__ == "__main__":
     while True:
         q = input("Enter your query (or 'exit' to quit): ")

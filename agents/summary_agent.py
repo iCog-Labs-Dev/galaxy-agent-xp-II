@@ -5,13 +5,13 @@ import logging
 from typing import Optional, Protocol, List
 from dotenv import load_dotenv
 
-# ------------------ CONFIGURATION ------------------ #
+# - CONFIGURATION 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-# ------------------ ENV HELPERS ------------------ #
+# ENV HELPERS 
 def _get_env() -> tuple[Optional[str], Optional[str]]:
     return os.getenv("GEMINI_API_KEY"), os.getenv("OPENAI_API_KEY")
 
@@ -63,31 +63,34 @@ class OpenAIModel:
         return response.choices[0].message.content.strip()
 
 
-# ------------------ PROVIDER SELECTION ------------------ #
+#  PROVIDER SELECTION 
 def get_llm(provider: Optional[str] = None) -> LLMInterface:
     _validate_env()
     gemini_key, openai_key = _get_env()
-
     chosen = (provider or _default_provider()).lower()
 
-    if chosen == "openai" and openai_key:
-        return OpenAIModel(openai_key)
-    if chosen == "gemini" and gemini_key:
-        return GeminiModel(gemini_key)
+    if chosen == "openai":
+        if openai_key:
+            return OpenAIModel(openai_key)
+        elif gemini_key:
+            logger.warning("Falling back to Gemini")
+            return GeminiModel(gemini_key)
+        else:
+            raise ValueError("No valid LLM provider available")
 
-    if openai_key:
-        logger.warning("Falling back to OpenAI")
-        return OpenAIModel(openai_key)
-    if gemini_key:
-        logger.warning("Falling back to Gemini")
-        return GeminiModel(gemini_key)
+    if chosen == "gemini":
+        if gemini_key:
+            return GeminiModel(gemini_key)
+        elif openai_key:
+            logger.warning("Falling back to OpenAI")
+            return OpenAIModel(openai_key)
+        else:
+            raise ValueError("No valid LLM provider available")
 
-    raise RuntimeError("No valid LLM provider available")
+    # Provider explicitly invalid
+    raise ValueError("Unknown LLM provider")
 
 
-# ======================================================
-#               SUMMARY AGENT (UNIFIED)
-# ======================================================
 class SummaryAgent:
     """
     Unified summary agent for tools and workflows.
@@ -152,9 +155,6 @@ Use newlines to separate each workflow. Include:
 
 
     
-# ======================================================
-#        BACKWARD-COMPATIBLE FUNCTION WRAPPERS
-# ======================================================
 
 _default_summary_agent: Optional[SummaryAgent] = None
 
