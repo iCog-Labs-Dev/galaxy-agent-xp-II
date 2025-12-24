@@ -37,11 +37,11 @@ class HybridRAGPipeline:
             workflows=workflow_ctx
         )
 
-        # Optional summaries
+        # summaries
         tool_summary = summarize_tool_suggestions(tool_ctx, query) if tool_ctx else None
         workflow_summary = summarize_workflow_suggestions(workflow_ctx, query) if workflow_ctx else None
 
-        # Return only results + summaries
+        # results + summaries
         return {
             "results": results.get("results", []),
             "tool_summary": tool_summary,

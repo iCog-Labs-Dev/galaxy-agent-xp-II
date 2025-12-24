@@ -25,7 +25,7 @@ class ToolRetrievalPipeline:
         self.vector_search = ToolVectorSearch(neo_client)
         self.graph_context = ToolGraphContext(neo_client)
 
-        # Optional caching for frequently queried embeddings/results
+   
         self._cached_retrieve = lru_cache(maxsize=cache_size)(self._retrieve)
 
     def retrieve_tools(
@@ -56,10 +56,9 @@ class ToolRetrievalPipeline:
             return []
 
     def _retrieve(self, user_query: str, top_k: int) -> List[Dict]:
-        # Step 1: Embed user query
+       
         query_vec = self.embedder.embed_query(user_query)
 
-        # Step 2: Vector search → get top-K tool IDs + similarity scores
         top_tools = self.vector_search.search_top_k(query_vec, top_k)
         if not top_tools:
             logger.info(f"No tools found for query: '{user_query}'")
@@ -67,10 +66,10 @@ class ToolRetrievalPipeline:
 
         tool_ids = [t[0] for t in top_tools]
 
-        # Step 3: Graph traversal → get structured tool context
+
         structured_context = self.graph_context.get_tool_context(tool_ids)
 
-        # Step 4: Attach similarity scores to structured context
+
         score_map = {t[0]: t[1] for t in top_tools}
         for ctx in structured_context:
             tool_id = ctx.get("tool", {}).get("tool_id")
