@@ -25,7 +25,7 @@ def format_tool_results(tools: List[Dict], query: str = "") -> Dict:
     # Deduplicate first
     tools = deduplicate_tools(tools)
 
-    # 2️Summarize using unified SummaryAgent
+    # Summarize using unified SummaryAgent
     summary_agent = SummaryAgent()
     summary_text = (
         summary_agent.summarize_tools_suggestions(
