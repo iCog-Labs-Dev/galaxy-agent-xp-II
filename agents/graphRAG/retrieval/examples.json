@@ -1,9 +1,0 @@
-[
-    "USER INPUT: 'List all workflows that use the tool BWA-MEM' QUERY: MATCH (w:Workflow)-[:HAS_STEP]->(s:Step)-[:USES_TOOL]->(t:Tool {name:'BWA-MEM'}) RETURN DISTINCT w.name, w.download_url",
-    "USER INPUT: 'Show all steps in workflow Genome Assembly from Hifi reads' QUERY: MATCH (w:Workflow {name:'Genome Assembly from Hifi reads'})-[:HAS_STEP]->(s:Step) RETURN s.name ORDER BY s.number_of_steps",
-    "USER INPUT: 'Find all tools used by workflow VGP4' QUERY: MATCH (w:Workflow {name:'VGP4'})-[:HAS_STEP]->(s:Step)-[:USES_TOOL]->(t:Tool) RETURN DISTINCT t.name, t.version",
-    "USER INPUT: 'How many workflows are in the database?' QUERY: MATCH (w:Workflow) RETURN count(w) AS total_workflows",
-    "USER INPUT: 'What is the category of workflow assembly-hifi-hic-phasing-vgp4?' QUERY: MATCH (w:Workflow {name:'assembly-hifi-hic-phasing-vgp4'}) RETURN w.category AS workflow_category",
-    "USER INPUT: 'How many steps are in workflow Genome Assembly from Hifi reads with HiC phasing - VGP4?' QUERY: MATCH (w:Workflow {name:'Genome Assembly from Hifi reads with HiC phasing - VGP4'})-[:HAS_STEP]->(s:Step) RETURN count(s) AS total_steps",
-    "USER INPUT: 'What is the raw download URL for workflow Assembly-Hifi-only-VGP3?' QUERY: MATCH (w:Workflow {name:'Assembly-Hifi-only-VGP3'}) RETURN w.download_url AS raw_url"
-]

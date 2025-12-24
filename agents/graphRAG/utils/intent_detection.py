@@ -4,19 +4,20 @@ LLM Intent Classification Service for Galaxy Agent.
 
 Purpose:
 - Classify user queries as "tool", "workflow", or "both".
-- Uses multiple Gemini models to handle rate limits.
+- Does NOT generate embeddings (handled separately in the embedding service).
+
+Priority: Gemini → OpenAI
 """
 
 import os
 import json
-import time
 from typing import Literal, TypedDict
 from dotenv import load_dotenv
-import google.generativeai as genai
 
 # --- Load environment variables ---
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # --- Expected classification return values ---
 Classification = Literal["tool", "workflow", "both"]
@@ -28,13 +29,7 @@ class ClassificationResult(TypedDict):
 
 # --- Lazy-loaded clients ---
 _gemini_initialized = False
-
-# --- Gemini models for rotation ---
-GEMINI_MODELS = [
-    "models/gemini-2.5-flash",
-    "models/gemini-2.5-beta",
-    "models/gemini-2.5-light"
-]
+_openai_client = None
 
 # ------------------ Helper Functions ------------------ #
 
@@ -44,6 +39,7 @@ def _init_gemini():
         return False
     if not _gemini_initialized:
         try:
+            import google.generativeai as genai
             genai.configure(api_key=GEMINI_API_KEY)
             _gemini_initialized = True
         except Exception as e:
@@ -51,23 +47,33 @@ def _init_gemini():
             _gemini_initialized = False
     return _gemini_initialized
 
+def _init_openai_client():
+    global _openai_client
+    if not OPENAI_API_KEY:
+        return None
+    if _openai_client is None:
+        try:
+            from openai import OpenAI
+            _openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        except Exception as e:
+            print(f"⚠️ Failed to initialize OpenAI client: {e}")
+            _openai_client = None
+    return _openai_client
+
 # ------------------ Main Classification ------------------ #
 
 def classify_query(query: str) -> ClassificationResult:
     """
     Classify a user query as 'tool', 'workflow', or 'both'.
-    Uses multiple Gemini models to handle rate limits.
+    Uses Gemini first, falls back to OpenAI.
     """
     label: Classification = "both"
     confidence = 0.5
     reasoning = "Fallback classification"
     raw_output = ""
 
-    if not _init_gemini():
-        print("⚠️ Gemini API key not available. Returning default 'both'.")
-        return ClassificationResult(label="both", confidence=0.5, reasoning="No Gemini API key")
-
-    prompt = f"""
+    try:
+        prompt = f"""
 You are a Galaxy Project classification assistant.
 
 Task:
@@ -94,25 +100,28 @@ Respond ONLY with JSON, no extra text.
 Query: "{query}"
 """
 
-    for model_name in GEMINI_MODELS:
-        try:
-            model = genai.GenerativeModel(model_name)
+        # --- Gemini first ---
+        if _init_gemini():
+            import google.generativeai as genai
+            model = genai.GenerativeModel("models/gemini-2.5-flash")
             response = model.generate_content(prompt)
             raw_output = response.text.strip()
-            break  # Success!
-        except Exception as e:
-            if "ResourceExhausted" in str(e) or "429" in str(e):
-                print(f"⚠️ {model_name} limit reached, switching to next model...")
-                continue  # Try next model
-            else:
-                raise e
-    else:
-        # All models exhausted
-        print("⚠️ All Gemini models have reached their limits. Please wait and retry later.")
-        return ClassificationResult(label="both", confidence=0.5, reasoning="All Gemini models exhausted")
 
-    # ------------------ Parse JSON safely ------------------ #
-    try:
+        # --- Fall back to OpenAI ---
+        else:
+            client = _init_openai_client()
+            if client:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                )
+                raw_output = response.choices[0].message.content.strip()
+            else:
+                print("⚠️ No API keys available for classification. Returning 'both'.")
+                return ClassificationResult(label="both", confidence=0.5, reasoning="No API keys available")
+
+        # ------------------ Parse JSON safely ------------------ #
         cleaned = raw_output.strip("`").replace("json", "").strip()
         parsed = json.loads(cleaned)
         reasoning = parsed.get("reasoning", reasoning)
@@ -120,17 +129,15 @@ Query: "{query}"
         label_candidate = parsed.get("label", "").lower().strip()
         if label_candidate in ["tool", "workflow", "both"]:
             label = label_candidate
+
     except Exception as e:
-        print(f"⚠️ Failed to parse LLM output: {e}")
-        print(f"Raw output: {raw_output}")
+        print(f"⚠️ Classification failed: {e}")
+        print(f"Raw LLM output: {raw_output}")
 
     return ClassificationResult(label=label, confidence=confidence, reasoning=reasoning)
 
 # ------------------ Example Usage ------------------ #
 if __name__ == "__main__":
-    while True:
-        q = input("Enter your query (or 'exit' to quit): ")
-        if q.lower() == "exit":
-            break
-        result = classify_query(q)
-        print(json.dumps(result, indent=2))
+    q = input("Enter your query: ")
+    result = classify_query(q)
+    print(json.dumps(result, indent=2))

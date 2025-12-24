@@ -1,10 +1,7 @@
+# -------------------
+# Relationships
+# -------------------
 relationships:
-  Workflow_TOOL:
-    from: Workflow
-    to: Tool
-    type: USES_TOOL
-    fields: []   # no properties yet
-
   Workflow_CATEGORY:
     from: Workflow
     to: Category
@@ -13,26 +10,68 @@ relationships:
 
   Tool_CATEGORY:
     from: Tool
-    to: Category
+    to: ToolCategory
     type: BELONGS_TO
     fields: []
 
-  Workflow_INPUT:
+  Workflow_STEP:
     from: Workflow
-    to: Input
-    type: HAS_INPUT
+    to: Step
+    type: HAS_STEP
     fields: []
 
-  Workflow_OUTPUT:
+  Workflow_IMPLEMENTATION:
     from: Workflow
-    to: Output
-    type: HAS_OUTPUT
+    to: Workflow
+    type: HAS_IMPLEMENTATION
+    fields: []
+
+  Step_TOOL:
+    from: Step
+    to: Tool
+    type: USES_TOOL
+    fields: []
+
+  Step_INPUT:
+    from: Step
+    to: ToolInput
+    type: STEP_REQUIRES
+    fields: []
+
+  Step_OUTPUT:
+    from: Step
+    to: ToolOutput
+    type: STEP_GENERATES
     fields: []
 
   Workflow_KEYWORD:
     from: Workflow
     to: Keyword
     type: HAS_KEYWORD
+    fields: []
+
+  Workflow_WorkflowInput:
+    from: Workflow
+    to: WorkflowInput
+    type: HAS_INPUT
+    fields: []
+
+  Workflow_WorkflowOutput:
+    from: Workflow
+    to: WorkflowOutput
+    type: HAS_OUTPUT
+    fields: []
+
+  Tool_INPUT:
+    from: Tool
+    to: ToolInput
+    type: HAS_INPUT
+    fields: []
+
+  Tool_OUTPUT:
+    from: Tool
+    to: ToolOutput
+    type: HAS_OUTPUT
     fields: []
 
   Tool_KEYWORD:

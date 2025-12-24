@@ -1,78 +1,109 @@
-# Load/wf_loader.py
 import json
 from tqdm import tqdm
-from extract.parser import WorkflowParser
-from extract.normalize import Normalizer
-from transform.wf_node_builder import NodeBuilder
-from transform.wf_rel_builder import RelationshipBuilder
-from Load.neo4j_client import Neo4jClient
+from agents.ingestion.transform.wf_node_builder import NodeBuilder
+from agents.ingestion.transform.wf_rel_builder import RelationshipBuilder
+from agents.ingestion.Load.neo4j_client import Neo4jClient
+from agents.ingestion.extract.parser import WorkflowParser
 
-
-class GraphLoader:
-
-    def __init__(self, neo: Neo4jClient):
+class WorkflowLoader:
+    def __init__(self, neo: Neo4jClient, embeddings_path: str = None):
         self.neo = neo
-        self.parser = WorkflowParser()
-        self.norm = Normalizer()
         self.nodes = NodeBuilder()
         self.rels = RelationshipBuilder()
+        self.parser = WorkflowParser()
+        self.stats = {
+            "workflows": 0,
+            "workflow_files": 0,
+            "steps": 0,
+            "tools": 0,
+            "inputs": 0,
+            "outputs": 0
+        }
+        self.embeddings_map = {}
+        if embeddings_path:
+            self._load_embeddings(embeddings_path)
 
-    def import_file(self, path):
+    def _load_embeddings(self, embeddings_path: str):
+        try:
+            with open(embeddings_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for item in data:
+                repo = item.get("workflow_repository")
+                embedding = item.get("embedding")
+                if repo and embedding:
+                    self.embeddings_map[repo] = embedding
+            print(f"📥 Loaded {len(self.embeddings_map)} embeddings from {embeddings_path}")
+        except FileNotFoundError:
+            print(f"⚠️ Embeddings file not found: {embeddings_path}")
+        except Exception as e:
+            print(f"⚠️ Error loading embeddings: {e}")
+
+    def import_file(self, path: str):
         with open(path, "r", encoding="utf-8") as f:
             workflows = json.load(f)
+        for wf in tqdm(workflows, desc="Inserting workflows", unit="workflow"):
+            try:
+                self.process_workflow(wf)
+            except Exception as e:
+                print(f"[wf_loader] error processing workflow {wf.get('workflow_repository')}: {e}")
 
-        print(f"🔍 Processing {len(workflows)} workflows...")
-        for wf in tqdm(workflows, unit="wf"):
-            self._process_workflow(wf)
+        # Print stats
+        print(f"\n📊 Workflow Stats:")
+        for k, v in self.stats.items():
+            print(f"  {k.capitalize()}: {v}")
 
-    def _process_workflow(self, wf):
+    def process_workflow(self, wf: dict):
+        self.stats["workflows"] += 1
+        category_node = self.nodes.create_category(wf.get("category", "Unknown"))
+        self.neo.merge_node("Category", category_node["properties"], "category_id")
 
-        # -----------------------
-        # Category
-        # -----------------------
-        category_name = self.norm.normalize_category(wf.get("category", "Unknown"))
-        category = self.nodes.create_category(category_name)
-        self.neo.merge_node("Category", category["properties"], unique_key="category_id")
+        repo = wf.get("workflow_repository")
+        embedding = wf.get("embedding") or self.embeddings_map.get(repo)
+        readme = wf.get("readme_content") or wf.get("readme_cleaned") or wf.get("readme", "")
+        inputs, outputs = self.parser.extract_io(readme)
 
-        # -----------------------
-        # Root Workflow (ONLY embedding lives here)
-        # -----------------------
-        root = self.nodes.create_workflow(
-            name=wf["workflow_repository"],
-            category=category_name,
+        root_node = self.nodes.create_workflow(
+            name=repo,
+            category=category_node["properties"]["name"],
             root=True,
-            readme=wf.get("readme_content", ""),
-            has_readme=wf.get("has_readme", False),
-            has_changelog=wf.get("has_changelog", False),
-            has_test_data=wf.get("has_test_data", False),
-            planemo_tests=wf.get("planemo_tests", []),
-            embedding=wf.get("embedding")
+            readme=readme,
+            embedding=embedding
         )
+        self.neo.merge_node("Workflow", root_node["properties"], "workflow_id")
+        self.neo.merge_rel(*self.rels.workflow_category(root_node, category_node))
 
-        self.neo.merge_node("Workflow", root["properties"], unique_key="workflow_id")
-        self.neo.merge_rel(*self.rels.workflow_category(root, category))
+        workflow_id = root_node["properties"]["workflow_id"]
+        # Workflow-level inputs/outputs
+        for inp in inputs:
+            inp_node = self.nodes.create_workflow_input(workflow_id, inp)
+            self.neo.merge_node("WorkflowInput", inp_node["properties"], "input_id")
+            self.neo.merge_rel(*self.rels.workflow_input_semantic(root_node, inp_node))
+            self.stats["inputs"] += 1
+        for out in outputs:
+            out_node = self.nodes.create_workflow_output(workflow_id, out)
+            self.neo.merge_node("WorkflowOutput", out_node["properties"], "output_id")
+            self.neo.merge_rel(*self.rels.workflow_output_semantic(root_node, out_node))
+            self.stats["outputs"] += 1
 
-        # -----------------------
-        # File Workflows (NO embedding)
-        # -----------------------
         for wf_file in wf.get("workflow_files", []):
-            self._process_workflow_file(wf, wf_file, root, category)
+            self.process_workflow_file(root_node, wf_file, category_node)
 
-    def _process_workflow_file(self, wf_root, wf_file, root_node, category):
+    def process_workflow_file(self, root_node: dict, wf_file: dict, category_node: dict):
+        self.stats["workflow_files"] += 1
+        readme = wf_file.get("readme_content") or wf_file.get("readme", "")
+        inputs, outputs = self.parser.extract_io(readme)
 
         file_node = self.nodes.create_workflow(
-            name=wf_file["workflow_name"],
-            category=category["properties"]["name"],
+            name=wf_file.get("workflow_name", "Unknown"),
+            category=category_node["properties"]["name"],
             root=False,
-            file_name=wf_file["file_name"],
+            file_name=wf_file.get("file_name"),
             download_url=wf_file.get("raw_download_url"),
             number_of_steps=wf_file.get("number_of_steps"),
-            readme=wf_root.get("readme_content", "")
+            readme=readme
         )
-
-        self.neo.merge_node("Workflow", file_node["properties"], unique_key="workflow_id")
-
-        self.neo.merge_rel(*self.rels.workflow_category(file_node, category))
+        self.neo.merge_node("Workflow", file_node["properties"], "workflow_id")
+        self.neo.merge_rel(*self.rels.workflow_category(file_node, category_node))
         self.neo.merge_rel(
             "HAS_IMPLEMENTATION",
             "Workflow", {"workflow_id": root_node["properties"]["workflow_id"]},
@@ -80,31 +111,42 @@ class GraphLoader:
         )
 
         workflow_id = file_node["properties"]["workflow_id"]
+        # Workflow-file level inputs/outputs
+        for inp in inputs:
+            inp_node = self.nodes.create_workflow_input(workflow_id, inp)
+            self.neo.merge_node("WorkflowInput", inp_node["properties"], "input_id")
+            self.neo.merge_rel(*self.rels.workflow_input_semantic(file_node, inp_node))
+            self.stats["inputs"] += 1
+        for out in outputs:
+            out_node = self.nodes.create_workflow_output(workflow_id, out)
+            self.neo.merge_node("WorkflowOutput", out_node["properties"], "output_id")
+            self.neo.merge_rel(*self.rels.workflow_output_semantic(file_node, out_node))
+            self.stats["outputs"] += 1
 
-        # -----------------------
-        # Steps
-        # -----------------------
-        for step in wf_file.get("steps", []):
+        steps = wf_file.get("steps", [])
+        self.stats["steps"] += len(steps)
+        for step in steps:
             step_node = self.nodes.create_step(step, workflow_id)
-            self.neo.merge_node("Step", step_node["properties"], unique_key="step_uid")
+            self.neo.merge_node("Step", step_node["properties"], "step_uid")
             self.neo.merge_rel(*self.rels.workflow_step(file_node, step_node))
 
+            if step.get("tool_id"):
+                self.stats["tools"] += 1
+                tool_props = {"tool_id": step["tool_id"], "name": step.get("tool_name") or step["tool_id"]}
+                self.neo.merge_node("Tool", tool_props, "tool_id")
+                self.neo.merge_step_tool(step_node["properties"], tool_props)
+
+            # Step inputs/outputs
             for inp in step.get("inputs", []):
-                i = self.nodes.create_input(
-                    workflow_id,
-                    step_node["properties"]["step_uid"],
-                    inp["name"],
-                    inp["description"]
-                )
-                self.neo.merge_node("Input", i["properties"], unique_key="input_uid")
-                self.neo.merge_rel(*self.rels.step_input(step_node, i))
+                inp_node = self.nodes.create_input(workflow_id, step_node["properties"]["step_uid"], inp.get("name", ""), inp.get("description", ""))
+                self.neo.merge_node("ToolInput", inp_node["properties"], "input_uid")
+                self.neo.merge_rel(*self.rels.step_input(step_node, inp_node))
+                self.neo.merge_rel(*self.rels.workflow_input(file_node, inp_node))
+                self.stats["inputs"] += 1
 
             for out in step.get("outputs", []):
-                o = self.nodes.create_output(
-                    workflow_id,
-                    step_node["properties"]["step_uid"],
-                    out["name"],
-                    out["description"]
-                )
-                self.neo.merge_node("Output", o["properties"], unique_key="output_uid")
-                self.neo.merge_rel(*self.rels.step_output(step_node, o))
+                out_node = self.nodes.create_output(workflow_id, step_node["properties"]["step_uid"], out.get("name", ""), out.get("description", ""))
+                self.neo.merge_node("ToolOutput", out_node["properties"], "output_uid")
+                self.neo.merge_rel(*self.rels.step_output(step_node, out_node))
+                self.neo.merge_rel(*self.rels.workflow_output(file_node, out_node))
+                self.stats["outputs"] += 1

@@ -1,12 +1,11 @@
-# agents/ingestion/Load/neo4j_client.py
 import yaml
 from neo4j import GraphDatabase
 import logging
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-import logging
 logging.getLogger("neo4j").setLevel(logging.WARNING)
 
 
@@ -41,30 +40,35 @@ class Neo4jClient:
         logger.info("Neo4j connection closed.")
 
     def create_indexes(self) -> None:
-        """Create helpful indexes for commonly queried unique keys."""
+        """Create indexes for all unique keys in the schema."""
         queries = [
-            "CREATE INDEX IF NOT EXISTS FOR (t:Tool) ON (t.tool_id)",
-            "CREATE INDEX IF NOT EXISTS FOR (c:ToolCategory) ON (c.category_id)",
-            "CREATE INDEX IF NOT EXISTS FOR (i:ToolInput) ON (i.input_uid)",
-            "CREATE INDEX IF NOT EXISTS FOR (o:ToolOutput) ON (o.output_uid)",
             "CREATE INDEX IF NOT EXISTS FOR (w:Workflow) ON (w.workflow_id)",
             "CREATE INDEX IF NOT EXISTS FOR (s:Step) ON (s.step_uid)",
+            "CREATE INDEX IF NOT EXISTS FOR (t:Tool) ON (t.tool_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (c:Category) ON (c.category_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (i:ToolInput) ON (i.input_uid)",
+            "CREATE INDEX IF NOT EXISTS FOR (o:ToolOutput) ON (o.output_uid)",
+            "CREATE INDEX IF NOT EXISTS FOR (k:Keyword) ON (k.name)",
+            "CREATE INDEX IF NOT EXISTS FOR (i:WorkflowInput) ON (i.input_id)",
+            "CREATE INDEX IF NOT EXISTS FOR (o:WorkflowOutput) ON (o.output_id)",
         ]
         try:
-            with self.driver.session() as s:
+            with self.driver.session() as session:
                 for q in queries:
-                    s.run(q)
-                    logger.info(f"Index query executed: {q}")
+                    session.run(q)
+                    logger.info(f"Index executed: {q}")
         except Exception as e:
             logger.error(f"Error creating indexes: {e}")
             raise
 
-    def merge_node(self, label, properties, unique_key):
+    # -----------------------------
+    # Merge Node
+    # -----------------------------
+    def merge_node(self, label: str, properties: dict, unique_key: str):
         if unique_key not in properties:
-            raise ValueError(f"{unique_key} missing in {label}")
+            raise ValueError(f"{unique_key} missing in node {label}")
 
         clean_props = {k: v for k, v in properties.items() if v is not None}
-
         merge_key = clean_props[unique_key]
         set_props = {k: v for k, v in clean_props.items() if k != unique_key}
 
@@ -72,16 +76,23 @@ class Neo4jClient:
         MERGE (n:{label} {{ {unique_key}: ${unique_key} }})
         SET n += $props
         """
+        try:
+            with self.driver.session() as session:
+                session.run(query, **{unique_key: merge_key, "props": set_props})
+        except Exception as e:
+            logger.error(f"Error merging node {label} ({merge_key}): {e}")
+            raise
 
-        with self.driver.session() as s:
-            s.run(query, **{unique_key: merge_key, "props": set_props})
-
-
-    def merge_rel(self, type, from_label, from_props, to_label, to_props, rel_props=None):
+    # -----------------------------
+    # Merge Relationship
+    # -----------------------------
+    def merge_rel(self, type: str, from_label: str, from_props: dict, 
+                  to_label: str, to_props: dict, rel_props: Optional[dict] = None):
         """
-        Merge a relationship between two nodes with optional properties.
+        Merge a relationship between two nodes, safely handling empty properties.
         """
         rel_props = rel_props or {}
+
         fp = ", ".join([f"{k}: $fp_{k}" for k, v in from_props.items() if v is not None])
         tp = ", ".join([f"{k}: $tp_{k}" for k, v in to_props.items() if v is not None])
         rp = ", ".join([f"{k}: $rp_{k}" for k, v in rel_props.items() if v is not None])
@@ -92,36 +103,41 @@ class Neo4jClient:
         MATCH (b:{to_label} {{ {tp} }})
         MERGE (a)-[r:{type} {rel_clause}]->(b)
         """
-
         params = {f"fp_{k}": v for k, v in from_props.items() if v is not None}
         params.update({f"tp_{k}": v for k, v in to_props.items() if v is not None})
         params.update({f"rp_{k}": v for k, v in rel_props.items() if v is not None})
 
         try:
-            with self.driver.session() as s:
-                s.run(query, **params)
+            with self.driver.session() as session:
+                session.run(query, **params)
         except Exception as e:
             logger.error(f"Error merging relationship {type} from {from_label} to {to_label}: {e}")
             raise
 
     # -----------------------------
-    # Convenience method for Step → Tool
+    # Convenience: Step → Tool
     # -----------------------------
-    def merge_step_tool(self, step_node_props, tool_node_props):
-        """
-        Merge a USES_TOOL relationship from Step to Tool.
-        """
-        if "step_uid" not in step_node_props or "tool_id" not in tool_node_props:
+    def merge_step_tool(self, step_props: dict, tool_props: dict):
+        if "step_uid" not in step_props or "tool_id" not in tool_props:
             raise ValueError("Step node must have 'step_uid' and Tool node must have 'tool_id'")
+        self.merge_rel(
+            type="USES_TOOL",
+            from_label="Step",
+            from_props={"step_uid": step_props["step_uid"]},
+            to_label="Tool",
+            to_props={"tool_id": tool_props["tool_id"]},
+            rel_props=None
+        )
 
+    # -----------------------------
+    # Run Arbitrary Query
+    # -----------------------------
+    def run_query(self, cypher: str, parameters: Optional[dict] = None) -> List[dict]:
+        parameters = parameters or {}
         try:
-            self.merge_rel(
-                type="USES_TOOL",
-                from_label="Step",
-                from_props={"step_uid": step_node_props["step_uid"]},
-                to_label="Tool",
-                to_props={"tool_id": tool_node_props["tool_id"]},
-            )
+            with self.driver.session() as session:
+                result = session.run(cypher, parameters)
+                return [record.data() for record in result]
         except Exception as e:
-            logger.error(f"Error creating USES_TOOL relationship for Step {step_node_props.get('step_uid')}: {e}")
+            logger.exception(f"Failed to run query: {cypher}")
             raise

@@ -5,17 +5,26 @@ from agents.ingestion.Load.neo4j_client import Neo4jClient
 logger = logging.getLogger(__name__)
 logging.getLogger("neo4j").setLevel(logging.WARNING)
 
+class ToolVectorSearch:
+    """
+    Production-ready vector search for Tool nodes in Neo4j 5.x+
+    Uses db.index.vector.queryNodes().
+    """
 
-class WorkflowVectorSearch:
-    """Vector search for Workflow nodes using Neo4j vector indexes."""
-
-    def __init__(self, neo_client: Neo4jClient, index_name="workflow_embedding_index"):
+    def __init__(self, neo_client: Neo4jClient, index_name="tool_embedding_index"):
         self.neo = neo_client
         self.index_name = index_name
 
     def search_top_k(self, query_embedding: np.ndarray, top_k: int = 5):
+        """
+        Perform vector search on Tool nodes.
+
+        Returns:
+            List[(tool_id, score)]
+        """
         if not isinstance(query_embedding, np.ndarray):
             raise ValueError("Query embedding must be a numpy ndarray")
+
         if query_embedding.ndim != 1:
             raise ValueError("Query embedding must be 1-dimensional")
 
@@ -26,7 +35,7 @@ class WorkflowVectorSearch:
             $vector
         )
         YIELD node, score
-        RETURN node.workflow_id AS workflow_id, score
+        RETURN node.tool_id AS tool_id, score
         ORDER BY score DESC
         """
 
@@ -39,7 +48,10 @@ class WorkflowVectorSearch:
                     "vector": query_embedding.astype(float).tolist(),
                 }
             )
-            return [(r["workflow_id"], r["score"]) for r in result]
+
+            return [(r["tool_id"], r["score"]) for r in result]
+
         except Exception:
-            logger.exception("Workflow vector search failed")
+            logger.exception("Tool vector search failed")
             return []
+

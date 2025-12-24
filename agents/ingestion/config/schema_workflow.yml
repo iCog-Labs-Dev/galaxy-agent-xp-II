@@ -2,47 +2,84 @@ nodes:
   Workflow:
     unique: workflow_id
     fields:
-      - workflow_id       
-      - name                 
-      - category             
-      - file_name           
-      - download_url        
-      - number_of_steps      
-      - readme               
-      - has_readme         
-      - has_changelog       
-      - has_test_data      
+      - workflow_id
+      - name
+      - category
+      - file_name
+      - download_url
+      - number_of_steps
+      - readme
+      - has_readme
+      - has_changelog
+      - has_test_data
       - planemo_tests
-      - embedding           # vector embedding for GraphRAG
+      - embedding   # vector embedding for GraphRAG
 
   Step:
-    unique: step_uid        
+    unique: step_uid
     fields:
-      - step_id
+      - step_uid
       - workflow_id
       - type
       - name
       - annotation
       - tool_id
       - tool_version
-      - input_connections    
-      - outputs              
-      - tool_owner          
-      - tool_repo            
+      - input_connections
+      - outputs
+      - tool_owner
+      - tool_repo
       - tool_shed_url
 
-  Input:
-    unique: input_uid        
+  Tool:
+    unique: tool_id
     fields:
+      - tool_id
+      - name
+      - description
+      - version
+      - help
+      - embedding
+
+  Category:
+    unique: category_id
+    fields:
+      - category_id
+      - name
+
+  ToolInput:
+    unique: input_uid
+    fields:
+      - input_uid
       - workflow_id
       - step_id
       - name
       - description
 
-  Output:
-    unique: output_uid      
+  ToolOutput:
+    unique: output_uid
     fields:
+      - output_uid
       - workflow_id
       - step_id
       - name
       - description
+
+  Keyword:
+    unique: name
+    fields:
+      - name
+  WorkflowOutput:
+    unique: output_id
+    fields:
+        - output_id
+        - name
+        - description
+        - workflow_id
+  WorkflowInput:
+    unique: input_id
+    fields:
+        - input_id
+        - name
+        - description
+        - workflow_id

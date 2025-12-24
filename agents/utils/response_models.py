@@ -16,7 +16,7 @@ class ToolSuggestion(BaseModel):
     version: Optional[str] = None
     score: Optional[float] = None
 
-class SuggestionResponse(BaseModel):
+class ToolSuggestionResponse(BaseModel):
     results: List[ToolSuggestion]
 
 # ------------------ WORKFLOW MODELS ------------------ #

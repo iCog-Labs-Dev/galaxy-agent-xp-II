@@ -1,7 +1,7 @@
 import yaml
-from Load.neo4j_client import Neo4jClient
-from Load.wf_loader import GraphLoader
-from Load.tool_loader import ToolLoader
+from agents.ingestion.Load.neo4j_client import Neo4jClient
+from agents.ingestion.Load.wf_loader import WorkflowLoader
+from agents.ingestion.Load.tool_loader import ToolLoader
 from tqdm import tqdm
 
 def load_config(path="agents/graphRAG/config/graph_db_config.yml"):
@@ -31,10 +31,11 @@ def main():
     # -----------------------
     # 1. Workflows ETL
     # -----------------------
+    """
     print("📥 Loading workflows...")
-    workflow_loader = GraphLoader(neo)
+    workflow_loader = WorkflowLoader(neo)  
     workflow_loader.import_file(
-        "embeddings/workflow_metadata_with_embeddings_20251220_000757.json"
+        "embeddings/workflow_metadata_with_embeddings_20251221_154834.json"
     )
     print("✅ Workflows ETL completed!")
     """
@@ -47,10 +48,12 @@ def main():
         "embeddings/tool_metadata_with_embeddings_20251220_122958.json"
     )
     print("✅ Tools ETL completed!")
-    """
+    
+   
     # Close Neo4j connection
     neo.close()
     print("🎉 ETL process finished successfully!")
 
 if __name__ == "__main__":
     main()
+tele

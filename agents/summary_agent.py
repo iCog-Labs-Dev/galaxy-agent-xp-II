@@ -1,37 +1,31 @@
-# agents/summary_agent.py
 from __future__ import annotations
 
 import os
 import logging
-from typing import Optional, Protocol
+from typing import Optional, Protocol, List
 from dotenv import load_dotenv
 
 # ------------------ CONFIGURATION ------------------ #
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load .env but do not validate or read keys at import time
 load_dotenv()
 
-
-# ------------------ ENV HELPERS (no import-time reads) ------------------ #
+# ------------------ ENV HELPERS ------------------ #
 def _get_env() -> tuple[Optional[str], Optional[str]]:
-    """Fetch API keys at call-time (CI-friendly, easily mockable)."""
     return os.getenv("GEMINI_API_KEY"), os.getenv("OPENAI_API_KEY")
 
 
 def _default_provider() -> str:
-    """Decide default provider based on available keys (call-time)."""
     gemini_key, openai_key = _get_env()
     return "openai" if openai_key else "gemini"
 
 
 def _validate_env() -> None:
-    """Validate that at least one provider is available. Call-time only."""
     gemini_key, openai_key = _get_env()
     if not gemini_key and not openai_key:
         raise ValueError(
-            "Both GEMINI_API_KEY and OPENAI_API_KEY are missing in environment — provide at least one."
+            "Missing GEMINI_API_KEY and OPENAI_API_KEY"
         )
 
 
@@ -40,13 +34,11 @@ class LLMInterface(Protocol):
     def generate(self, prompt: str) -> str: ...
 
 
-# ------------------ PROVIDER IMPLEMENTATIONS ------------------ #
+# ------------------ PROVIDERS ------------------ #
 class GeminiModel:
-    """Wrapper for Google Generative AI (Gemini). Lazy-imports SDK."""
     def __init__(self, api_key: str, model_name: str = "models/gemini-2.5-flash"):
-        import google.generativeai as genai  # lazy import
+        import google.generativeai as genai
         genai.configure(api_key=api_key)
-        self._genai = genai
         self._model = genai.GenerativeModel(model_name)
 
     def generate(self, prompt: str) -> str:
@@ -55,17 +47,15 @@ class GeminiModel:
 
 
 class OpenAIModel:
-    """Wrapper for OpenAI Chat Completions. Lazy-imports SDK."""
     def __init__(self, api_key: str, model_name: str = "gpt-4o-mini"):
-        import openai  # lazy import
-        # Using the v1-style global api_key to preserve prior behavior
+        import openai
         openai.api_key = api_key
         self._openai = openai
-        self._model_name = model_name
+        self._model = model_name
 
     def generate(self, prompt: str) -> str:
         response = self._openai.chat.completions.create(
-            model=self._model_name,
+            model=self._model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=1200,
@@ -73,93 +63,121 @@ class OpenAIModel:
         return response.choices[0].message.content.strip()
 
 
-# ------------------ PROVIDER SELECTION (no import-time state) ------------------ #
+# ------------------ PROVIDER SELECTION ------------------ #
 def get_llm(provider: Optional[str] = None) -> LLMInterface:
-    """
-    Select the appropriate LLM provider with fallbacks.
-    - If provider is "openai" but OPENAI_API_KEY missing → fallback to Gemini if available.
-    - If provider is "gemini" but GEMINI_API_KEY missing → fallback to OpenAI if available.
-    - If provider is None → choose based on available keys (OpenAI preferred).
-    """
-    _validate_env()  # validate only when called
-
+    _validate_env()
     gemini_key, openai_key = _get_env()
+
     chosen = (provider or _default_provider()).lower()
 
-    if chosen == "openai":
-        if openai_key:
-            return OpenAIModel(openai_key)
-        if gemini_key:
-            logger.warning("OpenAI key missing — falling back to Gemini.")
-            return GeminiModel(gemini_key)
-        raise ValueError("OpenAI key missing and no Gemini fallback available.")
+    if chosen == "openai" and openai_key:
+        return OpenAIModel(openai_key)
+    if chosen == "gemini" and gemini_key:
+        return GeminiModel(gemini_key)
 
-    if chosen == "gemini":
-        if gemini_key:
-            return GeminiModel(gemini_key)
-        if openai_key:
-            logger.warning("Gemini key missing — falling back to OpenAI.")
-            return OpenAIModel(openai_key)
-        raise ValueError("Gemini key missing and no OpenAI fallback available.")
+    if openai_key:
+        logger.warning("Falling back to OpenAI")
+        return OpenAIModel(openai_key)
+    if gemini_key:
+        logger.warning("Falling back to Gemini")
+        return GeminiModel(gemini_key)
 
-    raise ValueError("Invalid provider name — choose 'openai' or 'gemini'.")
+    raise RuntimeError("No valid LLM provider available")
 
 
-# ------------------ SUMMARIZATION FUNCTIONS (dependency-injectable) ------------------ #
-def summarize_tool_suggestions(tools: list, query: str, llm: Optional[LLMInterface] = None) -> str:
+# ======================================================
+#               SUMMARY AGENT (UNIFIED)
+# ======================================================
+class SummaryAgent:
     """
-    Summarizes and ranks tool suggestions using the selected LLM.
-    Behavior preserved: if no llm provided, lazily select via get_llm().
+    Unified summary agent for tools and workflows.
+    Produces clean, human-readable summaries.
     """
-    llm = llm or get_llm()
 
-    tool_descriptions = "\n\n".join(
-        f"{i+1}. {tool['name']} (Category: {tool.get('category', 'N/A')})\n"
-        f"{tool.get('description', 'No description provided.')}"
-        for i, tool in enumerate(tools)
-    )
+    def __init__(self, llm: Optional[LLMInterface] = None):
+        self.llm = llm or get_llm()
 
-    prompt = f"""
+    # -------- TOOLS -------- #
+    def summarize_tools_suggestions(self, tools: List[dict], query: str) -> str:
+        if not tools:
+            return "No relevant tools found."
+
+        tool_descriptions = "\n".join(
+            f"{t.get('name', 'Unknown Tool')} | Category: {t.get('category', 'N/A')} | {t.get('description', 'No description.')}"
+            for t in tools
+        )
+
+        prompt = f"""
 You are a helpful AI assistant for Galaxy bioinformatics tools.
 
-A user asked: "{query}"
+User query: "{query}"
 
-Start your response with **"Ranked Suggested Tools"** — make it bold and clear.
-Present the tools in a numbered list ordered by relevance score.
-Be concise and confident (the data is generated by the E5 model).
+Provide a **clean, human-readable summary**. 
+Do not use asterisks, hashes, or Markdown.
+Use newlines to separate each tool. Include:
+- Tool name
+- Category
+- One-line relevance/description
 
 {tool_descriptions}
-
-Now write a natural, friendly, and ranked summary recommending these tools.
-Briefly explain what each tool is suitable for.
 """
-    return llm.generate(prompt)
+        return self.llm.generate(prompt)
 
+    # -------- WORKFLOWS -------- #
+    def summarize_workflows_suggestions(self, workflows: List[dict], query: str) -> str:
+        if not workflows:
+            return "No relevant workflows found."
 
-def summarize_workflow_suggestions(workflows: list, query: str, llm: Optional[LLMInterface] = None) -> str:
-    """
-    Summarizes and ranks workflow suggestions using the selected LLM.
-    Behavior preserved: if no llm provided, lazily select via get_llm().
-    """
-    llm = llm or get_llm()
+        workflow_descriptions = "\n".join(
+            f"{wf.get('name', 'Unknown Workflow')} | Category: {wf.get('category', 'N/A')} | Score: {wf.get('score', 0):.2f} | {wf.get('readme_excerpt', 'No description.')}"
+            for wf in workflows
+        )
 
-    workflow_descriptions = "\n\n".join(
-        f"{i+1}. {wf['name']} (Category: {wf.get('category', 'N/A')}, Score: {wf.get('score', 0):.2f})\n"
-        f"{wf.get('readme_excerpt', 'No details provided.')}"
-        for i, wf in enumerate(workflows)
-    )
-
-    prompt = f"""
+        prompt = f"""
 You are a helpful AI assistant for Galaxy workflows.
 
-A user asked: "{query}"
+User query: "{query}"
 
-Start with **"Ranked Workflows in Galaxy"** — make it bold and clear.
-List workflows in numbered order with short, confident descriptions.
-Their order reflects their score (higher = more relevant).
+Provide a **clean, human-readable summary**. 
+Do not use asterisks, hashes, or Markdown.
+Use newlines to separate each workflow. Include:
+- Workflow name
+- Category
+- Score
+- One-line description
 
 {workflow_descriptions}
-
-Now write a clear and friendly summary describing what each workflow does.
 """
-    return llm.generate(prompt)
+        return self.llm.generate(prompt)
+
+
+    
+# ======================================================
+#        BACKWARD-COMPATIBLE FUNCTION WRAPPERS
+# ======================================================
+
+_default_summary_agent: Optional[SummaryAgent] = None
+
+
+def _get_summary_agent() -> SummaryAgent:
+    global _default_summary_agent
+    if _default_summary_agent is None:
+        _default_summary_agent = SummaryAgent()
+    return _default_summary_agent
+
+
+def summarize_tool_suggestions(tools: List[dict], query: str) -> str:
+    """
+    Function wrapper for tool summarization.
+    Keeps compatibility with existing imports.
+    """
+    return _get_summary_agent().summarize_tools_suggestions(tools, query)
+
+
+def summarize_workflow_suggestions(workflows: List[dict], query: str) -> str:
+    """
+    Function wrapper for workflow summarization.
+    Keeps compatibility with existing imports.
+    """
+    return _get_summary_agent().summarize_workflows_suggestions(workflows, query)
+

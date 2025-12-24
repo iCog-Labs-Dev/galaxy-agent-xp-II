@@ -1,7 +1,5 @@
-# transform/wf_node_builder.py
 import hashlib
 import json
-
 
 class NodeBuilder:
 
@@ -13,21 +11,12 @@ class NodeBuilder:
     # Workflow
     # -----------------------
     def create_workflow(self, *, name, category, root,
-                        file_name=None,
-                        download_url=None,
-                        number_of_steps=None,
-                        readme="",
-                        has_readme=False,
-                        has_changelog=False,
-                        has_test_data=False,
-                        planemo_tests=None,
+                        file_name=None, download_url=None,
+                        number_of_steps=None, readme="",
+                        has_readme=False, has_changelog=False,
+                        has_test_data=False, planemo_tests=None,
                         embedding=None):
-
-        if root:
-            workflow_id = self._hash(name)
-        else:
-            workflow_id = self._hash(name, file_name)
-
+        workflow_id = self._hash(name) if root else self._hash(name, file_name)
         return {
             "label": "Workflow",
             "properties": {
@@ -51,17 +40,15 @@ class NodeBuilder:
     # Step
     # -----------------------
     def create_step(self, step, workflow_id):
-        step_uid = self._hash(workflow_id, step.get("step_id"))
-
+        step_uid = self._hash(workflow_id, step.get("id") or step.get("step_id"))
         tool_repo = step.get("tool_shed_repository", {}) or {}
-
         return {
             "label": "Step",
             "properties": {
                 "step_uid": step_uid,
                 "workflow_id": workflow_id,
-                "step_id": step.get("step_id"),
-                "name": step.get("tool_id") or step.get("name"),
+                "step_id": step.get("id") or step.get("step_id"),
+                "name": step.get("name"),
                 "type": step.get("type"),
                 "annotation": step.get("annotation"),
                 "tool_id": step.get("tool_id"),
@@ -76,10 +63,10 @@ class NodeBuilder:
     # -----------------------
     # Input / Output
     # -----------------------
-    def create_input(self, workflow_id, step_id, name, description):
+    def create_step_input(self, workflow_id, step_id, name, description):
         uid = self._hash(workflow_id, step_id, name, description)
         return {
-            "label": "Input",
+            "label": "StepInput",
             "properties": {
                 "input_uid": uid,
                 "workflow_id": workflow_id,
@@ -88,11 +75,10 @@ class NodeBuilder:
                 "description": description
             }
         }
-
-    def create_output(self, workflow_id, step_id, name, description):
+    def create_step_output(self, workflow_id, step_id, name, description):
         uid = self._hash(workflow_id, step_id, name, description)
         return {
-            "label": "Output",
+            "label": "StepOutput",
             "properties": {
                 "output_uid": uid,
                 "workflow_id": workflow_id,
@@ -101,15 +87,38 @@ class NodeBuilder:
                 "description": description
             }
         }
-
-    # -----------------------
-    # Category
-    # -----------------------
-    def create_category(self, name):
+    def create_workflow_input(self, workflow_id, name, description=""):
         return {
-            "label": "Category",
+            "label": "WorkflowInput",
             "properties": {
-                "category_id": self._hash(name),
-                "name": name
+                "input_id": self._hash(workflow_id, name),
+                "workflow_id": workflow_id,
+                "name": name,
+                "description": description
+        }
+    }
+
+    def create_workflow_output(self, workflow_id, name, description=""):
+        return {
+            "label": "WorkflowOutput",
+            "properties": {
+                "output_id": self._hash(workflow_id, name),
+                "workflow_id": workflow_id,
+                "name": name,
+                "description": description
             }
         }
+
+    def create_category(self, category_name: str) -> dict:
+        # Create a stable category id (slug) for uniqueness
+        cid = category_name.strip().lower().replace(" ", "-")
+        return {
+            "label": "WorkflowCategory",
+            "properties": {
+                "category_id": cid,
+                "name": category_name
+            }
+        }
+    
+
+    

@@ -70,9 +70,10 @@ def test_tool_embedding_included():
         "description": "embeds X",
         "version": "0.2",
         "help": "usage",
-        "embedding": [0.1, 0.2, 0.3]  # simulated embedding
+        "embedding": [0.1, 0.2, 0.3]  
     }
     node = b.build_tool(tool)
     props = node["properties"]
     assert "embedding" in props
     assert props["embedding"] == [0.1, 0.2, 0.3]
+    

@@ -1,7 +1,7 @@
 class ToolMetadataRelations:
     def tool_category(self, tool_node: dict, cat_node: dict):
         return (
-            "BELONGS_TO",        
+            "TOOL_BELONGS_TO",        
             "Tool", tool_node["properties"],
             "ToolCategory", cat_node["properties"],
             {}                     
@@ -9,7 +9,7 @@ class ToolMetadataRelations:
 
     def tool_has_input(self, tool_node: dict, input_node: dict):
         return (
-            "HAS_INPUT",           
+            "Tool_HAS_INPUT",           
             "Tool", tool_node["properties"],
             "ToolInput", input_node["properties"],
             {}
@@ -17,7 +17,7 @@ class ToolMetadataRelations:
 
     def tool_has_output(self, tool_node: dict, output_node: dict):
         return (
-            "HAS_OUTPUT",          
+            "Tool_HAS_OUTPUT",          
             "Tool", tool_node["properties"],
             "ToolOutput", output_node["properties"],
             {}

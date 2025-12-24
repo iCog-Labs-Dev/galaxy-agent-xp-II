@@ -1,56 +1,79 @@
+import hashlib
+import json
+
 class RelationshipBuilder:
-    def workflow_category(self, workflow, category):
+
+    # -----------------------
+    # Relationships
+    # -----------------------
+    def workflow_category(self, workflow_node: dict, category_node: dict):
         return (
-            "BELONGS_TO",   # update type
-            "Workflow", workflow["properties"],
-            "Category", category["properties"],
+            "Workflow_BELONGS_TO",
+            "Workflow", workflow_node["properties"],
+            "WorkflowCategory", category_node["properties"],
             {}
         )
 
-    def workflow_step(self, workflow, step):
+    def workflow_step(self, workflow_node: dict, step_node: dict):
         return (
-            "HAS_STEP",
-            "Workflow", workflow["properties"],
-            "Step", step["properties"],
-            {"step_id": step["properties"].get("step_id")}
+            "WORKFLOW_HAS_STEP",
+            "Workflow", workflow_node["properties"],
+            "Step", step_node["properties"],
+            {}
         )
 
-    def workflow_input(self, workflow, input_node):
+    def step_input(self, step_node: dict, input_node: dict):
+        return (
+            "STEP_INPUT",
+            "Step", step_node["properties"],
+            "StepInput", input_node["properties"],
+            {}
+        )
+    def step_output(self, step_node: dict, output_node: dict):
+        return (
+            "STEP_OUTPUT",
+            "Step", step_node["properties"],
+            "StepOutput", output_node["properties"],
+            {}
+        )
+
+    def workflow_input(self, workflow_node: dict, input_node: dict):
         return (
             "HAS_INPUT",
-            "Workflow", workflow["properties"],
-            "Input", input_node["properties"],
+            "Workflow", workflow_node["properties"],
+            "WorkflowInput", input_node["properties"],
             {}
         )
 
-    def workflow_output(self, workflow, output_node):
+    def workflow_output(self, workflow_node: dict, output_node: dict):
         return (
             "HAS_OUTPUT",
-            "Workflow", workflow["properties"],
-            "Output", output_node["properties"],
+            "Workflow", workflow_node["properties"],
+            "WorkflowOutput", output_node["properties"],
             {}
         )
 
-    def step_input(self, step, input_node):
-        return (
-            "STEP_REQUIRES",
-            "Step", step["properties"],
-            "Input", input_node["properties"],
-            {}
-        )
-
-    def step_output(self, step, output_node):
-        return (
-            "STEP_GENERATES",
-            "Step", step["properties"],
-            "Output", output_node["properties"],
-            {}
-        )
-
-    def step_tool(self, step, tool):
+    def step_tool(self, step_node: dict, tool_node: dict):
         return (
             "USES_TOOL",
-            "Step", step["properties"],
-            "Tool", tool["properties"],
+            "Step", step_node["properties"],
+            "Tool", tool_node["properties"],
             {}
         )
+    def workflow_input_semantic(self, workflow_node, input_node):
+        return (
+            "Workflow_HAS_INPUT",
+            "Workflow", workflow_node["properties"],
+            "WorkflowInput", input_node["properties"],
+            {}
+        )
+    def workflow_output_semantic(self, workflow_node, output_node):
+        return (
+            "Workflow_HAS_OUTPUT",
+            "Workflow", workflow_node["properties"],
+            "WorkflowOutput", output_node["properties"],
+            {}
+        )
+    
+
+    

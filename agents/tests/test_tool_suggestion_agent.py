@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from agents.suggesting_agent import ToolSuggestionAgent
+from agents.tool_suggesting_agent import ToolSuggestionAgent
 
 
 def run_agent_tests(agent, test_file_path):
