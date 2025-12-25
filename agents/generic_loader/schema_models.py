@@ -131,5 +131,14 @@ DEFAULT_CONFIG = LoaderConfig(
             from_id_fields=["workflow_repository", "file_name"],
             to_id_fields=["id"],
         ),
+        
+        RelationshipSpec(
+            type="STEP_USES_TOOL",
+            file="workflow_steps.csv",
+            from_="Step",
+            to="Tool",
+            from_id_fields=["workflow_repository", "file_name", "step_id"],
+            to_id_fields=["tool_id"],
+        ),
     ],
 )
