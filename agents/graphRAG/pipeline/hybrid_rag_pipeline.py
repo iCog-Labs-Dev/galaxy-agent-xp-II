@@ -19,9 +19,9 @@ class HybridRAGPipeline:
         self.answer_gen = LLMAnswerGenerator()
 
     def run(self, query: str, top_k: int = 5) -> dict:
-        classification = classify_query(query)
-        intent = classification.get("label", "both") if isinstance(classification, dict) else "both"
-
+        # classification = classify_query(query)
+        # intent = classification.get("label", "both") if isinstance(classification, dict) else "both"
+        intent="tool"
         tool_ctx, workflow_ctx = [], []
 
         if intent in ["tool", "both"]:
