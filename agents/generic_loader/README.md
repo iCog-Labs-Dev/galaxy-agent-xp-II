@@ -14,6 +14,8 @@ A reusable, config-driven pipeline to convert scraped workflow JSON into CSVs an
     - `tools_used.csv`: optional, tool rows derived if not present
 - `schema_models.py`: Pydantic models describing dynamic node/relationship config (`NodeSpec`, `RelationshipSpec`, `LoaderConfig`) plus `DEFAULT_CONFIG`.
 - `generic_csv_loader.py`: Config-driven CSV → Neo4j loader that merges nodes first, then edges.
+- `generate_cypher_files.py`: Emits `nodes.cypher` and `edges.cypher` (MERGE statements) from CSVs using the same config/IDs.
+- `cypher_batch_loader.py`: Runs the generated Cypher files (nodes first, then edges) against Neo4j.
 
 ## ID Strategy (deterministic)
 - `Category`: `category_id = md5(category)`
@@ -46,6 +48,19 @@ python agents/generic_loader/generic_csv_loader.py \
   --uri bolt://localhost:7687 \
   --user neo4j \
   --password YOUR_PASSWORD
+
+3) Optional: generate Cypher files instead of direct ingestion:
+```bash
+python agents/generic_loader/generate_cypher_files.py \
+  --csv-dir agents/generic_loader/data \
+  --out-dir agents/generic_loader/cypher_out
+
+python agents/generic_loader/cypher_batch_loader.py \
+  --cypher-dir agents/generic_loader/cypher_out \
+  --uri bolt://localhost:7687 \
+  --user neo4j \
+  --password YOUR_PASSWORD
+```
 ```
 
 ## Customization
