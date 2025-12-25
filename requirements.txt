@@ -11,6 +11,7 @@ sentence-transformers>=2.2.2
 tqdm>=4.64.0
 
 
+
 # YAML + Excel + Data
 PyYAML>=6.0
 openpyxl>=3.1.5
@@ -33,5 +34,7 @@ openai
 pytest>=8.3.0
 httpx>=0.28.0
 
+# HTML Parsing and cleaning 
+unstructured
 # Graph Database
 neo4j>=6.0.3
