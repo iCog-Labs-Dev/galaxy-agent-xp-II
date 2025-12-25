@@ -1,0 +1,47 @@
+nodes:
+  Workflow:
+    unique: workflow_id
+    fields:
+      - workflow_id       
+      - name                 
+      - category             
+      - file_name           
+      - download_url        
+      - number_of_steps      
+      - readme               
+      - has_readme         
+      - has_changelog       
+      - has_test_data      
+      - planemo_tests       
+
+  Step:
+    unique: step_uid        
+    fields:
+      - step_id
+      - workflow_id
+      - type
+      - name
+      - annotation
+      - tool_id
+      - tool_version
+      - input_connections    
+      - outputs              
+      - tool_owner          
+      - tool_repo            
+      - tool_shed_url
+
+  Input:
+    unique: input_uid        
+    fields:
+      - workflow_id
+      - step_id
+      - name
+      - description
+
+  Output:
+    unique: output_uid      
+    fields:
+      - workflow_id
+      - step_id
+      - name
+      - description

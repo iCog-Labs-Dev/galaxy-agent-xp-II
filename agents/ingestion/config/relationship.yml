@@ -1,0 +1,49 @@
+relationships:
+  Workflow_TOOL:
+    from: Workflow
+    to: Tool
+    type: USES_TOOL
+    fields: []   # no properties yet
+
+  Workflow_CATEGORY:
+    from: Workflow
+    to: Category
+    type: BELONGS_TO
+    fields: []
+
+  Tool_CATEGORY:
+    from: Tool
+    to: Category
+    type: BELONGS_TO
+    fields: []
+
+  Workflow_INPUT:
+    from: Workflow
+    to: Input
+    type: HAS_INPUT
+    fields: []
+
+  Workflow_OUTPUT:
+    from: Workflow
+    to: Output
+    type: HAS_OUTPUT
+    fields: []
+
+  Workflow_KEYWORD:
+    from: Workflow
+    to: Keyword
+    type: HAS_KEYWORD
+    fields: []
+
+  Tool_KEYWORD:
+    from: Tool
+    to: Keyword
+    type: HAS_KEYWORD
+    fields: []
+
+  Tool_SIMILAR:
+    from: Tool
+    to: Tool
+    type: SIMILAR_TO
+    fields:
+      - score   # float similarity score

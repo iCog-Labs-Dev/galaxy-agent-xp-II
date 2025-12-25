@@ -40,3 +40,5 @@ galaxy_metadata_*.json
 galaxy_tools_*.json
 galaxy_tools_may_3_2025_v1.json
 models/
+test_data
+iwc_full_*.json
