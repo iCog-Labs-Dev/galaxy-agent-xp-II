@@ -89,6 +89,26 @@ else:
         try:
             # Get tool details
             tool_details = gi.tools.show_tool(tool_id, io_details=True)
+            
+            # ---- extract human-readable inputs ----
+            inputs_clean = []
+            for inp in tool_details.get("inputs", []):
+                entry = {
+                    "name": inp.get("label") or inp.get("name"),
+                    "type": inp.get("type"),
+                }
+                if inp.get("type") == "data":
+                    entry["accepts"] = inp.get("extensions", [])
+                inputs_clean.append(entry)
+
+            # ---- extract human-readable outputs ----
+            outputs_clean = []
+            for out in tool_details.get("outputs", []):
+                outputs_clean.append({
+                    "name": out.get("name"),
+                    "format": out.get("format"),
+                })
+
 
             help_text = ""
             raw_tool_url = f"{galaxy_url}/api/tools/{tool_id}/raw_tool_source?key={api_key}"
@@ -103,20 +123,17 @@ else:
                 print(f"Extracted help for {tool_id}: {help_text[:50]}...")
             else:
                 print(f"No <help> section found for {tool_id}")
-
-            # Use the original tool_id as it should already be in the correct format
-            # For ToolShed tools, the id should already be in format: 
-            # toolshed.g2.bx.psu.edu/repos/owner/repo/tool_id/version
-            # For local tools, it will remain as the local ID
-            
-            # Return only the requested keys in the specified order
+                
             return {
                 "id": tool_id,  # This should already be in the correct format
                 "name": tool.get("name", ""),
                 "description": tool.get("description", ""),
                 "categories": tool.get("categories", []),
                 "version": tool.get("version", ""),
-                "help": help_text
+                "inputs": inputs_clean,
+                "outputs": outputs_clean,
+                "help": help_text, 
+                
             }
         except Exception as e:
             print(f"Error fetching details for {tool_id}: {e}")

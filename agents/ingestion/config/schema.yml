@@ -1,0 +1,35 @@
+nodes:
+  Workflow:
+    unique: name
+    fields:
+      - name
+      - category        # category string
+      - readme          # cleaned description text
+
+  Tool:
+    unique: name
+    fields:
+      - name
+      - description
+      - version
+      - help
+
+  Category:
+    unique: name
+    fields:
+      - name
+
+  Input:
+    unique: description
+    fields:
+      - description
+
+  Output:
+    unique: description
+    fields:
+      - description
+
+  Keyword:
+    unique: name
+    fields:
+      - name
