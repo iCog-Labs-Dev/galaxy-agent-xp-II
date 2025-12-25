@@ -1,0 +1,60 @@
+Workflow:
+  label: workflow
+  unique_key: [workflow_repository]
+  description: "A workflow composed of tools and IO"
+  properties:
+    name: {type: str}
+    category: {type: str}
+    readme: {type: str}
+    workflow_repository: {type: str}
+    file_name: {type: str}
+    raw_download_url: {type: str}
+    number_of_steps: {type: int}
+    has_readme: {type: bool}
+    has_changelog: {type: bool}
+    has_test_data: {type: bool}
+
+
+Tool:
+  label: tool
+  unique_key: [name, version]
+  properties:
+    name: {type: str}
+    description: {type: str}
+    version: {type: str}
+    help: {type: str}
+
+Category:
+  label: category
+  unique_key: [name]
+  properties:
+    name: {type: str}
+
+Input:
+  label: input
+  unique_key: []
+  properties:
+    description: {type: str}
+
+Output:
+  label: output
+  unique_key: []
+  properties:
+    description: {type: str}
+
+Keyword:
+  label: keyword
+  unique_key: []
+  properties:
+    name: {type: str}
+
+Step:
+  label: step
+  unique_key: [step_uid]
+  description: "A single step in a workflow"
+  properties:
+    step_uid: {type: str}
+    step_id: {type: int}
+    name: {type: str}
+    type: {type: str}
+    annotation: {type: str}
