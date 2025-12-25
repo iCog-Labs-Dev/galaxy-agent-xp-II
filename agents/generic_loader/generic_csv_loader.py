@@ -1,22 +1,3 @@
-"""Generic CSV → Neo4j loader with configurable nodes and relationships.
-
-This loader is schema-configurable so it can ingest workflow CSVs, tools CSVs,
-or other future datasets without hard-coding labels/edges.
-
-Default config supports:
-- Workflow CSVs produced by `convert_json_to_csv.py`
-- Tool CSVs (e.g., tools_used.csv) to attach tools to workflows
-
-Usage (from repo root):
-  python agents/generic_loader/generic_csv_loader.py \
-    --csv-dir agents/generic_loader/data \
-    --uri bolt://localhost:7687 \
-    --user neo4j \
-    --password YOUR_PASSWORD
-
-You can extend DEFAULT_CONFIG in `schema_models.py` to add/adjust nodes and relationships.
-"""
-
 import argparse
 import csv
 import hashlib
@@ -43,7 +24,7 @@ def read_csv(path: Path):
         return list(csv.DictReader(f))
 
 
-from schema_models import DEFAULT_CONFIG, LoaderConfig, NodeSpec, RelationshipSpec  # noqa: E402
+from schema_models import DEFAULT_CONFIG, LoaderConfig, NodeSpec, RelationshipSpec 
 
 
 def build_id(row: Dict[str, Any], fields: List[str]) -> str:
