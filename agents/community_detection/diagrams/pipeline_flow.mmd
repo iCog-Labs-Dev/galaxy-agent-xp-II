@@ -18,11 +18,11 @@ graph TD
     end
 
     subgraph Step 3: Semantic Enrichment
-        L0 -->|Context: Top 15 Central Tools| LLM[LLM (Qwen/Llama)]
-        LLM -->|Generates JSON| SUM_L0[Title: "Quality Control"]
+        L0 -->|Context: Top 15 Central Tools| LLM["LLM (Qwen/Llama)"]
+        LLM -->|Generates JSON| SUM_L0["Title: 'Quality Control'"]
         
         L1 -->|Context: L0 Summaries| LLM
-        LLM -->|Generates JSON| SUM_L1[Theme: "Genomics Pipeline"]
+        LLM -->|Generates JSON| SUM_L1["Theme: 'Genomics Pipeline'"]
     end
 
     SUM_L0 -.->|Writes to| Neo4j[(Neo4j Graph)]
