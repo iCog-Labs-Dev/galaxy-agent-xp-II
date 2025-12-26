@@ -29,9 +29,11 @@ if not galaxy_url or not api_key:
 
 # Get non-sensitive config values
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = f"utilities/tools_metadata_downloader/data/galaxy_instance_tools_{timestamp}.json"
+output_file = (
+    f"utilities/tools_metadata_downloader/data/galaxy_instance_tools_{timestamp}.json"
+)
 max_workers = config["processing"]["max_workers"]
-tool_limit = config["processing"].get("tool_limit", None)
+tool_limit = config["processing"].get("tool_limit", 1000)
 categories_config = config.get("categories", {})
 
 # Connect to Galaxy
@@ -62,8 +64,14 @@ else:
         if num_tools == 0 and percentage > 0:
             num_tools = 1
 
-        print(f"Selecting {num_tools} of {len(cat_tools)} tools from {category} ({percentage*100:.1f}%)")
-        selected_tools = random.sample(cat_tools, num_tools) if num_tools < len(cat_tools) else cat_tools
+        print(
+            f"Selecting {num_tools} of {len(cat_tools)} tools from {category} ({percentage*100:.1f}%)"
+        )
+        selected_tools = (
+            random.sample(cat_tools, num_tools)
+            if num_tools < len(cat_tools)
+            else cat_tools
+        )
 
         for tool in selected_tools:
             tool_id = tool.get("id")
@@ -89,7 +97,7 @@ else:
         try:
             # Get tool details
             tool_details = gi.tools.show_tool(tool_id, io_details=True)
-            
+
             # ---- extract human-readable inputs ----
             inputs_clean = []
             for inp in tool_details.get("inputs", []):
@@ -104,14 +112,17 @@ else:
             # ---- extract human-readable outputs ----
             outputs_clean = []
             for out in tool_details.get("outputs", []):
-                outputs_clean.append({
-                    "name": out.get("name"),
-                    "format": out.get("format"),
-                })
-
+                outputs_clean.append(
+                    {
+                        "name": out.get("name"),
+                        "format": out.get("format"),
+                    }
+                )
 
             help_text = ""
-            raw_tool_url = f"{galaxy_url}/api/tools/{tool_id}/raw_tool_source?key={api_key}"
+            raw_tool_url = (
+                f"{galaxy_url}/api/tools/{tool_id}/raw_tool_source?key={api_key}"
+            )
             response = requests.get(raw_tool_url)
             response.raise_for_status()
             tool_xml = response.text
@@ -123,7 +134,7 @@ else:
                 print(f"Extracted help for {tool_id}: {help_text[:50]}...")
             else:
                 print(f"No <help> section found for {tool_id}")
-                
+
             return {
                 "id": tool_id,  # This should already be in the correct format
                 "name": tool.get("name", ""),
@@ -132,8 +143,7 @@ else:
                 "version": tool.get("version", ""),
                 "inputs": inputs_clean,
                 "outputs": outputs_clean,
-                "help": help_text, 
-                
+                "help": help_text,
             }
         except Exception as e:
             print(f"Error fetching details for {tool_id}: {e}")
@@ -141,19 +151,21 @@ else:
 
     tools_json = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_tool = {executor.submit(fetch_tool_details, tool): tool for tool in filtered_tools}
+        future_to_tool = {
+            executor.submit(fetch_tool_details, tool): tool for tool in filtered_tools
+        }
         for future in tqdm(
             as_completed(future_to_tool),
             total=len(filtered_tools),
             desc="Processing tools",
-            bar_format="{l_bar}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]"
+            bar_format="{l_bar}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
         ):
             result = future.result()
             if result:
                 tools_json.append(result)
 
     print(f"Saving {len(tools_json)} tools to '{output_file}'...")
-    with open(output_file, "w") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(tools_json, f, indent=4)
 
 print(f"✅ Done! Results are saved in '{output_file}'.")
