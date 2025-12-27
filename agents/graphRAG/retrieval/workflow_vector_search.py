@@ -7,7 +7,7 @@ logging.getLogger("neo4j").setLevel(logging.WARNING)
 
 
 class WorkflowVectorSearch:
-    """Vector search for Workflow nodes using Neo4j vector indexes for graph context."""
+    """Vector search for Workflow nodes using Neo4j vector indexes to get graph context."""
 
     def __init__(self, neo_client: Neo4jClient, index_name="workflow_embedding_index"):
         self.neo = neo_client
