@@ -54,7 +54,7 @@ class ToolGraphContext:
 
     @staticmethod
     def _clean(node):
-        """Return a clean dictionary representation of a Neo4j node."""
+        """Return a clean dictionary representation of tools of a Neo4j node."""
         if not node:
             return {}
         data = dict(node)
