@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import numpy as np
-from agents.suggesting_agent import ToolSuggestionAgent
+from agents.tool_suggesting_agent import ToolSuggestionAgent
 
 # -------------------- FIXTURES -------------------- #
 

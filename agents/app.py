@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from agents.utils.response_models import (
     SuggestionRequest, SuggestionResponse, WorkflowSuggestionResponse
 )
-from agents.suggesting_agent import ToolSuggestionAgent
+from agents.tool_suggesting_agent import ToolSuggestionAgent
 from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
 from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 from agents.classification_service import classify_query
