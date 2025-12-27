@@ -1,18 +1,21 @@
 # agents/tests/test_app.py
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from agents.app import app
 
+# ---------------- CLIENT FIXTURE ---------------- #
 @pytest.fixture
 def client():
     return TestClient(app)
 
-# ---------------- MOCK FIXTURES ---------------- #
+# ---------------- MOCK AGENTS ---------------- #
 @pytest.fixture
 def mock_tool_agent():
-    with patch("agents.app.agent", autospec=True) as mock_agent:
-        mock_agent.suggest_tools.return_value = [{"tool_id": "tool1", "name": "FastQC"}]
+    with patch("agents.app.tool_agent", autospec=True) as mock_agent:
+        mock_agent.suggest_tools.return_value = [
+            {"tool_id": "tool1", "name": "FastQC"}
+        ]
         yield mock_agent
 
 @pytest.fixture
@@ -31,86 +34,103 @@ def mock_workflow_agent():
         yield mock_agent
 
 @pytest.fixture
-def mock_classify():
+def mock_summary_agent():
+    with patch("agents.app.summary_agent", autospec=True) as mock_agent:
+        mock_agent.summarize_tools_suggestions.return_value = "Tool summary"
+        mock_agent.summarize_workflows_suggestions.return_value = "Workflow summary"
+        yield mock_agent
+
+@pytest.fixture
+def mock_classify_query():
     with patch("agents.app.classify_query") as mock_fn:
-        mock_fn.side_effect = lambda q: "tool" if "tool" in q else "workflow" if "workflow" in q else "both"
+        def side_effect(q):
+            if "tool" in q:
+                return {"label": "tool"}
+            elif "workflow" in q:
+                return {"label": "workflow"}
+            else:
+                return {"label": "both"}
+        mock_fn.side_effect = side_effect
         yield mock_fn
 
 @pytest.fixture
-def mock_summarize_tool():
-    with patch("agents.app.summarize_tool_suggestions") as mock_fn:
-        mock_fn.return_value = [{"summary": "Enhanced Tool"}]
-        yield mock_fn
+def mock_answer_gen():
+    with patch("agents.app.answer_gen", autospec=True) as mock_gen:
+        mock_gen.generate.return_value = "Generated answer"
+        yield mock_gen
 
-@pytest.fixture
-def mock_summarize_workflow():
-    with patch("agents.app.summarize_workflow_suggestions") as mock_fn:
-        mock_fn.return_value = [{"summary": "Enhanced Workflow"}]
-        yield mock_fn
-
-# ---------------- BASIC TESTS ---------------- #
+# ---------------- BASIC ROUTES ---------------- #
 def test_root(client):
     res = client.get("/")
     assert res.status_code == 200
-    assert res.json()["message"].startswith("Welcome")
+    assert "Welcome" in res.json()["message"]
 
 def test_health_check(client):
     res = client.get("/health")
     assert res.status_code == 200
     assert res.json()["status"] == "ok"
 
-# ---------------- TOOL TESTS ---------------- #
+# ---------------- TOOL ENDPOINTS ---------------- #
 def test_suggest_tools(client, mock_tool_agent):
     payload = {"query": "tool for qc", "top_k": 2}
-    res = client.post("/suggest", json=payload)
+    res = client.post("/suggest-tools", json=payload)
     assert res.status_code == 200
     assert "results" in res.json()
-    mock_tool_agent.suggest_tools.assert_called_once()
+    mock_tool_agent.suggest_tools.assert_called_once_with("tool for qc", 2)
 
-def test_suggest_tools_enhanced(client, mock_tool_agent, mock_summarize_tool):
+def test_suggest_tools_enhanced(client, mock_tool_agent, mock_summary_agent):
     payload = {"query": "enhanced tool", "top_k": 2}
     res = client.post("/suggest-tools-enhanced", json=payload)
     assert res.status_code == 200
-    mock_summarize_tool.assert_called_once()
+    assert res.json()["summary"] == "Tool summary"
+    mock_summary_agent.summarize_tools_suggestions.assert_called_once()
 
-# ---------------- WORKFLOW TESTS ---------------- #
+# ---------------- WORKFLOW ENDPOINTS ---------------- #
 def test_suggest_workflows(client, mock_workflow_agent):
     payload = {"query": "workflow for rna", "top_k": 2}
     res = client.post("/suggest-workflows", json=payload)
     assert res.status_code == 200
-    mock_workflow_agent.suggest_workflows.assert_called_once()
+    assert "results" in res.json()
+    mock_workflow_agent.suggest_workflows.assert_called_once_with("workflow for rna", 2)
 
-def test_suggest_workflows_enhanced(client, mock_workflow_agent, mock_summarize_workflow):
+def test_suggest_workflows_enhanced(client, mock_workflow_agent, mock_summary_agent):
     payload = {"query": "enhanced workflow", "top_k": 2}
     res = client.post("/suggest-workflows-enhanced", json=payload)
     assert res.status_code == 200
-    mock_summarize_workflow.assert_called_once()
+    assert res.json()["summary"] == "Workflow summary"
+    mock_summary_agent.summarize_workflows_suggestions.assert_called_once()
 
-# ---------------- RECOMMENDATION TESTS ---------------- #
-def test_recommend_tool_classification(client, mock_classify, mock_tool_agent):
+# ---------------- RECOMMENDATION ENDPOINT ---------------- #
+def test_recommend_tool(client, mock_classify_query, mock_tool_agent, mock_answer_gen):
     payload = {"query": "tool suggestion", "top_k": 2}
     res = client.post("/recommend", json=payload)
-    data = res.json()
     assert res.status_code == 200
-    assert data["type"] == "tool"
-    assert "results" in data
+    data = res.json()
+    assert "tools" in data
+    assert "workflows" not in data
+    mock_tool_agent.suggest_tools.assert_called_once()
+    mock_answer_gen.generate.assert_called_once()
 
-def test_recommend_workflow_classification(client, mock_classify, mock_workflow_agent):
+def test_recommend_workflow(client, mock_classify_query, mock_workflow_agent, mock_answer_gen):
     payload = {"query": "workflow suggestion", "top_k": 2}
     res = client.post("/recommend", json=payload)
-    data = res.json()
     assert res.status_code == 200
-    assert data["type"] == "workflow"
-    assert "results" in data
+    data = res.json()
+    assert "workflows" in data
+    assert "tools" not in data
+    mock_workflow_agent.suggest_workflows.assert_called_once()
+    mock_answer_gen.generate.assert_called_once()
 
-def test_recommend_both_classification(client, mock_classify, mock_tool_agent, mock_workflow_agent):
+def test_recommend_both(client, mock_classify_query, mock_tool_agent, mock_workflow_agent, mock_answer_gen):
     payload = {"query": "general recommendation", "top_k": 2}
     res = client.post("/recommend", json=payload)
-    data = res.json()
     assert res.status_code == 200
-    assert data["type"] == "both"
-    assert "tool_results" in data
-    assert "workflow_results" in data
+    data = res.json()
+    assert "tools" in data
+    assert "workflows" in data
+    mock_tool_agent.suggest_tools.assert_called_once()
+    mock_workflow_agent.suggest_workflows.assert_called_once()
+    mock_answer_gen.generate.assert_called_once()
 
 # ---------------- ERROR HANDLING ---------------- #
 def test_recommend_internal_error(client):
