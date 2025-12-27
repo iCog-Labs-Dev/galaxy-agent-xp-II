@@ -37,7 +37,7 @@ class ToolRetrievalPipeline:
         Args:
             user_query (str): Query describing desired tool
             top_k (int): Number of top tools to retrieve
-            use_cache (bool): Whether to use cached results
+            use_cache (bool): Whether to use cached outputs
 
         Returns:
             List of structured tool contexts (dicts)
