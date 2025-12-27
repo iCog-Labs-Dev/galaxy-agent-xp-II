@@ -19,7 +19,6 @@ from agents.graphRAG.generation.answer_generator import LLMAnswerGenerator
 from agents.ingestion.Load.neo4j_client import Neo4jClient
 from agents.summary_agent import SummaryAgent
 
-
 # ---------------- CONFIGURATION ---------------- #
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -167,3 +166,4 @@ if __name__ == "__main__":
     import uvicorn
     logger.info("🚀 Starting FastAPI app on http://localhost:8000")
     uvicorn.run("agents.app:app", host="0.0.0.0", port=8000, reload=True)
+    
