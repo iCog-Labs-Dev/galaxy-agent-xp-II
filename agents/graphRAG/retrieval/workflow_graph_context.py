@@ -7,7 +7,7 @@ logging.getLogger("neo4j").setLevel(logging.WARNING)
 
 
 class WorkflowGraphContext:
-    """Retrieve full workflow context for given workflow_ids from the result of vectore search."""
+    """Retrieve full workflow context for given workflow_ids from the output of vector search."""
 
     def __init__(self, neo_client: Neo4jClient):
         self.neo = neo_client
