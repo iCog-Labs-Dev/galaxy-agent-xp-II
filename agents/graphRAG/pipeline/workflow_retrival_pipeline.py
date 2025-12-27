@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class WorkflowRetrievalPipeline:
     """
     Full workflow recommendation pipeline:
-    User query → embedding → vector search → graph context → structured workflows
+    User query → embedding → vector search → graph context → structured workflows-organized dicts
     """
 
     def __init__(
