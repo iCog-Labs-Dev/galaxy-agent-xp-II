@@ -1,0 +1,45 @@
+Requirement already satisfied: torch==2.5.1+cpu in ./venv10/lib/python3.10/site-packages (2.5.1+cpu)
+Collecting sentence-transformers==2.3.1
+  Downloading sentence_transformers-2.3.1-py3-none-any.whl (132 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 132.8/132.8 kB 600.4 kB/s eta 0:00:00
+Collecting transformers==4.27.4
+  Downloading transformers-4.27.4-py3-none-any.whl (6.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 9.0 MB/s eta 0:00:00
+Requirement already satisfied: huggingface_hub==0.13.4 in ./venv10/lib/python3.10/site-packages (0.13.4)
+Requirement already satisfied: python-dotenv in ./venv10/lib/python3.10/site-packages (1.2.1)
+Requirement already satisfied: bioblend in ./venv10/lib/python3.10/site-packages (1.7.0)
+Requirement already satisfied: tqdm in ./venv10/lib/python3.10/site-packages (4.67.1)
+Requirement already satisfied: PyYAML in ./venv10/lib/python3.10/site-packages (6.0.3)
+Requirement already satisfied: openpyxl in ./venv10/lib/python3.10/site-packages (3.1.5)
+Requirement already satisfied: pandas in ./venv10/lib/python3.10/site-packages (2.3.3)
+Requirement already satisfied: numpy in ./venv10/lib/python3.10/site-packages (1.26.0)
+Requirement already satisfied: fastapi in ./venv10/lib/python3.10/site-packages (0.128.0)
+Requirement already satisfied: google-generativeai in ./venv10/lib/python3.10/site-packages (0.8.6)
+Requirement already satisfied: uvicorn in ./venv10/lib/python3.10/site-packages (0.40.0)
+Requirement already satisfied: pydantic in ./venv10/lib/python3.10/site-packages (2.12.5)
+Requirement already satisfied: pydantic-settings in ./venv10/lib/python3.10/site-packages (2.12.0)
+Requirement already satisfied: openai in ./venv10/lib/python3.10/site-packages (2.14.0)
+Collecting pytest
+  Downloading pytest-9.0.2-py3-none-any.whl (374 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 374.8/374.8 kB 20.2 MB/s eta 0:00:00
+Requirement already satisfied: httpx in ./venv10/lib/python3.10/site-packages (0.28.1)
+Requirement already satisfied: unstructured in ./venv10/lib/python3.10/site-packages (0.18.21)
+Requirement already satisfied: neo4j in ./venv10/lib/python3.10/site-packages (6.0.3)
+Requirement already satisfied: sympy==1.13.1 in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (1.13.1)
+Requirement already satisfied: typing-extensions>=4.8.0 in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (4.15.0)
+Requirement already satisfied: networkx in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (3.4.2)
+Requirement already satisfied: fsspec in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (2025.12.0)
+Requirement already satisfied: jinja2 in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (3.1.3)
+Requirement already satisfied: filelock in ./venv10/lib/python3.10/site-packages (from torch==2.5.1+cpu) (3.20.0)
+Requirement already satisfied: Pillow in ./venv10/lib/python3.10/site-packages (from sentence-transformers==2.3.1) (12.0.0)
+Requirement already satisfied: scikit-learn in ./venv10/lib/python3.10/site-packages (from sentence-transformers==2.3.1) (1.7.2)
+INFO: pip is looking at multiple versions of torch to determine which version is compatible with other requirements. This could take a while.
+
+The conflict is caused by:
+    The user requested transformers==4.27.4
+    sentence-transformers 2.3.1 depends on transformers<5.0.0 and >=4.32.0
+
+To fix this you could try to:
+1. loosen the range of package versions you've specified
+2. remove package versions to allow pip attempt to solve the dependency conflict
+
