@@ -1,3 +1,4 @@
+
 """
 Generate embeddings for Galaxy / IWC Workflow metadata.
 
@@ -121,11 +122,11 @@ def save_embeddings(
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(workflows_with_emb, f, ensure_ascii=False, indent=2)
 
-    print(f" Encoded {len(embeddings)} workflows")
-    print(f" Embeddings saved to: {emb_path}")
-    print(f" Metadata + embeddings saved to: {meta_path}")
+    print(f"✅ Encoded {len(embeddings)} workflows")
+    print(f"💾 Embeddings saved to: {emb_path}")
+    print(f"💾 Metadata + embeddings saved to: {meta_path}")
     if keep_all_fields:
-        print(f" Kept all fields from input data (workflow_files, steps, etc.)")
+        print(f"📦 Kept all fields from input data (workflow_files, steps, etc.)")
 
 
 def main():
@@ -166,11 +167,11 @@ def main():
     args = parser.parse_args()
 
     # Load workflows
-    print(f" Loading workflows from: {args.input}")
+    print(f"📥 Loading workflows from: {args.input}")
     with open(args.input, "r", encoding="utf-8") as f:
         workflows = json.load(f)
     
-    print(f" Loaded {len(workflows)} workflows")
+    print(f"📊 Loaded {len(workflows)} workflows")
 
     # Encode embeddings
     embeddings = encode_workflows(workflows, args.model)
