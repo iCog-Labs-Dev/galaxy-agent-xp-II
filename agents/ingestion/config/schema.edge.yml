@@ -74,3 +74,20 @@ OutputInput:
   target: Input
   properties:
     port: {type: str}
+
+ToolCooccurrence:
+  label: USED_WITH
+  description: "Weighted edge indicating how often two tools appear in the same workflow"
+  source: Tool
+  target: Tool
+  properties:
+    weight: {type: int}
+
+
+
+ToolCommunity:
+  label: IN_COMMUNITY
+  description: "Links a Tool to a specific Community"
+  source: Tool
+  target: Community
+  properties: {}
