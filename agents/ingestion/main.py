@@ -18,7 +18,7 @@ def main():
     # -----------------------
     workflow_loader = GraphLoader(neo)
     workflow_loader.import_file(
-        "utilities/workflow_downloader/data/iwc_full_20251220_214925.json"
+        "utilities/workflow_downloader/data/galaxy_iwc_workflows_20251127_093913.json"
     )
 
     # -----------------------
@@ -27,7 +27,7 @@ def main():
     # Tools ETL: load tool metadata into the graph
     tool_loader = ToolLoader(neo)
     tool_loader.import_file(
-        "utilities/tools_metadata_downloader/data/preprocessed_tools_20251220_211654.json"
+        "utilities/tools_metadata_downloader/data/galaxy_instance_tools_2025-11-28_15-18-56.json"
     )
 
     # Close connection
