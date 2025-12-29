@@ -44,7 +44,7 @@ DEFAULT_CONFIG = LoaderConfig(
             file="workflow_files.csv",
             id_fields=["workflow_repository", "file_name"],
             id_property="workflow_id",
-            prop_fields=["workflow_repository", "category", "file_name", "raw_download_url", "number_of_steps", "readme_content"],
+            prop_fields=["workflow_repository", "category", "file_name", "raw_download_url", "number_of_steps"],
         ),
         NodeSpec(
             name="Step",
@@ -54,50 +54,6 @@ DEFAULT_CONFIG = LoaderConfig(
             id_property="step_uid",
             prop_fields=["workflow_repository", "file_name", "step_id", "name", "type", "annotation", "tool_id", "tool_version"],
         ),
-        # Tools referenced by workflows (basic properties)
-        NodeSpec(
-            name="Tool",
-            label="Tool",
-            file="tools_used.csv",
-            id_fields=["id"],
-            id_property="tool_id",
-            prop_fields=["id", "name", "version", "owner", "tool_category", "tool_shed_url"],
-        ),
-            # Tools from metadata downloader
-            NodeSpec(
-                name="Tool",
-                label="Tool",
-                file="tools_master.csv",
-                id_fields=["id"],
-                id_property="tool_id",
-                prop_fields=["id", "name", "description", "version", "help"],
-            ),
-            # Category nodes from tools categories (to ensure categories exist even without workflows)
-            NodeSpec(
-                name="Category",
-                label="Category",
-                file="tool_categories.csv",
-                id_fields=["category"],
-                id_property="category_id",
-                prop_fields=["category"],
-            ),
-            # Tool IO nodes
-            NodeSpec(
-                name="ToolInput",
-                label="ToolInput",
-                file="tool_inputs.csv",
-                id_fields=["id", "input_name"],
-                id_property="tool_input_uid",
-                prop_fields=["id", "input_name", "input_type"],
-            ),
-            NodeSpec(
-                name="ToolOutput",
-                label="ToolOutput",
-                file="tool_outputs.csv",
-                id_fields=["id", "output_name"],
-                id_property="tool_output_uid",
-                prop_fields=["id", "output_name", "output_format"],
-            ),
         NodeSpec(
             name="Input",
             label="Input",
@@ -113,6 +69,14 @@ DEFAULT_CONFIG = LoaderConfig(
             id_fields=["workflow_repository", "file_name", "step_id", "name"],
             id_property="output_uid",
             prop_fields=["workflow_repository", "file_name", "step_id", "name", "description"],
+        ),
+        NodeSpec(
+            name="Tool",
+            label="Tool",
+            file="tools_used.csv",
+            id_fields=["id"],
+            id_property="tool_id",
+            prop_fields=["id", "name", "version", "owner", "tool_category", "tool_shed_url"],
         ),
     ],
     relationships=[
@@ -167,6 +131,7 @@ DEFAULT_CONFIG = LoaderConfig(
             from_id_fields=["workflow_repository", "file_name"],
             to_id_fields=["id"],
         ),
+        
         RelationshipSpec(
             type="STEP_USES_TOOL",
             file="workflow_steps.csv",
@@ -174,30 +139,6 @@ DEFAULT_CONFIG = LoaderConfig(
             to="Tool",
             from_id_fields=["workflow_repository", "file_name", "step_id"],
             to_id_fields=["tool_id"],
-        ),
-        RelationshipSpec(
-            type="HAS_TOOL",
-            file="tool_categories.csv",
-            from_="Category",
-            to="Tool",
-            from_id_fields=["category"],
-            to_id_fields=["id"],
-        ),
-        RelationshipSpec(
-            type="TOOL_HAS_INPUT",
-            file="tool_inputs.csv",
-            from_="Tool",
-            to="ToolInput",
-            from_id_fields=["id"],
-            to_id_fields=["id", "input_name"],
-        ),
-        RelationshipSpec(
-            type="TOOL_HAS_OUTPUT",
-            file="tool_outputs.csv",
-            from_="Tool",
-            to="ToolOutput",
-            from_id_fields=["id"],
-            to_id_fields=["id", "output_name"],
         ),
     ],
 )
