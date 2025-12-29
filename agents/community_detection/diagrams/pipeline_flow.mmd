@@ -1,0 +1,29 @@
+graph TD
+    subgraph Raw Data
+        W[Workflow Node]
+        S[Step Node]
+        T[Tool Node]
+    end
+
+    subgraph Step 1: Projection
+        W -->|Contains| S
+        S -->|Uses| T
+        T -.->|Derived Edge: USED_WITH| T
+        style T stroke:#f66,stroke-width:2px
+    end
+
+    subgraph Step 2: Detection
+        T -->|"Leiden Alg (Res 1.5)"| L0[L0 Community]
+        L0 -->|"Contraction + Leiden (Res 0.2)"| L1[L1 Community]
+    end
+
+    subgraph Step 3: Semantic Enrichment
+        L0 -->|Context: Top 15 Central Tools| LLM["LLM (Qwen/Llama)"]
+        LLM -->|Generates JSON| SUM_L0["Title: 'Quality Control'"]
+        
+        L1 -->|Context: L0 Summaries| LLM
+        LLM -->|Generates JSON| SUM_L1["Theme: 'Genomics Pipeline'"]
+    end
+
+    SUM_L0 -.->|Writes to| Neo4j[(Neo4j Graph)]
+    SUM_L1 -.->|Writes to| Neo4j
