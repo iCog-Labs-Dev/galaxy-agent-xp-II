@@ -16,6 +16,8 @@ A reusable, config-driven pipeline to convert scraped workflow JSON into CSVs an
 - `generic_csv_loader.py`: Config-driven CSV → Neo4j loader that merges nodes first, then edges.
 - `generate_cypher_files.py`: Emits `nodes.cypher` and `edges.cypher` (MERGE statements) from CSVs using the same config/IDs.
 - `cypher_batch_loader.py`: Runs the generated Cypher files (nodes first, then edges) against Neo4j.
+- `embed_nodes.py`: Computes embeddings with a free open model and stores them on nodes for semantic search.
+- `search.py`: CLI to embed a query and return top-K similar nodes by label using stored embeddings.
 
 ## ID Strategy (deterministic)
 - `Category`: `category_id = md5(category)`
@@ -61,6 +63,30 @@ python agents/generic_loader/cypher_batch_loader.py \
   --user neo4j \
   --password YOUR_PASSWORD
 ```
+```
+
+4) Optional: add embeddings for semantic search (defaults to MiniLM):
+```bash
+python agents/generic_loader/embed_nodes.py \
+  --uri bolt://localhost:7687 \
+  --user neo4j \
+  --password YOUR_PASSWORD \
+  --labels Workflow Step Tool Input Output Category \
+  --model sentence-transformers/all-MiniLM-L6-v2 \
+  --create-index
+```
+
+This stores a float-vector property `embedding` on each node and attempts to create native vector indexes when supported by your Neo4j version.
+
+5) Optional: run a semantic search
+```bash
+python agents/generic_loader/search.py \
+  --label Step \
+  --q "align sequences" \
+  --k 10 \
+  --uri bolt://localhost:7687 \
+  --user neo4j \
+  --password YOUR_PASSWORD
 ```
 
 ## Customization
