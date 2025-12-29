@@ -1,0 +1,37 @@
+graph TD
+    subgraph "Level 1: Scientific Theme"
+        L1[L1: Genomics Pre-processing]
+    end
+
+    subgraph "Level 0: Specific Sub-Tasks"
+        QC[L0: Quality Control]
+        TRIM[L0: Read Trimming]
+        ALIGN[L0: Alignment]
+    end
+
+    subgraph "Tools (Leaves)"
+        T1(FastQC)
+        T2(MultiQC)
+        T3(Trimmomatic)
+        T4(Cutadapt)
+        T5(Bowtie2)
+        T6(BWA-MEM)
+    end
+
+    %% Relationships
+    L1 -->|IS_PARENT_OF| QC
+    L1 -->|IS_PARENT_OF| TRIM
+    L1 -->|IS_PARENT_OF| ALIGN
+
+    QC -->|IN_COMMUNITY| T1
+    QC -->|IN_COMMUNITY| T2
+    
+    TRIM -->|IN_COMMUNITY| T3
+    TRIM -->|IN_COMMUNITY| T4
+    
+    ALIGN -->|IN_COMMUNITY| T5
+    ALIGN -->|IN_COMMUNITY| T6
+
+    %% Lateral Connections (Topology)
+    T2 -.->|USED_WITH| T3
+    T4 -.->|USED_WITH| T5

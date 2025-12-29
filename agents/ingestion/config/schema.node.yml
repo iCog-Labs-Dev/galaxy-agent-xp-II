@@ -58,3 +58,16 @@ Step:
     name: {type: str}
     type: {type: str}
     annotation: {type: str}
+
+Community:
+  label: Community
+  properties:
+    - name: id
+      type: STRING
+      required: true
+    - name: name
+      type: STRING
+    - name: summary
+      type: STRING
+    - name: level
+      type: INTEGER
