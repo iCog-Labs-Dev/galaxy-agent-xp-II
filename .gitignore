@@ -42,3 +42,9 @@ galaxy_tools_may_3_2025_v1.json
 models/
 test_data
 iwc_full_*.json
+step_*.csv
+workflow_*.csv
+workflows.csv
+tools_*.csv
+cypher_out
+tool_*.csv
