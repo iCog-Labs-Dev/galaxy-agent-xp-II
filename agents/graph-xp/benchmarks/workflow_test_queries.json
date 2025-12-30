@@ -1,0 +1,109 @@
+{
+    "queries": [
+        "I want a genome assembly workflow using HiFi reads with HiC phasing following VGP4 standards",
+        "workflow for scaffolding a genome using Bionano optical map data",
+        "how to perform k-mer profiling for PacBio HiFi trio data for VGP2",
+        "detect antimicrobial resistance genes in assembled bacterial genomes using StarAMR and AMRFinderPlus",
+        "workflow to identify virulence genes in bacteria using ABRicate and VFDB",
+        "I need a pipeline for fragment-based virtual screening with docking and pose scoring",
+        "workflow for genome assembly from Hifi reads with trio-binning phasing",
+        "how to run a full VGP assembly pipeline starting from HiFi reads and HiC data",
+        "workflow for scaffolding and polishing a genome assembly",
+        "I want to compare feature overlap of docking poses against a reference fragment using SuCOS",
+        "pipeline to curate and aggregate tool outputs into a single JSON using ToolDistillator",
+        "workflow for PacBio HiFi reads quality control using RDeval",
+        "generate a MultiQC report for HiFi reads trimming and assembly statistics",
+        "how to create a Frankenstein ligand for cavity definition in docking",
+        "workflow to generate Haplotype 1 and Haplotype 2 assemblies from phased reads",
+        "I need a pipeline to evaluate assembly completeness using Compleasm and Merqury",
+        "workflow for scaffolding using Hi-C data following VGP8 protocols",
+        "how to perform Mash QC and generate heatmaps for distance between HiFi datasets",
+        "workflow to extract and aggregate resistance gene information from multiple genomic tools",
+        "pipeline for docking a compound library against a target protein with rDock",
+        "I want a workflow to filter and sort rDock docking results",
+        "workflow to estimate genome size and homozygous read coverage from Genomescope models",
+        "pipeline for assembly-based AMR gene detection including point mutation lists",
+        "workflow to generate Nx plots and size plots for phased genome assemblies",
+        "how to visualize assembly graphs using Bandage within a VGP workflow"
+    ],
+    "ground_truth": {
+        "I want a genome assembly workflow using HiFi reads with HiC phasing following VGP4 standards": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "workflow for scaffolding a genome using Bionano optical map data": [
+            "Scaffolding with Bionano"
+        ],
+        "how to perform k-mer profiling for PacBio HiFi trio data for VGP2": [
+            "kmer-profiling-hifi-trio-VGP2"
+        ],
+        "detect antimicrobial resistance genes in assembled bacterial genomes using StarAMR and AMRFinderPlus": [
+            "AMR gene detection workflow in an assembled bacterial genome"
+        ],
+        "workflow to identify virulence genes in bacteria using ABRicate and VFDB": [
+            "AMR gene detection workflow in an assembled bacterial genome"
+        ],
+        "I need a pipeline for fragment-based virtual screening with docking and pose scoring": [
+            "Fragment-based virtual screening with docking and pose scoring"
+        ],
+        "workflow for genome assembly from Hifi reads with trio-binning phasing": [
+            "Genome Assembly from Hifi reads with trio-binning phasing - VGP4"
+        ],
+        "how to run a full VGP assembly pipeline starting from HiFi reads and HiC data": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "workflow for scaffolding and polishing a genome assembly": [
+            "Scaffolding-HiC-VGP8",
+            "Scaffolding with Bionano"
+        ],
+        "I want to compare feature overlap of docking poses against a reference fragment using SuCOS": [
+            "Fragment-based virtual screening with docking and pose scoring"
+        ],
+        "pipeline to curate and aggregate tool outputs into a single JSON using ToolDistillator": [
+            "AMR gene detection workflow in an assembled bacterial genome"
+        ],
+        "workflow for PacBio HiFi reads quality control using RDeval": [
+            "kmer-profiling-hifi-trio-VGP2"
+        ],
+        "generate a MultiQC report for HiFi reads trimming and assembly statistics": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "how to create a Frankenstein ligand for cavity definition in docking": [
+            "Fragment-based virtual screening with docking and pose scoring"
+        ],
+        "workflow to generate Haplotype 1 and Haplotype 2 assemblies from phased reads": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "I need a pipeline to evaluate assembly completeness using Compleasm and Merqury": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4",
+            "Scaffolding with Bionano"
+        ],
+        "workflow for scaffolding using Hi-C data following VGP8 protocols": [
+            "Scaffolding with Hi-C data VGP8"
+        ],
+        "how to perform Mash QC and generate heatmaps for distance between HiFi datasets": [
+            "kmer-profiling-hifi-trio-VGP2"
+        ],
+        "workflow to extract and aggregate resistance gene information from multiple genomic tools": [
+            "AMR gene detection workflow in an assembled bacterial genome"
+        ],
+        "pipeline for docking a compound library against a target protein with rDock": [
+            "Fragment-based virtual screening with docking and pose scoring"
+        ],
+        "I want a workflow to filter and sort rDock docking results": [
+            "Fragment-based virtual screening with docking and pose scoring"
+        ],
+        "workflow to estimate genome size and homozygous read coverage from Genomescope models": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "pipeline for assembly-based AMR gene detection including point mutation lists": [
+            "AMR gene detection workflow in an assembled bacterial genome"
+        ],
+        "workflow to generate Nx plots and size plots for phased genome assemblies": [
+            "Scaffolding with Bionano",
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ],
+        "how to visualize assembly graphs using Bandage within a VGP workflow": [
+            "Genome Assembly from Hifi reads with HiC phasing - VGP4"
+        ]
+    }
+}
