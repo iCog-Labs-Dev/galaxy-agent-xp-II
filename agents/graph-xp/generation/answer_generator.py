@@ -1,8 +1,8 @@
 import logging
 from typing import List, Dict, Optional
 
-from agents.graph-xp.generation.tool_response_formater import format_tool_results
-from agents.graph-xp.generation.workflow_response_formater import format_workflow_results
+from tool_response_formater import format_tool_results
+from workflow_response_formater import format_workflow_results
 
 logger = logging.getLogger(__name__)
 
