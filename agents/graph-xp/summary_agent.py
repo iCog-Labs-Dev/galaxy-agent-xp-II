@@ -1,94 +1,182 @@
-import json
-import numpy as np
+from __future__ import annotations
+
 import os
-import yaml
-from sentence_transformers import SentenceTransformer, util
+import logging
+from typing import Optional, Protocol, List
+from dotenv import load_dotenv
+
+# - CONFIGURATION 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+load_dotenv()
+
+# ENV HELPERS 
+def _get_env() -> tuple[Optional[str], Optional[str]]:
+    return os.getenv("GEMINI_API_KEY"), os.getenv("OPENAI_API_KEY")
 
 
-class ToolSuggestionAgent:
+def _default_provider() -> str:
+    gemini_key, openai_key = _get_env()
+    return "openai" if openai_key else "gemini"
+
+
+def _validate_env() -> None:
+    gemini_key, openai_key = _get_env()
+    if not gemini_key and not openai_key:
+        raise ValueError(
+            "Missing GEMINI_API_KEY and OPENAI_API_KEY"
+        )
+
+
+# ------------------ LLM INTERFACE ------------------ #
+class LLMInterface(Protocol):
+    def generate(self, prompt: str) -> str: ...
+
+
+# ------------------ PROVIDERS ------------------ #
+class GeminiModel:
+    def __init__(self, api_key: str, model_name: str = "models/gemini-2.5-flash"):
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        self._model = genai.GenerativeModel(model_name)
+
+    def generate(self, prompt: str) -> str:
+        response = self._model.generate_content(prompt)
+        return (response.text or "").strip()
+
+
+class OpenAIModel:
+    def __init__(self, api_key: str, model_name: str = "gpt-4o-mini"):
+        import openai
+        openai.api_key = api_key
+        self._openai = openai
+        self._model = model_name
+
+    def generate(self, prompt: str) -> str:
+        response = self._openai.chat.completions.create(
+            model=self._model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=1200,
+        )
+        return response.choices[0].message.content.strip()
+
+
+#  PROVIDER SELECTION 
+def get_llm(provider: Optional[str] = None) -> LLMInterface:
+    _validate_env()
+    gemini_key, openai_key = _get_env()
+    chosen = (provider or _default_provider()).lower()
+
+    if chosen == "openai":
+        if openai_key:
+            return OpenAIModel(openai_key)
+        elif gemini_key:
+            logger.warning("Falling back to Gemini")
+            return GeminiModel(gemini_key)
+        else:
+            raise ValueError("No valid LLM provider available")
+
+    if chosen == "gemini":
+        if gemini_key:
+            return GeminiModel(gemini_key)
+        elif openai_key:
+            logger.warning("Falling back to OpenAI")
+            return OpenAIModel(openai_key)
+        else:
+            raise ValueError("No valid LLM provider available")
+
+    # Provider explicitly invalid
+    raise ValueError("Unknown LLM provider")
+
+
+class SummaryAgent:
     """
-    Suggest tools based on a query using a pre-trained SentenceTransformer model.
-    Loads embeddings and metadata lazily to avoid heavy operations on import.
+    Unified summary agent for tools and workflows.
+    Produces clean, human-readable summaries.
     """
 
-    # Default config paths
-    config_file = "config.yml"
-    _config_loaded = False
+    def __init__(self, llm: Optional[LLMInterface] = None):
+        self.llm = llm or get_llm()
 
-    @classmethod
-    def load_config(cls):
-        if cls._config_loaded:
-            return
-        if not os.path.exists(cls.config_file):
-            raise FileNotFoundError(
-                f"Configuration file {cls.config_file} not found. Please ensure it exists."
-            )
-        with open(cls.config_file, "r") as f:
-            config = yaml.safe_load(f)
-        cls.model_path = config["agent"]["finetuned_model"]
-        cls.embeddings_path = config["agent"]["tools_embeddings_path"]
-        cls.metadata_path = config["agent"]["tools_metadata_path"]
-        cls._config_loaded = True
+    # -------- TOOLS -------- #
+    def summarize_tools_suggestions(self, tools: List[dict], query: str) -> str:
+        if not tools:
+            return "No relevant tools found."
 
-    def __init__(self, model_path=None, embeddings_path=None, metadata_path=None):
-        self.load_config()
+        tool_descriptions = "\n".join(
+            f"{t.get('name', 'Unknown Tool')} | Category: {t.get('category', 'N/A')} | {t.get('description', 'No description.')}"
+            for t in tools
+        )
 
-        # Use provided paths or fallback to config
-        self.model_path = model_path or self.model_path
-        self.embeddings_path = embeddings_path or self.embeddings_path
-        self.metadata_path = metadata_path or self.metadata_path
+        prompt = f"""
+You are a helpful AI assistant for Galaxy bioinformatics tools.
 
-        # Load model and embeddings lazily
-        print(f"🔄 Loading model from {self.model_path}")
-        self.model = SentenceTransformer(self.model_path)
-        self.embeddings = np.load(self.embeddings_path)
+User query: "{query}"
 
-        # Load metadata
-        with open(self.metadata_path, "r", encoding="utf-8") as f:
-            self.metadata = json.load(f)
+Provide a **clean, human-readable summary**. 
+Do not use asterisks, hashes, or Markdown.
+Use newlines to separate each tool. Include:
+- Tool name
+- Category
+- One-line relevance/description
 
-    def validate_tool_info(self, tool_info: dict) -> dict:
-        validated = {
-            "id": tool_info.get("id") or "",
-            "name": tool_info.get("name") or "",
-            "description": tool_info.get("description") or "",
-            "categories": tool_info.get("categories") or [],
-            "version": tool_info.get("version") or "",
-            "help": tool_info.get("help") or "",
-        }
-        validated["category"] = validated["categories"][0] if validated["categories"] else "Uncategorized"
-        return validated
+{tool_descriptions}
+"""
+        return self.llm.generate(prompt)
 
-    def suggest_tools(self, query, top_k=5, score_threshold=0.05):
-        query_embedding = self.model.encode(query, convert_to_numpy=True).astype(np.float32)
-        similarities = util.pytorch_cos_sim(query_embedding, self.embeddings)[0]
+    # -------- WORKFLOWS -------- #
+    def summarize_workflows_suggestions(self, workflows: List[dict], query: str) -> str:
+        if not workflows:
+            return "No relevant workflows found."
 
-        top_results = np.argsort(-similarities)[:top_k]
-        suggestions = []
-        seen_tools = {}
+        workflow_descriptions = "\n".join(
+            f"{wf.get('name', 'Unknown Workflow')} | Category: {wf.get('category', 'N/A')} | Score: {wf.get('score', 0):.2f} | {wf.get('readme_excerpt', 'No description.')}"
+            for wf in workflows
+        )
 
-        for idx in top_results:
-            raw_tool = self.metadata[idx]
-            tool = self.validate_tool_info(raw_tool)
-            score = float(similarities[idx])
+        prompt = f"""
+You are a helpful AI assistant for Galaxy workflows.
 
-            if tool["name"] not in seen_tools or abs(seen_tools[tool["name"]] - score) > score_threshold:
-                tool["score"] = score
-                suggestions.append(tool)
-                seen_tools[tool["name"]] = score
+User query: "{query}"
 
-        return suggestions
+Provide a **clean, human-readable summary**. 
+Do not use asterisks, hashes, or Markdown.
+Use newlines to separate each workflow. Include:
+- Workflow name
+- Category
+- Score
+- One-line description
+
+{workflow_descriptions}
+"""
+        return self.llm.generate(prompt)
 
 
-if __name__ == "__main__":
-    agent = ToolSuggestionAgent()
-    query = input("Describe what you want to do: ")
-    results = agent.suggest_tools(query, top_k=5)
+    
 
-    print("\nTop Suggestions:")
-    for i, tool in enumerate(results, 1):
-        print(f"{i}. {tool['name']} (ID: {tool['id']}, Score: {tool['score']:.4f})")
-        print(f"   Description: {tool['description']}")
-        print(f"   Help: {tool['help']}")
-        print(f"   Category: {tool['category']}")
-        print(f"   Version: {tool['version']}")
+_default_summary_agent: Optional[SummaryAgent] = None
+
+
+def _get_summary_agent() -> SummaryAgent:
+    global _default_summary_agent
+    if _default_summary_agent is None:
+        _default_summary_agent = SummaryAgent()
+    return _default_summary_agent
+
+
+def summarize_tool_suggestions(tools: List[dict], query: str) -> str:
+    """
+    Function wrapper for tool summarization.
+    Keeps compatibility with existing imports.
+    """
+    return _get_summary_agent().summarize_tools_suggestions(tools, query)
+
+
+def summarize_workflow_suggestions(workflows: List[dict], query: str) -> str:
+    """
+    Function wrapper for workflow summarization.
+    Keeps compatibility with existing imports.
+    """
+    return _get_summary_agent().summarize_workflows_suggestions(workflows, query)
