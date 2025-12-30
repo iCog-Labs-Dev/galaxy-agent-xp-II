@@ -53,5 +53,17 @@ pipeline: tools_csv workflows_csv load_graph
 
 .PHONY: activate fetch_tools tools_csv workflows_csv load_graph pipeline
 
+# Downloader targets
+download_tools:
+	$(PY) utilities/tools_metadata_downloader/tool_downloader.py || echo "Warning: tools downloader failed"
+
+download_workflows:
+	$(PY) utilities/workflow_downloader/iwc_downloader.py|| echo "Warning: workflow downloader failed"
+
+# Full pipeline including downloads
+pipeline_full: download_tools download_workflows pipeline
+
+.PHONY: download_tools download_workflows pipeline_full
+
 
 .PHONY: activate fetch_tools
