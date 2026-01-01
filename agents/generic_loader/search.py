@@ -91,12 +91,9 @@ def main():
 
     log.info("Loading model: %s", args.model)
     model = SentenceTransformer(args.model)
-    model_l = args.model.lower()
-    is_e5 = "e5" in model_l
-    is_bge = "bge" in model_l
 
-    prefix = "query: " if (is_e5 or is_bge) else ""
-    q_text = prefix + args.q
+    is_e5 = "e5" in args.model.lower()
+    q_text = ("query: " + args.q) if is_e5 else args.q
     q_vec = model.encode([q_text], normalize_embeddings=True)[0]
 
     driver = GraphDatabase.driver(args.uri, auth=(args.user, args.password))
