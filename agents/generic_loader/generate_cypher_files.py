@@ -1,79 +1,85 @@
 import argparse
-import csv
-import hashlib
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 from schema_models import DEFAULT_CONFIG, NodeSpec, RelationshipSpec
 
 
-def md5_id(values: List[Any]) -> str:
-    s = "_".join([str(v) for v in values if v is not None])
-    return hashlib.md5(s.encode("utf-8")).hexdigest()
+def build_md5_expression(source_alias: str, fields: List[str]) -> str:
+    # apoc.util.md5 expects a list; passing a string causes "expected List but was String"
+    joined_fields = ", ".join([f"coalesce({source_alias}.`{f}`, '')" for f in fields])
+    return f"apoc.util.md5([{joined_fields}])"
 
 
-def escape(val: Any) -> str:
-    """Escape a value for Cypher string literal; store everything as string for parity."""
-    if val is None:
-        val = ""
-    return str(val).replace("\\", "\\\\").replace("'", "\\'")
+def node_statement(spec: NodeSpec, csv_url: str, batch_size: int, parallel: bool, concurrency: int) -> str:
+    id_expr = build_md5_expression("row", spec.id_fields)
+    props_entries = [f"`{spec.id_property}`: node_id"]
+    for pf in spec.prop_fields:
+        if spec.label == "Category" and pf == "category":
+            props_entries.append("`name`: coalesce(row.`category`, '')")
+        props_entries.append(f"`{pf}`: coalesce(row.`{pf}`, '')")
+    props_literal = ", ".join(props_entries)
+    action_lines = [
+        f"WITH row, {id_expr} AS node_id",
+        f"MERGE (n:{spec.label} {{{spec.id_property}: node_id}})",
+        f"SET n += {{{props_literal}}}",
+    ]
+    action_query = "\\n".join(action_lines)
+    return (
+        "CALL apoc.periodic.iterate(\n"
+        f"  \"LOAD CSV WITH HEADERS FROM '{csv_url}' AS row RETURN row\",\n"
+        f"  \"{action_query}\",\n"
+        f"  {{batchSize:{batch_size}, parallel:{str(parallel).lower()}, concurrency:{concurrency}}}\n"
+        ");"
+    )
 
 
-def read_csv(path: Path) -> List[Dict[str, Any]]:
-    if not path.exists():
-        return []
-    with path.open("r", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+def rel_statement(
+    spec: RelationshipSpec,
+    csv_url: str,
+    batch_size: int,
+    parallel: bool,
+    concurrency: int,
+    id_prop_by_name: dict,
+) -> str:
+    from_expr = build_md5_expression("row", spec.from_id_fields)
+    to_expr = build_md5_expression("row", spec.to_id_fields)
+    props_entries = []
+    for pf in spec.prop_fields:
+        props_entries.append(f"`{pf}`: coalesce(row.`{pf}`, '')")
+    props_literal = ", ".join(props_entries)
+    props_clause = f"SET r += {{{props_literal}}}" if props_literal else ""
+    action_lines = [
+        f"WITH row, {from_expr} AS from_id, {to_expr} AS to_id",
+        f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: from_id}})",
+        f"MATCH (b:{spec.to} {{{id_prop_by_name[spec.to]}: to_id}})",
+        f"MERGE (a)-[r:{spec.type}]-(b)",
+    ]
+    if props_clause:
+        action_lines.append(props_clause)
+    if spec.set_source_target:
+        action_lines.extend([
+            f"SET r.source_type = coalesce(r.source_type, '{spec.from_}')",
+            f"SET r.target_type = coalesce(r.target_type, '{spec.to}')",
+        ])
+    action_query = "\\n".join(action_lines)
+    return (
+        "CALL apoc.periodic.iterate(\n"
+        f"  \"LOAD CSV WITH HEADERS FROM '{csv_url}' AS row RETURN row\",\n"
+        f"  \"{action_query}\",\n"
+        f"  {{batchSize:{batch_size}, parallel:{str(parallel).lower()}, concurrency:{concurrency}}}\n"
+        ");"
+    )
 
 
-def build_id(row: Dict[str, Any], fields: List[str]) -> str:
-    vals = [row.get(f) for f in fields]
-    return md5_id(vals)
-
-
-def node_statements(config_nodes: List[NodeSpec], csv_dir: Path, csv_rows_map):
-    stmts = []
-    for spec in config_nodes:
-        rows = csv_rows_map.get(spec.file, [])
-        for row in rows:
-            node_id = build_id(row, spec.id_fields)
-            props: Dict[str, Any] = {spec.id_property: node_id}
-            for pf in spec.prop_fields:
-                if spec.label == "Category" and pf == "category":
-                    props.setdefault("name", row.get(pf, ""))
-                props[pf] = row.get(pf, "")
-            props_literal = ", ".join([f"`{k}`: '{escape(v)}'" for k, v in props.items()])
-            stmts.append(
-                f"MERGE (n:{spec.label} {{{spec.id_property}: '{node_id}'}}) SET n += {{{props_literal}}};"
-            )
-    return stmts
-
-
-def rel_statements(config_rels: List[RelationshipSpec], config_nodes: List[NodeSpec], csv_rows_map):
-    stmts = []
-    id_prop_by_name = {n.name: n.id_property for n in config_nodes}
-    for spec in config_rels:
-        rows = csv_rows_map.get(spec.file, [])
-        for row in rows:
-            from_id = build_id(row, spec.from_id_fields)
-            to_id = build_id(row, spec.to_id_fields)
-            rel_props: Dict[str, Any] = {}
-            for pf in spec.prop_fields:
-                rel_props[pf] = row.get(pf, "")
-            if spec.set_source_target:
-                rel_props.setdefault("source_type", spec.from_)
-                rel_props.setdefault("target_type", spec.to)
-            props_literal = ", ".join([f"`{k}`: '{escape(v)}'" for k, v in rel_props.items()])
-            if props_literal:
-                props_clause = f" SET r += {{{props_literal}}}"
-            else:
-                props_clause = ""
-            stmts.append(
-                f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: '{from_id}'}}) "
-                f"MATCH (b:{spec.to} {{{id_prop_by_name[spec.to]}: '{to_id}'}}) "
-                f"MERGE (a)-[r:{spec.type}]-(b){props_clause};"
-            )
-    return stmts
+def build_csv_url(csv_dir: Path, filename: str, prefix: str | None, absolute: bool) -> str:
+    if absolute:
+        return (csv_dir / filename).resolve().as_uri()
+    if prefix:
+        base = prefix[:-1] if prefix.endswith("/") else prefix
+        return f"{base}/{filename}"
+    resolved = csv_dir.resolve().as_posix().rstrip("/")
+    return f"file://{resolved}/{filename}"
 
 
 def write_file(path: Path, statements: List[str]):
@@ -81,32 +87,55 @@ def write_file(path: Path, statements: List[str]):
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
-        f.write("\n".join(statements))
+        f.write("\n\n".join(statements))
     print(f"Wrote {len(statements)} statements to {path}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Cypher files for nodes and edges from CSVs")
+    parser = argparse.ArgumentParser(description="Generate APOC Cypher files for nodes and edges from CSVs")
     parser.add_argument("--csv-dir", default=str(Path(__file__).parent / "data"), help="Directory with CSV inputs")
     parser.add_argument("--out-dir", default=str(Path(__file__).parent / "cypher_out"), help="Directory to write Cypher files")
+    parser.add_argument("--csv-uri-prefix", help="Override LOAD CSV prefix, e.g. file:///neo4j/import")
+    parser.add_argument("--batch-size", type=int, default=2000)
+    parser.add_argument("--parallel", action="store_true", help="Use APOC parallel batches")
+    parser.add_argument("--concurrency", type=int, default=4)
+    parser.add_argument("--csv-absolute-paths", action="store_true", help="Embed absolute file:/// paths (requires allow_csv_import_from_file_urls=true)")
     args = parser.parse_args()
 
     csv_dir = Path(args.csv_dir)
     out_dir = Path(args.out_dir)
 
     config = DEFAULT_CONFIG
-    csv_rows_map = {}
-    for node in config.nodes:
-        csv_rows_map[node.file] = read_csv(csv_dir / node.file)
-    for rel in config.relationships:
-        if rel.file not in csv_rows_map:
-            csv_rows_map[rel.file] = read_csv(csv_dir / rel.file)
+    nodes_statements: List[str] = []
+    for spec in config.nodes:
+        csv_path = csv_dir / spec.file
+        if not csv_path.exists():
+            continue
+        csv_url = build_csv_url(csv_dir, spec.file, args.csv_uri_prefix, args.csv_absolute_paths)
+        nodes_statements.append(
+            node_statement(spec, csv_url, args.batch_size, args.parallel, args.concurrency)
+        )
 
-    nodes_cypher = node_statements(config.nodes, csv_dir, csv_rows_map)
-    edges_cypher = rel_statements(config.relationships, config.nodes, csv_rows_map)
+    id_prop_by_name = {n.name: n.id_property for n in config.nodes}
+    rel_statements_list: List[str] = []
+    for spec in config.relationships:
+        csv_path = csv_dir / spec.file
+        if not csv_path.exists():
+            continue
+        csv_url = build_csv_url(csv_dir, spec.file, args.csv_uri_prefix, args.csv_absolute_paths)
+        rel_statements_list.append(
+            rel_statement(
+                spec,
+                csv_url,
+                args.batch_size,
+                args.parallel,
+                args.concurrency,
+                id_prop_by_name,
+            )
+        )
 
-    write_file(out_dir / "nodes.cypher", nodes_cypher)
-    write_file(out_dir / "edges.cypher", edges_cypher)
+    write_file(out_dir / "nodes.cypher", nodes_statements)
+    write_file(out_dir / "edges.cypher", rel_statements_list)
 
 
 if __name__ == "__main__":
