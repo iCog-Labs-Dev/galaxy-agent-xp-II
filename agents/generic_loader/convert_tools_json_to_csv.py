@@ -20,7 +20,13 @@ def write_csv(rows: List[Dict[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(rows[0].keys())
     with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w = csv.DictWriter(
+            f,
+            fieldnames=fieldnames,
+            quoting=csv.QUOTE_ALL,
+            escapechar="\\",
+            lineterminator="\n",
+        )
         w.writeheader()
         w.writerows(rows)
     print(f"✅ Wrote {len(rows)} rows to {path}")
