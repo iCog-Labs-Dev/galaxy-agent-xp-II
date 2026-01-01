@@ -1,10 +1,10 @@
 import logging
 from functools import lru_cache
-from typing import List, Dict, Optional
+from typing import Any, Dict, List, Optional
+
 from retrieval.workflow_vector_search import WorkflowVectorSearch
 from retrieval.workflow_graph_context import WorkflowGraphContext
 from scripts.query_embedding import QueryEmbeddingService
-from agents.ingestion.Load.neo4j_client import Neo4jClient
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class WorkflowRetrievalPipeline:
 
     def __init__(
         self,
-        neo_client: Neo4jClient,
+        neo_client: Any,
         embedding_service: Optional[QueryEmbeddingService] = None,
         cache_size: int = 128
     ):

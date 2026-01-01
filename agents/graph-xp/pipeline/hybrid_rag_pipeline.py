@@ -1,19 +1,17 @@
 # agents/pipeline/hybrid_rag_pipeline.py
 import logging
-from typing import List, Dict, Optional
-from generation.answer_generator import LLMAnswerGenerator
+from typing import Any
+
 from classification_service import classify_query
-from workflow_retrival_pipeline import WorkflowRetrievalPipeline
+from generation.answer_generator import LLMAnswerGenerator
+from summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
 from tool_retrieval_pipeline import ToolRetrievalPipeline
-from agents.ingestion.Load.neo4j_client import Neo4jClient
+from workflow_retrival_pipeline import WorkflowRetrievalPipeline
 
 logger = logging.getLogger(__name__)
 
-from summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
-from generation.answer_generator import LLMAnswerGenerator
-
 class HybridRAGPipeline:
-    def __init__(self, neo_client):
+    def __init__(self, neo_client: Any):
         self.tool_pipeline = ToolRetrievalPipeline(neo_client)
         self.workflow_pipeline = WorkflowRetrievalPipeline(neo_client)
         self.answer_gen = LLMAnswerGenerator()

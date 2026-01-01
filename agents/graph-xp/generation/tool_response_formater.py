@@ -1,5 +1,6 @@
-from typing import List, Dict
-from agents.summary_agent import SummaryAgent
+from typing import Dict, List
+
+from summary_agent import SummaryAgent
 
 
 # Deduplication 

@@ -1,23 +1,38 @@
 # agents/app.py
-import os
 import logging
+import os
+import sys
+from pathlib import Path
+from typing import Optional
+
+import yaml
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+from neo4j import GraphDatabase
 from pydantic import BaseModel
-from typing import Optional
-import yaml
 
-from agents.utils.response_models import (
-    SuggestionRequest, WorkflowSuggestionResponse, ToolSuggestionResponse
+# Ensure project paths are available when running as a module
+APP_DIR = Path(__file__).resolve().parent
+AGENTS_ROOT = APP_DIR.parent
+PROJECT_ROOT = AGENTS_ROOT.parent
+GENERATION_DIR = APP_DIR / "generation"
+# Insert paths in reverse priority order so sys.path ends up preferring generation > app dir > agents root > project root
+for path in (PROJECT_ROOT, AGENTS_ROOT, APP_DIR, GENERATION_DIR):
+    str_path = str(path)
+    if str_path not in sys.path:
+        sys.path.insert(0, str_path)
+
+from utils.response_models import (
+    SuggestionRequest,
+    SuggestionResponse,
+    WorkflowSuggestionResponse,
 )
-from tool_suggesting_agent import ToolSuggestionAgent
-from agents.workflow_suggestion_agent import WorkflowSuggestionAgent
-from agents.summary_agent import summarize_tool_suggestions, summarize_workflow_suggestions
-from agents.classification_service import classify_query
+from classification_service import classify_query
 from generation.answer_generator import LLMAnswerGenerator
-from agents.ingestion.Load.neo4j_client import Neo4jClient
-from agents.summary_agent import SummaryAgent
+from summary_agent import SummaryAgent, summarize_tool_suggestions, summarize_workflow_suggestions
+from tool_suggesting_agent import ToolSuggestionAgent
+from workflow_suggestion_agent import WorkflowSuggestionAgent
 
 
 # ---------------- CONFIGURATION ---------------- #
@@ -25,7 +40,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-def load_neo_config(path="agents/graphRAG/config/graph_db_config.yml"):
+def load_neo_config(path="agents/graph-xp/config/graph_db_config.yml"):
     try:
         with open(path, "r", encoding="utf-8") as f:
             cfg = yaml.safe_load(f)
@@ -39,6 +54,21 @@ def load_neo_config(path="agents/graphRAG/config/graph_db_config.yml"):
 
 neo_cfg = load_neo_config()
 
+
+class Neo4jClient:
+    """Lightweight Neo4j client wrapper (no ingestion dependency)."""
+
+    def __init__(self, uri: str, user: str, password: str):
+        self.driver = GraphDatabase.driver(uri, auth=(user, password))
+
+    def run_query(self, cypher: str, parameters: Optional[dict] = None):
+        with self.driver.session() as session:
+            result = session.run(cypher, **(parameters or {}))
+            return [dict(rec) for rec in result]
+
+    def close(self):
+        self.driver.close()
+
 # ---------------- FASTAPI SETUP ---------------- #
 app = FastAPI(title="Galaxy Tool & Workflow Suggestion API")
 app.add_middleware(
@@ -51,7 +81,11 @@ app.add_middleware(
 
 # ---------------- AGENTS ---------------- #
 try:
-    neo_client = Neo4jClient("agents/graphRAG/config/graph_db_config.yml")
+    neo_uri = neo_cfg.get("uri") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    neo_user = neo_cfg.get("user") or os.getenv("NEO4J_USER", "neo4j")
+    neo_password = neo_cfg.get("password") or os.getenv("NEO4J_PASSWORD", "neo4j")
+
+    neo_client = Neo4jClient(neo_uri, neo_user, neo_password)
 
     tool_agent = ToolSuggestionAgent(neo_client)
     workflow_agent = WorkflowSuggestionAgent(neo_client)
@@ -78,7 +112,7 @@ def health_check():
     return {"status": "ok"}
 
 # ---------------- Tool Agent ---------------- #
-@app.post("/suggest-tools", response_model=ToolSuggestionResponse)
+@app.post("/suggest-tools", response_model=SuggestionResponse)
 def suggest_tools(request: SuggestionRequest):
     if not request.query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
@@ -166,4 +200,4 @@ def recommend(request: SuggestionRequest):
 if __name__ == "__main__":
     import uvicorn
     logger.info("🚀 Starting FastAPI app on http://localhost:8000")
-    uvicorn.run("agents.app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,11 +1,13 @@
 """
-Create vector indexes for GraphRAG (Tool + Workflow).
+Create vector indexes for GraphRAG (Workflow, Step, Tool, Input, Output, Category).
+Attempts both Neo4j 5.15+ syntax and 5.11–5.14 fallback syntax.
 """
 import yaml
 from neo4j import GraphDatabase
 from pathlib import Path
 
-CONFIG_PATH = "agents/graphRAG/config/graph_db_config.yml"
+# Point to graph-xp config (not graphRAG)
+CONFIG_PATH = "agents/graph-xp/config/graph_db_config.yml"
 
 
 def load_config(path: str) -> dict:
@@ -18,38 +20,46 @@ def load_config(path: str) -> dict:
 
 
 def create_vector_indexes(driver):
-    """Create vector indexes for Tool and Workflow nodes in neo4j."""
-    queries = [
-        # Tool vector index
-        """
-        CREATE VECTOR INDEX tool_embedding_index IF NOT EXISTS
-        FOR (t:Tool)
-        ON (t.embedding)
-        OPTIONS {
-          indexConfig: {
-            `vector.dimensions`: 768,
-            `vector.similarity_function`: 'cosine'
-          }
-        }
-        """,
-        # Workflow vector index
-        """
-        CREATE VECTOR INDEX workflow_embedding_index IF NOT EXISTS
-        FOR (w:Workflow)
-        ON (w.embedding)
-        OPTIONS {
-          indexConfig: {
-            `vector.dimensions`: 768,
-            `vector.similarity_function`: 'cosine'
-          }
-        }
-        """
+    """Create vector indexes for all embedded node labels."""
+    labels = [
+        "Workflow",
+        "Step",
+        "Tool",
+        "Input",
+        "Output",
+        "Category",
     ]
 
+    def queries_for(label: str):
+        lower = label.lower()
+        # Neo4j 5.15+ (IF NOT EXISTS, similarityFunction)
+        q_new = f"""
+        CREATE VECTOR INDEX IF NOT EXISTS {lower}_embedding_index
+        FOR (n:{label}) ON (n.embedding)
+        OPTIONS {{ indexConfig: {{ `vector.dimensions`: 768, `vector.similarityFunction`: 'cosine' }} }}
+        """
+        # Neo4j 5.11–5.14 (no IF NOT EXISTS, similarity_function)
+        q_old = f"""
+        CREATE VECTOR INDEX {lower}_embedding_index
+        FOR (n:{label}) ON (n.embedding)
+        OPTIONS {{ indexConfig: {{ `vector.dimensions`: 768, `vector.similarity_function`: 'cosine' }} }}
+        """
+        return q_new, q_old
+
     with driver.session() as session:
-        for q in queries:
-            session.run(q)
-            print(" Vector index ensured")
+        for label in labels:
+            q_new, q_old = queries_for(label)
+            try:
+                session.run(q_new)
+                print(f" Vector index ensured (new syntax) for {label}")
+                continue
+            except Exception as e_new:
+                print(f"  New syntax failed for {label}: {e_new}")
+            try:
+                session.run(q_old)
+                print(f" Vector index ensured (legacy syntax) for {label}")
+            except Exception as e_old:
+                print(f"  Legacy syntax failed for {label}: {e_old}")
 
 
 def main():

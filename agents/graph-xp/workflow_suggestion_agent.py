@@ -1,8 +1,8 @@
 # agents/workflow_suggestion_agent.py
-from typing import List, Dict
-from pipeline.workflow_retrival_pipeline import WorkflowRetrievalPipeline
-from agents.ingestion.Load.neo4j_client import Neo4jClient
+from typing import Any, Dict, List
+
 from generation.workflow_response_formater import format_workflow_results
+from pipeline.workflow_retrival_pipeline import WorkflowRetrievalPipeline
 
 class WorkflowSuggestionAgent:
     """
@@ -10,7 +10,7 @@ class WorkflowSuggestionAgent:
     compatible with Pydantic response models.
     """
 
-    def __init__(self, neo_client: Neo4jClient, top_k_default: int = 5):
+    def __init__(self, neo_client: Any, top_k_default: int = 5):
         self.pipeline = WorkflowRetrievalPipeline(neo_client)
         self.top_k_default = top_k_default
 

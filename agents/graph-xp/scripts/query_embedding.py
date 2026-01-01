@@ -21,15 +21,30 @@ class QueryEmbeddingService:
         print(f" Loaded embedding model: {model_name}")
 
     def embed_query(self, query: Union[str, List[str]]) -> np.ndarray:
+        """Generate normalized embeddings for a single query or list.
+
+        - If a single string is provided, return a 1-D vector (shape: [d]).
+        - If a list is provided, return a 2-D matrix (shape: [n, d]).
+        This prevents downstream consumers from receiving an unexpected extra dimension.
         """
-        Generate normalized embeddings for a single query or list of queries.
-        """
-        return self.model.encode(
-            query,
+        model_l = self.model_name.lower()
+        needs_prefix = ("e5" in model_l) or ("bge" in model_l)
+
+        single_input = isinstance(query, str)
+        q = [query] if single_input else list(query)
+        if needs_prefix:
+            q = [f"query: {text}" for text in q]
+
+        embeddings = self.model.encode(
+            q,
             convert_to_numpy=True,
             normalize_embeddings=True,
-            show_progress_bar=False
+            show_progress_bar=False,
         )
+
+        if single_input:
+            return embeddings[0]
+        return embeddings
 
 
 

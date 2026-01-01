@@ -1,10 +1,10 @@
 import logging
-from typing import List, Dict, Optional
+from functools import lru_cache
+from typing import Any, Dict, List, Optional
+
 from retrieval.tool_vector_search import ToolVectorSearch
 from retrieval.tool_graph_context import ToolGraphContext
 from scripts.query_embedding import QueryEmbeddingService
-from agents.ingestion.Load.neo4j_client import Neo4jClient
-from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +16,12 @@ class ToolRetrievalPipeline:
 
     def __init__(
         self,
-        neo_client: Neo4jClient,
+        neo_client: Any,
         embedding_service: Optional[QueryEmbeddingService] = None,
         cache_size: int = 128
     ):
         self.neo = neo_client
-        self.embedder = QueryEmbeddingService()
+        self.embedder = embedding_service or QueryEmbeddingService()
         self.vector_search = ToolVectorSearch(neo_client)
         self.graph_context = ToolGraphContext(neo_client)
 
