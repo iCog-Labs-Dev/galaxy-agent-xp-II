@@ -2,7 +2,14 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Type
+
+from convertor_schema import (
+    ToolCategoryRow,
+    ToolInputRow,
+    ToolMasterProperties,
+    ToolOutputRow,
+)
 
 
 def load_json(path: Path) -> List[Dict[str, Any]]:
@@ -32,6 +39,10 @@ def write_csv(rows: List[Dict[str, Any]], path: Path) -> None:
     print(f"✅ Wrote {len(rows)} rows to {path}")
 
 
+def _validated_dict(model: Type, payload: Dict[str, Any]) -> Dict[str, Any]:
+    return model(**payload).model_dump()
+
+
 def convert_tools(tools: List[Dict[str, Any]], out_dir: Path):
     # Master tool rows
     tools_master = []
@@ -51,33 +62,54 @@ def convert_tools(tools: List[Dict[str, Any]], out_dir: Path):
         if not cats:
             cats = ["unspecified"]
 
-        tools_master.append({
-            "id": tid,
-            "name": name,
-            "description": desc,
-            "version": ver,
-            "help": help_text,
-        })
+        tools_master.append(
+            _validated_dict(
+                ToolMasterProperties,
+                {
+                    "id": tid,
+                    "name": name,
+                    "description": desc,
+                    "version": ver,
+                    "help": help_text,
+                },
+            )
+        )
 
         for c in cats:
-            tool_categories.append({
-                "id": tid,
-                "category": c,
-            })
+            cat_val = c or ""
+            tool_categories.append(
+                _validated_dict(
+                    ToolCategoryRow,
+                    {
+                        "id": tid,
+                        "category": cat_val,
+                    },
+                )
+            )
 
         for inp in (t.get("inputs") or []):
-            tool_inputs.append({
-                "id": tid,
-                "input_name": inp.get("name") or "",
-                "input_type": inp.get("type") or "",
-            })
+            tool_inputs.append(
+                _validated_dict(
+                    ToolInputRow,
+                    {
+                        "id": tid,
+                        "input_name": inp.get("name") or "",
+                        "input_type": inp.get("type") or "",
+                    },
+                )
+            )
 
         for outp in (t.get("outputs") or []):
-            tool_outputs.append({
-                "id": tid,
-                "output_name": outp.get("name") or "",
-                "output_format": outp.get("format") if outp.get("format") is not None else "",
-            })
+            tool_outputs.append(
+                _validated_dict(
+                    ToolOutputRow,
+                    {
+                        "id": tid,
+                        "output_name": outp.get("name") or "",
+                        "output_format": outp.get("format") if outp.get("format") is not None else "",
+                    },
+                )
+            )
 
     write_csv(tools_master, out_dir / "tools_master.csv")
     write_csv(tool_categories, out_dir / "tool_categories.csv")

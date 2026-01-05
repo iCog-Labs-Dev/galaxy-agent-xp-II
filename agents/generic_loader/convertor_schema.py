@@ -103,6 +103,31 @@ class ToolsInStepsProperties(BaseModel):
     category: str
     tool_shed_url: str
 
+
+class ToolMasterProperties(BaseModel):
+    id: str | None = None
+    name: str
+    description: str
+    version: str
+    help: str
+
+
+class ToolCategoryRow(BaseModel):
+    id: str
+    category: str
+
+
+class ToolInputRow(BaseModel):
+    id: str
+    input_name: str
+    input_type: str
+
+
+class ToolOutputRow(BaseModel):
+    id: str
+    output_name: str
+    output_format: str | None = None
+
 class Tool(BaseModel):
     label: str = "tool"
     unique_key: Any = ["name", "version"]
