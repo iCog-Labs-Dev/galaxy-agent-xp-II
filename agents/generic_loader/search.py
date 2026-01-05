@@ -91,6 +91,7 @@ def main():
 
     log.info("Loading model: %s", args.model)
     model = SentenceTransformer(args.model)
+
     is_e5 = "e5" in args.model.lower()
     q_text = ("query: " + args.q) if is_e5 else args.q
     q_vec = model.encode([q_text], normalize_embeddings=True)[0]

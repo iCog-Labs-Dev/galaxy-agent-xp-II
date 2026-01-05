@@ -1,0 +1,106 @@
+{
+    "queries": [
+        "I want to search a sequence database for a query sequence using jackhmmer",
+        "tool to retrieve genomic datasets for completed Microbial Genome Projects from NCBI",
+        "convert genome coordinates or annotation files between different assembly versions",
+        "how can I translate gene identifiers between different organisms",
+        "tool to download a list of URLs via lftp and create a collection",
+        "I need to extract reads from SRA archives using sam-dump",
+        "tool to list all antibiotic resistance databases available in ABRicate",
+        "convert a GFFCompare annotated GTF file to BED format",
+        "I want to split a dataset into multiple datasets within a collection based on records",
+        "tool to extract taxonomic information for tryptic peptides using Unipept",
+        "convert feature records or BED files into BAM format",
+        "tool to subset a BIOM table over observations or samples",
+        "I want to replace entries in a column using a mapping from another file",
+        "convert mass spectrometry files between proprietary and open formats like mzML",
+        "tool to simulate mass spectrometry experiments with high configurability",
+        "remove verbose table attachments from a qcml file for final reporting",
+        "how to correct precursor mass and charge in identification data",
+        "tool to execute neutral runs for mass spectrometry simulations using GFN2-xTB",
+        "I need to run analysis of alchemical free energy simulations",
+        "tool to execute remote OTB processes via OGC API",
+        "generate top view and section view images from forest point cloud data",
+        "filter a Trinity assembly using an expression matrix to remove low-expression isoforms",
+        "tool to split BAM files based on reference names or tags",
+        "extract relationships like IDs and definitions from an OBO ontology file",
+        "calculate the dice coefficient between segmented images and ground truth"
+    ],
+    "ground_truth": {
+        "I want to search a sequence database for a query sequence using jackhmmer": [
+            "jackhmmer"
+        ],
+        "tool to retrieve genomic datasets for completed Microbial Genome Projects from NCBI": [
+            "Get Microbial Data"
+        ],
+        "convert genome coordinates or annotation files between different assembly versions": [
+            "CrossMap Wig"
+        ],
+        "how can I translate gene identifiers between different organisms": [
+            "gProfiler Orth"
+        ],
+        "tool to download a list of URLs via lftp and create a collection": [
+            "downloads"
+        ],
+        "I need to extract reads from SRA archives using sam-dump": [
+            "Extract reads from SRA"
+        ],
+        "tool to list all antibiotic resistance databases available in ABRicate": [
+            "ABRicate List"
+        ],
+        "convert a GFFCompare annotated GTF file to BED format": [
+            "GFFCompare to BED"
+        ],
+        "I want to split a dataset into multiple datasets within a collection based on records": [
+            "Split file"
+        ],
+        "tool to extract taxonomic information for tryptic peptides using Unipept": [
+            "Unipept"
+        ],
+        "convert feature records or BED files into BAM format": [
+            "bedtools BED to BAM"
+        ],
+        "tool to subset a BIOM table over observations or samples": [
+            "Subset"
+        ],
+        "I want to replace entries in a column using a mapping from another file": [
+            "Column Waypoint"
+        ],
+        "convert mass spectrometry files between proprietary and open formats like mzML": [
+            "MSConvert"
+        ],
+        "tool to simulate mass spectrometry experiments with high configurability": [
+            "MSSimulator"
+        ],
+        "remove verbose table attachments from a qcml file for final reporting": [
+            "QCShrinker"
+        ],
+        "how to correct precursor mass and charge in identification data": [
+            "HighResPrecursorMassCorrector"
+        ],
+        "tool to execute neutral runs for mass spectrometry simulations using GFN2-xTB": [
+            "QCxMS neutral run"
+        ],
+        "I need to run analysis of alchemical free energy simulations": [
+            "Alchemical Analysis"
+        ],
+        "tool to execute remote OTB processes via OGC API": [
+            "Zoo Project OGC API Processes"
+        ],
+        "generate top view and section view images from forest point cloud data": [
+            "Point Cloud Visualizer"
+        ],
+        "filter a Trinity assembly using an expression matrix to remove low-expression isoforms": [
+            "Filter Trinity assembly"
+        ],
+        "tool to split BAM files based on reference names or tags": [
+            "BAMTools split"
+        ],
+        "extract relationships like IDs and definitions from an OBO ontology file": [
+            "Get the relationship types"
+        ],
+        "calculate the dice coefficient between segmented images and ground truth": [
+            "Compute image segmentation and object detection performance measures"
+        ]
+    }
+}

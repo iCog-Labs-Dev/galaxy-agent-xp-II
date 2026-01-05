@@ -1,0 +1,9 @@
+# graphRAG/config/graph_db_config.yml
+
+neo4j:
+  uri: bolt://localhost:7687
+  user: neo4j
+  password: Henokneo4j@415
+
+indexes:
+  create_on_start: true      
