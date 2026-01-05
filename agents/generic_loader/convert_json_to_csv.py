@@ -2,7 +2,18 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Iterable
+from typing import List, Dict, Any, Iterable, Type
+
+from convertor_schema import (
+    InputConnectionProperties,
+    InputProperties,
+    OutputProperties,
+    StepsInWorkflowFileProperties,
+    ToolsInStepsProperties,
+    ToolsInWorkflowFileProperties,
+    WorkflowFileProperties,
+    WorkflowProperties,
+)
 
 
 def load_json(path: Path) -> List[Dict[str, Any]]:
@@ -24,30 +35,42 @@ def derive_tools_from_steps(steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             continue
         seen_ids.add(tool_id)
         repo = step.get("tool_shed_repository") or {}
-        tools.append({
-            "id": str(tool_id),
-            "name": step.get("name") or "",
-            "version": step.get("tool_version") or "",
-            "owner": repo.get("owner", ""),
-            "category": repo.get("category", ""),
-            "tool_shed_url": repo.get("tool_shed", ""),
-        })
+        schema_validated_tools = ToolsInStepsProperties(
+            id=str(tool_id),
+            name=step.get("name") or "",
+            version=step.get("tool_version") or "",
+            owner=repo.get("owner", ""),
+            category=repo.get("category", ""),
+            tool_shed_url=repo.get("tool_shed", ""),
+        )
+
+        tools.append(schema_validated_tools.dict())
     return tools
+
+
+def _validated_dict(model: Type, payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate payload with pydantic model and return its dict."""
+    return model(**payload).dict()
 
 
 def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     rows = []
     for wf in data:
-        rows.append({
-            "category": wf.get("category", ""),
-            "workflow_repository": wf.get("workflow_repository", ""),
-            "has_readme": wf.get("has_readme", False),
-            "has_dockstore_yml": wf.get("has_dockstore_yml", False),
-            "has_test_data": wf.get("has_test_data", False),
-            "has_changelog": wf.get("has_changelog", False),
-            "planemo_tests": ";".join(wf.get("planemo_tests", [])),
-            "readme_content": wf.get("readme_content", "") or "",
-        })
+        rows.append(
+            _validated_dict(
+                WorkflowProperties,
+                {
+                    "category": wf.get("category", ""),
+                    "workflow_repository": wf.get("workflow_repository", ""),
+                    "has_readme": wf.get("has_readme", False),
+                    "has_dockstore_yml": wf.get("has_dockstore_yml", False),
+                    "has_test_data": wf.get("has_test_data", False),
+                    "has_changelog": wf.get("has_changelog", False),
+                    "planemo_tests": ";".join(wf.get("planemo_tests", [])),
+                    "readme_content": wf.get("readme_content", "") or "",
+                },
+            )
+        )
     return rows
 
 
@@ -55,15 +78,23 @@ def to_workflow_files_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any
     rows = []
     for wf in data:
         for wf_file in wf.get("workflow_files", []) or []:
-            rows.append({
-                "category": wf.get("category", ""),
-                "workflow_repository": wf.get("workflow_repository", ""),
-                "workflow_name": wf_file.get("workflow_name", ""),
-                "number_of_steps": wf_file.get("number_of_steps", 0),
-                "file_name": wf_file.get("file_name", ""),
-                "raw_download_url": wf_file.get("raw_download_url", ""),
-                "tools_used_count": len(wf_file.get("tools_used") or derive_tools_from_steps(wf_file.get("steps", []))),
-            })
+            rows.append(
+                _validated_dict(
+                    WorkflowFileProperties,
+                    {
+                        "category": wf.get("category", ""),
+                        "workflow_repository": wf.get("workflow_repository", ""),
+                        "workflow_name": wf_file.get("workflow_name", ""),
+                        "number_of_steps": wf_file.get("number_of_steps", 0),
+                        "file_name": wf_file.get("file_name", ""),
+                        "raw_download_url": wf_file.get("raw_download_url", ""),
+                        "tools_used_count": len(
+                            wf_file.get("tools_used")
+                            or derive_tools_from_steps(wf_file.get("steps", []))
+                        ),
+                    },
+                )
+            )
     return rows
 
 
@@ -75,18 +106,23 @@ def to_tools_used_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             if tools is None:
                 tools = derive_tools_from_steps(wf_file.get("steps", []))
             for tool in tools or []:
-                rows.append({
-                    "category": wf.get("category", ""),
-                    "workflow_repository": wf.get("workflow_repository", ""),
-                    "workflow_name": wf_file.get("workflow_name", ""),
-                    "file_name": wf_file.get("file_name", ""),
-                    "id": tool.get("id", ""),
-                    "name": tool.get("name", ""),
-                    "version": tool.get("version", ""),
-                    "owner": tool.get("owner", ""),
-                    "tool_category": tool.get("category", ""),
-                    "tool_shed_url": tool.get("tool_shed_url", ""),
-                })
+                rows.append(
+                    _validated_dict(
+                        ToolsInWorkflowFileProperties,
+                        {
+                            "category": wf.get("category", ""),
+                            "workflow_repository": wf.get("workflow_repository", ""),
+                            "workflow_name": wf_file.get("workflow_name", ""),
+                            "file_name": wf_file.get("file_name", ""),
+                            "id": tool.get("id", ""),
+                            "name": tool.get("name", ""),
+                            "version": tool.get("version", ""),
+                            "owner": tool.get("owner", ""),
+                            "tool_category": tool.get("category", ""),
+                            "tool_shed_url": tool.get("tool_shed_url", ""),
+                        },
+                    )
+                )
     return rows
 
 
@@ -105,20 +141,25 @@ def to_steps_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     for wf in data:
         for wf_file in wf.get("workflow_files", []) or []:
             for step in wf_file.get("steps", []) or []:
-                rows.append({
-                    "category": wf.get("category", ""),
-                    "workflow_repository": wf.get("workflow_repository", ""),
-                    "workflow_name": wf_file.get("workflow_name", ""),
-                    "file_name": wf_file.get("file_name", ""),
-                    "step_id": step.get("step_id"),
-                    "type": step.get("type", ""),
-                    "name": step.get("name", ""),
-                    "annotation": step.get("annotation", ""),
-                    "tool_id": step.get("tool_id", ""),
-                    "tool_version": step.get("tool_version", ""),
-                    "inputs_count": len(step.get("inputs", []) or []),
-                    "outputs_count": len(step.get("outputs", []) or []),
-                })
+                rows.append(
+                    _validated_dict(
+                        StepsInWorkflowFileProperties,
+                        {
+                            "category": wf.get("category", ""),
+                            "workflow_repository": wf.get("workflow_repository", ""),
+                            "workflow_name": wf_file.get("workflow_name", ""),
+                            "file_name": wf_file.get("file_name", ""),
+                            "step_id": step.get("step_id"),
+                            "type": step.get("type", ""),
+                            "name": step.get("name", ""),
+                            "annotation": step.get("annotation", ""),
+                            "tool_id": step.get("tool_id", ""),
+                            "tool_version": step.get("tool_version", ""),
+                            "inputs_count": len(step.get("inputs", []) or []),
+                            "outputs_count": len(step.get("outputs", []) or []),
+                        },
+                    )
+                )
     return rows
 
 
@@ -128,14 +169,19 @@ def to_step_inputs_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         for wf_file in wf.get("workflow_files", []) or []:
             for step in wf_file.get("steps", []) or []:
                 for io in _flatten_ios(step.get("inputs", [])):
-                    rows.append({
-                        "category": wf.get("category", ""),
-                        "workflow_repository": wf.get("workflow_repository", ""),
-                        "workflow_name": wf_file.get("workflow_name", ""),
-                        "file_name": wf_file.get("file_name", ""),
-                        "step_id": step.get("step_id"),
-                        **io,
-                    })
+                    rows.append(
+                        _validated_dict(
+                            InputProperties,
+                            {
+                                "category": wf.get("category", ""),
+                                "workflow_repository": wf.get("workflow_repository", ""),
+                                "workflow_name": wf_file.get("workflow_name", ""),
+                                "file_name": wf_file.get("file_name", ""),
+                                "step_id": step.get("step_id"),
+                                **io,
+                            },
+                        )
+                    )
     return rows
 
 
@@ -145,14 +191,19 @@ def to_step_outputs_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]
         for wf_file in wf.get("workflow_files", []) or []:
             for step in wf_file.get("steps", []) or []:
                 for io in _flatten_ios(step.get("outputs", [])):
-                    rows.append({
-                        "category": wf.get("category", ""),
-                        "workflow_repository": wf.get("workflow_repository", ""),
-                        "workflow_name": wf_file.get("workflow_name", ""),
-                        "file_name": wf_file.get("file_name", ""),
-                        "step_id": step.get("step_id"),
-                        **io,
-                    })
+                    rows.append(
+                        _validated_dict(
+                            OutputProperties,
+                            {
+                                "category": wf.get("category", ""),
+                                "workflow_repository": wf.get("workflow_repository", ""),
+                                "workflow_name": wf_file.get("workflow_name", ""),
+                                "file_name": wf_file.get("file_name", ""),
+                                "step_id": step.get("step_id"),
+                                **io,
+                            },
+                        )
+                    )
     return rows
 
 
@@ -165,16 +216,21 @@ def to_input_connections_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, 
                 for input_name, conn in (conns.items() if isinstance(conns, dict) else []):
                     conn_list = conn if isinstance(conn, list) else [conn]
                     for c in conn_list:
-                        rows.append({
-                            "category": wf.get("category", ""),
-                            "workflow_repository": wf.get("workflow_repository", ""),
-                            "workflow_name": wf_file.get("workflow_name", ""),
-                            "file_name": wf_file.get("file_name", ""),
-                            "step_id": step.get("step_id"),
-                            "input_name": input_name,
-                            "from_step_id": c.get("id"),
-                            "from_output_name": c.get("output_name", ""),
-                        })
+                        rows.append(
+                            _validated_dict(
+                                InputConnectionProperties,
+                                {
+                                    "category": wf.get("category", ""),
+                                    "workflow_repository": wf.get("workflow_repository", ""),
+                                    "workflow_name": wf_file.get("workflow_name", ""),
+                                    "file_name": wf_file.get("file_name", ""),
+                                    "step_id": step.get("step_id"),
+                                    "input_name": input_name,
+                                    "from_step_id": c.get("id"),
+                                    "from_output_name": c.get("output_name", ""),
+                                },
+                            )
+                        )
     return rows
 
 
