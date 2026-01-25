@@ -91,6 +91,33 @@ class GraphMetricsRunner:
             },
         )
 
+    def _estimate_global_clustering(self) -> float | None:
+        """Estimate global clustering coefficient via triangleCount and degree.
+
+        Uses the identity: C_global = (sum_i triangleCount_i) / (sum_i k_i choose 2).
+        Note: sum_i triangleCount_i counts each triangle three times, so numerator = 3T.
+        """
+        tri_q = """
+        CALL gds.triangleCount.stream($graph)
+        YIELD triangleCount
+        RETURN toFloat(sum(triangleCount)) AS triSum
+        """
+        wedge_q = """
+        CALL gds.degree.stream($graph)
+        YIELD score
+        RETURN toFloat(sum(score * (score - 1))) / 2.0 AS wedges
+        """
+        try:
+            tri_row = self._run_query(tri_q, {"graph": self.graph_name})[0]
+            wedge_row = self._run_query(wedge_q, {"graph": self.graph_name})[0]
+            tri_sum = float(tri_row["triSum"]) if tri_row["triSum"] is not None else 0.0
+            wedges = float(wedge_row["wedges"]) if wedge_row["wedges"] is not None else 0.0
+            if wedges <= 0.0:
+                return None
+            return tri_sum / wedges
+        except Exception:
+            return None
+
     def degree_distribution(self) -> Dict:
         # GDS degree histogram on projected graph
         query = """
@@ -143,7 +170,13 @@ class GraphMetricsRunner:
                 global_row = self._run_query(global_q, {"graph": self.graph_name})[0]
                 global_value = float(global_row["gcc"])
             except Exception as ge:
-                global_fallback = str(ge)
+                # Try estimating global coefficient from triangleCount and degree
+                estimate = self._estimate_global_clustering()
+                if estimate is not None:
+                    global_value = estimate
+                    global_fallback = "estimated via triangleCount/degree"
+                else:
+                    global_fallback = str(ge)
 
             result = {"local": local_metrics, "global": global_value}
             if global_fallback:
@@ -271,6 +304,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--orientation", default="UNDIRECTED", choices=["UNDIRECTED", "NATURAL", "REVERSE"])
     parser.add_argument("--hub-threshold", type=int, default=5, help="Degree threshold for hub motif")
+    parser.add_argument("--output", help="Optional path to write JSON report; prints to stdout if omitted")
+    parser.add_argument("--no-pretty", action="store_true", help="Disable pretty-printing (compact JSON)")
     return parser.parse_args()
 
 
@@ -289,7 +324,14 @@ def main() -> None:
     )
     try:
         metrics = runner.run_all(hub_threshold=args.hub_threshold)
-        print(json.dumps(metrics, indent=2))
+        indent = None if args.no_pretty else 2
+        rendered = json.dumps(metrics, indent=indent, ensure_ascii=False)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as f:
+                f.write(rendered)
+                f.write("\n")
+        else:
+            print(rendered)
     finally:
         runner.close()
 
