@@ -144,3 +144,13 @@ class InputConnectionProperties(BaseModel):
     input_name: str
     from_step_id: Any
     from_output_name: str
+
+
+class StepSequenceRow(BaseModel):
+    category: str
+    workflow_repository: str
+    workflow_name: str
+    file_name: str
+    from_step_id: Any
+    to_step_id: Any
+    sequence_index: int

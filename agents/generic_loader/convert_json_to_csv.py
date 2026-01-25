@@ -9,6 +9,7 @@ from convertor_schema import (
     InputProperties,
     OutputProperties,
     StepsInWorkflowFileProperties,
+    StepSequenceRow,
     ToolsInStepsProperties,
     ToolsInWorkflowFileProperties,
     WorkflowFileProperties,
@@ -44,13 +45,13 @@ def derive_tools_from_steps(steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             tool_shed_url=repo.get("tool_shed", ""),
         )
 
-        tools.append(schema_validated_tools.dict())
+        tools.append(schema_validated_tools.model_dump())
     return tools
 
 
 def _validated_dict(model: Type, payload: Dict[str, Any]) -> Dict[str, Any]:
     """Validate payload with pydantic model and return its dict."""
-    return model(**payload).dict()
+    return model(**payload).model_dump()
 
 
 def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -163,6 +164,43 @@ def to_steps_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return rows
 
 
+def _step_sort_key(step: Dict[str, Any]) -> Any:
+    step_id = step.get("step_id")
+    try:
+        return int(step_id)
+    except (TypeError, ValueError):
+        return step_id or 0
+
+
+def to_step_sequence_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    rows = []
+    for wf in data:
+        for wf_file in wf.get("workflow_files", []) or []:
+            steps = sorted(wf_file.get("steps", []) or [], key=_step_sort_key)
+            if len(steps) < 2:
+                continue
+
+            for idx in range(len(steps) - 1):
+                current = steps[idx]
+                nxt = steps[idx + 1]
+                rows.append(
+                    _validated_dict(
+                        StepSequenceRow,
+                        {
+                            "category": wf.get("category", ""),
+                            "workflow_repository": wf.get("workflow_repository", ""),
+                            "workflow_name": wf_file.get("workflow_name", ""),
+                            "file_name": wf_file.get("file_name", ""),
+                            "from_step_id": current.get("step_id"),
+                            "to_step_id": nxt.get("step_id"),
+                            "sequence_index": idx + 1,
+                        },
+                    )
+                )
+
+    return rows
+
+
 def to_step_inputs_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     rows = []
     for wf in data:
@@ -262,6 +300,7 @@ def convert(input_path: Path, output_dir: Path) -> None:
     write_csv(to_step_inputs_csv_rows(data), output_dir / "step_inputs.csv")
     write_csv(to_step_outputs_csv_rows(data), output_dir / "step_outputs.csv")
     write_csv(to_input_connections_csv_rows(data), output_dir / "step_input_connections.csv")
+    write_csv(to_step_sequence_csv_rows(data), output_dir / "step_sequences.csv")
 
 
 def main():
