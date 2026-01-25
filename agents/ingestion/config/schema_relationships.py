@@ -62,6 +62,17 @@ class WorkflowStep(BaseModel):
     target: Step
     properties: Optional[BaseModel] = None
 
+
+class StepSequenceProperties(BaseModel):
+    sequence_index: int
+
+
+class StepSequence(BaseModel):
+    label: str = "NEXT_STEP"
+    source: Step
+    target: Step
+    properties: StepSequenceProperties
+
 class StepTool(BaseModel):
     label: str = "USES_TOOL"
     source: Step

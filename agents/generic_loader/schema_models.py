@@ -134,6 +134,15 @@ DEFAULT_CONFIG = LoaderConfig(
             prop_fields=["step_id"],
         ),
         RelationshipSpec(
+            type="NEXT_STEP",
+            file="step_sequences.csv",
+            from_="Step",
+            to="Step",
+            from_id_fields=["workflow_repository", "file_name", "from_step_id"],
+            to_id_fields=["workflow_repository", "file_name", "to_step_id"],
+            prop_fields=["sequence_index"],
+        ),
+        RelationshipSpec(
             type="STEP_REQUIRES",
             file="step_inputs.csv",
             from_="Step",
@@ -186,10 +195,10 @@ DEFAULT_CONFIG = LoaderConfig(
         RelationshipSpec(
             type="TOOL_HAS_INPUT",
             file="tool_inputs.csv",
-            from_="Tool",
-            to="ToolInput",
-            from_id_fields=["id"],
-            to_id_fields=["id", "input_name"],
+            from_="ToolInput",
+            to="Tool",
+            from_id_fields=["id", "input_name"],
+            to_id_fields=["id"],
         ),
         RelationshipSpec(
             type="TOOL_HAS_OUTPUT",

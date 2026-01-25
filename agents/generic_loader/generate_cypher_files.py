@@ -53,7 +53,7 @@ def rel_statement(
         f"WITH row, {from_expr} AS from_id, {to_expr} AS to_id",
         f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: from_id}})",
         f"MATCH (b:{spec.to} {{{id_prop_by_name[spec.to]}: to_id}})",
-        f"MERGE (a)-[r:{spec.type}]-(b)",
+        f"MERGE (a)-[r:{spec.type}]->(b)",
     ]
     if props_clause:
         action_lines.append(props_clause)
