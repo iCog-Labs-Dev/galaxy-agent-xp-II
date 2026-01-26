@@ -26,14 +26,30 @@ HEADERS = {
 
 
 class CommunitySummarizer:
-    def __init__(self, uri, auth):
+    def __init__(self, uri, auth, skip_migration_check=False):
         self.driver = GraphDatabase.driver(uri, auth=auth)
         self.http = requests.Session()
         self.http.headers.update(HEADERS)
+        
+        # Ensure database schema is up to date
+        if not skip_migration_check:
+            self._check_migrations()
 
     def close(self):
         self.http.close()
         self.driver.close()
+
+    def _check_migrations(self):
+        """Verify database schema is up to date before running."""
+        from .migrations.runner import MigrationRunner
+        
+        runner = MigrationRunner(self.driver)
+        if not runner.is_up_to_date():
+            pending = [s["version"] for s in runner.get_status() if not s["applied"]]
+            raise RuntimeError(
+                f"Database schema is outdated. Pending migrations: {pending}\n"
+                f"Run: python -m agents.community_detection.migrate upgrade"
+            )
 
     def _chat_with_retry(self, messages, max_retries=5):
         payload = {
