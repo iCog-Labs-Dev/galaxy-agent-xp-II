@@ -169,6 +169,15 @@ DEFAULT_CONFIG = LoaderConfig(
             set_source_target=True,
         ),
         RelationshipSpec(
+            type="STEP_FEEDS_INTO",
+            file="step_input_connections.csv",
+            from_="Step",
+            to="Step",
+            from_id_fields=["workflow_repository", "file_name", "from_step_id"],
+            to_id_fields=["workflow_repository", "file_name", "step_id"],
+            prop_fields=["input_name", "from_output_name"],
+        ),
+        RelationshipSpec(
             type="WORKFLOW_USES_TOOL",
             file="tools_used.csv",
             from_="Workflow",
