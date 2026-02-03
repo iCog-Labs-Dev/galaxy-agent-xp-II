@@ -10,7 +10,7 @@ import re
 # ---------------------------------------------
 # CONFIG (developer can change MAX_WORKFLOWS)
 # ---------------------------------------------
-MAX_WORKFLOWS = 2  # Set None for ALL workflows
+MAX_WORKFLOWS = None  # Set None for ALL workflows
 
 
 # clean readme content helper
@@ -243,23 +243,23 @@ def process_workflowhub_workflow(wf_id):
         return None
 
     # Tools extraction
-    tools_used = []
-    steps = ga_json.get("steps", {})
+    # tools_used = []
+    # steps = ga_json.get("steps", {})
 
-    for sid, step in steps.items():
-        tools_used.append({
-            "id": step.get("tool_id", "unknown"),
-            "name": step.get("name", "unknown"),
-            "version": step.get("tool_version", "unknown"),
-            "owner": step.get("tool_shed_repository", {}).get("owner", "unknown"),
-            "category": step.get("type", "unknown"),
-            "tool_shed_url": step.get("tool_shed_repository", {}).get("url", "")
-        })
+    # for sid, step in steps.items():
+    #     tools_used.append({
+    #         "id": step.get("tool_id", "unknown"),
+    #         "name": step.get("name", "unknown"),
+    #         "version": step.get("tool_version", "unknown"),
+    #         "owner": step.get("tool_shed_repository", {}).get("owner", "unknown"),
+    #         "category": step.get("type", "unknown"),
+    #         "tool_shed_url": step.get("tool_shed_repository", {}).get("url", "")
+    #     })
 
     parsed.update({
         "file_name": file_name,
         "raw_download_url": raw_download_url,
-        "tools_used": tools_used
+        # "tools_used": tools_used
     })
 
     # Use TRS description as readme_content (with cleaning)
@@ -314,7 +314,7 @@ def main():
     out_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(out_dir, exist_ok=True)
 
-    output_file = os.path.join(out_dir, f"workflowhub_cleaned_{timestamp}.json")
+    output_file = os.path.join(out_dir, f"iwc_full_{timestamp}.json")
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
