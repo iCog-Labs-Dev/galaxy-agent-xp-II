@@ -35,3 +35,5 @@ httpx>=0.28.0
 
 # Graph Database
 neo4j>=6.0.3
+
+unstructured>=0.18.31
