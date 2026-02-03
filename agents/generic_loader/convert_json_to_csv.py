@@ -63,11 +63,11 @@ def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 {
                     "category": wf.get("category", ""),
                     "workflow_repository": wf.get("workflow_repository", ""),
-                    "has_readme": wf.get("has_readme", False),
-                    "has_dockstore_yml": wf.get("has_dockstore_yml", False),
-                    "has_test_data": wf.get("has_test_data", False),
-                    "has_changelog": wf.get("has_changelog", False),
-                    "planemo_tests": ";".join(wf.get("planemo_tests", [])),
+                    # "has_readme": wf.get("has_readme", False),
+                    # "has_dockstore_yml": wf.get("has_dockstore_yml", False),
+                    # "has_test_data": wf.get("has_test_data", False),
+                    # "has_changelog": wf.get("has_changelog", False),
+                    # "planemo_tests": ";".join(wf.get("planemo_tests", [])),
                     "readme_content": wf.get("readme_content", "") or "",
                 },
             )

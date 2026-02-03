@@ -60,6 +60,9 @@ download_tools:
 download_workflows:
 	$(PY) utilities/workflow_downloader/iwc_downloader.py|| echo "Warning: workflow downloader failed"
 
+download_hub_workflows:
+	$(PY) utilities/workflow_downloader/workflowhub_downloader.py || echo "Warning: workflow Downloader Failed!"
+
 # Full pipeline including downloads
 pipeline_full: download_tools download_workflows pipeline
 
