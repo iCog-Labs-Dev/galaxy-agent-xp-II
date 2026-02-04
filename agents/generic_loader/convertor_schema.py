@@ -4,12 +4,13 @@ from typing import Any
 class WorkflowProperties(BaseModel):
     category: str
     workflow_repository: str
-    has_readme: bool
-    has_dockstore_yml: bool
-    has_test_data: bool
-    has_changelog: bool
-    planemo_tests: str
-    readme_content: str
+    #make has_readme optional
+    has_readme: bool | None = None
+    has_dockstore_yml: bool | None = None
+    has_test_data: bool | None = None
+    has_changelog: bool | None = None
+    planemo_tests: str | None = None
+    readme_content: str 
 
 
 class WorkflowFileProperties(BaseModel):
@@ -42,8 +43,8 @@ class StepsInWorkflowFileProperties(BaseModel):
     name: str
     type: str
     annotation: str
-    tool_id: str | None
-    tool_version: str | None
+    tool_id: str | int | None
+    tool_version: str | int | None
     inputs_count: int
     outputs_count: int
 
