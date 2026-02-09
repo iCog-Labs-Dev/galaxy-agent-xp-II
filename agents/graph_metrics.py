@@ -44,7 +44,7 @@ class GraphMetricsRunner:
         password: str,
         node_labels: Sequence[str],
         rel_types: Sequence[str],
-        orientation: str = "UNDIRECTED",
+        orientation: str = "NATURAL",
     ) -> None:
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
         self.node_labels = list(node_labels)
