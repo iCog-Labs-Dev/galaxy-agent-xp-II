@@ -1,0 +1,12 @@
+Training Session Report - 20260211_151345
+=====================================
+
+Dataset Size: 40057 samples
+Vocabulary Size: 1880
+Context Length: 5
+Epochs Trained: 50
+Final Loss: 0.5415
+
+Model Paths:
+- Model: /home/john/icog-labs/galaxy-agent-xp-II/agents/expriments/models/gru_model_20260211_151345.pth
+- Vocab: /home/john/icog-labs/galaxy-agent-xp-II/agents/expriments/models/vocab_20260211_151345.json
