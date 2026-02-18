@@ -1,0 +1,17 @@
+Training Session Report - 20260217_030824
+=====================================
+
+Train Sequences: 1971
+Val Sequences: 218
+Train Samples: 38253
+Val Samples: 3993
+Vocabulary Size: 1194
+Context Length: 20
+Min Tool Count: 3
+Epochs Trained: 39
+Best Val Loss: 2.8311
+
+Model Paths:
+- Model: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/models/gru_model_20260217_030824.pth
+- Vocab: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/models/vocab_20260217_030824.json
+- Epoch metrics JSON: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/reports/epoch_metrics_20260217_030824.json
