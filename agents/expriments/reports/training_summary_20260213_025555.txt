@@ -1,0 +1,13 @@
+Training Session Report - 20260213_025555
+=====================================
+
+Dataset Size: 40057 samples
+Vocabulary Size: 1880
+Context Length: 5
+Epochs Trained: 47
+Best Val Loss: 1.7254
+
+Model Paths:
+- Model: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/models/gru_model_20260213_025555.pth
+- Vocab: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/models/vocab_20260213_025555.json
+- Epoch metrics JSON: /mnt/hdd_1/yohanes/test/galaxy-agent-xp-II/agents/expriments/reports/epoch_metrics_20260213_025555.json
