@@ -9,8 +9,53 @@ def parse_sequence(sequence_str):
     return [t.strip() for t in tools if t.strip()]
 
 
+def generate_tool_aliases(tool_name):
+    aliases = []
+
+    def add(value):
+        if value and value not in aliases:
+            aliases.append(value)
+
+    add(tool_name)
+    add(tool_name.lower())
+
+    parts = tool_name.split("/")
+    if len(parts) >= 2:
+        last = parts[-1]
+        second_last = parts[-2]
+
+        add(last)
+        add(last.lower())
+        add(second_last)
+        add(second_last.lower())
+
+        if "+" in last:
+            base_last = last.split("+", 1)[0]
+            add(base_last)
+            add(base_last.lower())
+
+        if "+" in second_last:
+            base_second_last = second_last.split("+", 1)[0]
+            add(base_second_last)
+            add(base_second_last.lower())
+
+    return aliases
+
+
+def resolve_tool_id(tool_name, model_dict):
+    for alias in generate_tool_aliases(tool_name):
+        if alias in model_dict:
+            return model_dict[alias]
+    return None
+
+
 def convert_tools_to_ids(tool_list, model_dict):
-    return [model_dict[t] for t in tool_list if t in model_dict]
+    ids = []
+    for tool_name in tool_list:
+        tool_id = resolve_tool_id(tool_name, model_dict)
+        if tool_id is not None:
+            ids.append(tool_id)
+    return ids
 
 
 def pad_or_truncate(sequence_ids):
@@ -59,7 +104,7 @@ def predict(model_manager, sequence_str, topk=settings.TOP_K_DEFAULT):
     padded = pad_or_truncate(ids)
     sample = create_model_input(padded)
     sample = tf.convert_to_tensor(sample, dtype=tf.int64)
-
+    
     prediction, _ = model(sample, training=False)
     prediction = flatten_predictions(prediction)
     prediction = apply_class_weights(prediction, class_weights)
