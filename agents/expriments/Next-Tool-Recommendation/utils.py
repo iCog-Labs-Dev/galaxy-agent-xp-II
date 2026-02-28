@@ -69,7 +69,7 @@ def create_model_input(sequence_ids):
 
 
 def flatten_predictions(prediction):
-    return np.reshape(prediction, (prediction.shape[1],))
+    return np.reshape(prediction, (prediction.shape[1],)).copy()
 
 
 def apply_class_weights(prediction, class_weights):
@@ -95,7 +95,7 @@ def convert_ids_to_names(indices, reverse_dict):
 
 def predict(model_manager, sequence_str, topk=settings.TOP_K_DEFAULT):
     model = model_manager.get_model()
-    reverse_dict, model_dict, class_weights = model_manager.get_metadata()
+    reverse_dict, model_dict, _ = model_manager.get_metadata()
     tools = parse_sequence(sequence_str)
     ids = convert_tools_to_ids(tools, model_dict)
     if not ids:
@@ -106,10 +106,13 @@ def predict(model_manager, sequence_str, topk=settings.TOP_K_DEFAULT):
     sample = tf.convert_to_tensor(sample, dtype=tf.int64)
     
     prediction, _ = model(sample, training=False)
-    prediction = flatten_predictions(prediction)
-    prediction = apply_class_weights(prediction, class_weights)
-    prediction = remove_last_tool(prediction, last_tool_id)
+    raw_prediction = flatten_predictions(prediction)
+    raw_prediction = remove_last_tool(raw_prediction, last_tool_id)
 
-    indices, scores = select_top_k(prediction, topk)
+    indices, score = select_top_k(raw_prediction, topk)
+    score = np.clip(score, 0.0, 1.0)
     tool_names = convert_ids_to_names(indices, reverse_dict)
-    return [{"tool": name, "score": float(score)} for name, score in zip(tool_names, scores)]
+    return [
+        {"Tool_Name": name, "Tool_Score": round(float(probability), 3)}
+        for name, probability in zip(tool_names, score)
+    ]
