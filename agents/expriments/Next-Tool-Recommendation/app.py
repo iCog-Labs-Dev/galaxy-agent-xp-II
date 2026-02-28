@@ -6,7 +6,7 @@ from utils import predict
 from config import settings
 
 
-app = FastAPI(title="Tool Recommendation API")
+app = FastAPI(title="Next Tool Recommendation API")
 
 
 @app.get("/")
@@ -24,10 +24,10 @@ def startup():
     model_manager.load()
 
 
-@app.post("/predict")
+@app.post("/Next Tool Recommendation")
 def predict_tools(request: PredictionRequest):
     try:
         results = predict(model_manager, request.tool_sequence, request.topk)
-        return {"input_sequence": request.tool_sequence, "recommendations": results}
+        return {"Input Sequence Of Tools": request.tool_sequence, "Next Tool Recommendations": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

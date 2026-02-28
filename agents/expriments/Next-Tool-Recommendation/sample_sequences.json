@@ -1,0 +1,59 @@
+{
+  "workflow_id": "b65280467af44ffd",
+  "workflow_name": "16S Microbial analysis with Nanopore data (Final)",
+  "samples": [
+    {
+      "tool_sequence": "Input",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.74+galaxy1",
+        "toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1"
+      ],
+      "note": "Input branches to FastQC and Porechop"
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.74+galaxy1",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.33+galaxy0"
+      ]
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.1.0+galaxy0"
+      ]
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1,toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.1.0+galaxy0",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.74+galaxy1",
+        "toolshed.g2.bx.psu.edu/repos/iuc/kraken2/kraken2/2.17.1+galaxy0"
+      ],
+      "note": "Fastp branches to FastQC and Kraken2"
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1,toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.1.0+galaxy0,toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc/0.74+galaxy1",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/iuc/multiqc/multiqc/1.33+galaxy0"
+      ]
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1,toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.1.0+galaxy0,toolshed.g2.bx.psu.edu/repos/iuc/kraken2/kraken2/2.17.1+galaxy0",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/iuc/datamash_reverse/datamash_reverse/1.9+galaxy0"
+      ]
+    },
+    {
+      "tool_sequence": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1,toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.1.0+galaxy0,toolshed.g2.bx.psu.edu/repos/iuc/kraken2/kraken2/2.17.1+galaxy0,toolshed.g2.bx.psu.edu/repos/iuc/datamash_reverse/datamash_reverse/1.9+galaxy0",
+      "topk": 5,
+      "target_tools": [
+        "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/9.5+galaxy3"
+      ]
+    }
+  ]
+}
