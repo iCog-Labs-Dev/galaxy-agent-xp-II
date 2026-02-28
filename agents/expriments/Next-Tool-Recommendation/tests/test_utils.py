@@ -16,12 +16,12 @@ from config import settings
 
 @pytest.fixture
 def real_requests():
-    data_path = Path(__file__).parent / "data" / "real_requests.json"
+    data_path = Path(__file__).parent / "data" / "test_data.json"
     return json.loads(data_path.read_text())
 
 
 def test_parse_sequence_uses_real_data(real_requests):
-    sequence = real_requests["requests"][0]["tool_sequence"]
+    sequence = real_requests["requests"][1]["tool_sequence"]
     parsed = utils.parse_sequence(sequence)
 
     assert parsed[0] == "Input"

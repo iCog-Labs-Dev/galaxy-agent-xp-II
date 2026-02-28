@@ -15,7 +15,7 @@ import app as app_module
 
 @pytest.fixture
 def real_requests():
-    data_path = Path(__file__).parent / "data" / "real_requests.json"
+    data_path = Path(__file__).parent / "data" / "test_data.json"
     return json.loads(data_path.read_text())
 
 
