@@ -61,11 +61,27 @@ Response body:
 
 ```json
 {
-  "Input Sequence Of Tools": "Input,toolshed.g2.bx.psu.edu/repos/iuc/porechop/porechop/0.2.4+galaxy1",
+  "Input Sequence Of Tools": "porechop,fastp,fastqc",
   "Next Tool Recommendations": [
     {
-      "Tool_Name": "fastqc",
-      "Tool_Score": 0.575
+      "Tool_Name": "tp_cat",
+      "Tool_Score": 0.696
+    },
+    {
+      "Tool_Name": "featurecounts",
+      "Tool_Score": 0.665
+    },
+    {
+      "Tool_Name": "cat1",
+      "Tool_Score": 0.612
+    },
+    {
+      "Tool_Name": "samtools_view",
+      "Tool_Score": 0.555
+    },
+    {
+      "Tool_Name": "multiqc",
+      "Tool_Score": 0.549
     }
   ]
 }
