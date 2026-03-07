@@ -3,7 +3,7 @@ import pandas as pd
 import json
 
 def build():
-    df = pd.read_csv("data/latest/workflow-connections.csv", sep='|', engine='python')
+    df = pd.read_csv("agents/data/workflow-connections.csv", sep='|', engine='python')
     # Standardize column names
     df.columns = [c.strip() for c in df.columns]
     all_ids = pd.concat([df['in_tool'], df['out_tool']]).dropna().unique()
@@ -21,7 +21,7 @@ def build():
         
         mapping[short_name] = full_id
     
-    with open("log/data/tool_id_dict.txt", "w") as f:
+    with open("agents/data/tool_id_dict.txt", "w") as f:
         json.dump(mapping, f, indent=4)
     print("✅ Bridge dictionary standardized to Galaxy logic.")
 

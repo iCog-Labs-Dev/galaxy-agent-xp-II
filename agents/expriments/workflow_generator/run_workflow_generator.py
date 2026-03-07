@@ -31,10 +31,10 @@ from .validator import GalaxyValidator
 
 # --- CONFIGURATION ---
 MODEL_PATH = os.path.join(project_root, "transformer_model", "model_feb_28_26.h5")
-BRIDGE_DICT_PATH = os.path.join(project_root, "/home/henok/Desktop/galaxy/galaxy-agent-xp-II/agents/data/tool_id_dict.txt")
+BRIDGE_DICT_PATH = os.path.join(project_root, "..", "data", "tool_id_dict.txt")
 
 SEED_TOOL = "Grep1"
-MAX_STEPS = 9
+MAX_STEPS = 15
 
 
 def main():

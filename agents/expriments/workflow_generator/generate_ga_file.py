@@ -10,7 +10,7 @@ def create_galaxy_workflow(predicted_tool_names, tool_mapping=None, workflow_nam
     # 1. Resolve the Dictionary
     if tool_mapping is None:
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        dict_path = os.path.join(project_root, "log/data/tool_id_dict.txt")
+        dict_path = os.path.join(project_root, "agents", "data", "tool_id_dict.txt")
         
         if os.path.exists(dict_path):
             with open(dict_path, 'r') as f:
