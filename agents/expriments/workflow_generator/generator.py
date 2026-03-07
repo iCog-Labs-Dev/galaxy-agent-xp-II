@@ -17,14 +17,6 @@ def generate_tool_sequence(model, forward_dict, reverse_dict, seed_tool_name, ma
         predictions, _ = model.predict(input_tensor, verbose=0)
         best_candidates = np.argsort(predictions[0])[::-1]
 
-        print(f"\nStep {step+1}:")
-        print("Current sequence IDs:", current_sequence_ids)
-        print("Top 5 candidates:")
-        for idx in best_candidates[:5]:
-            name = reverse_dict.get(str(idx), "?")
-            prob = predictions[0][idx]
-            print(f"  ID {idx}: {name} (prob={prob:.4f})")
-
         next_tool_id = None
         for cand_id in best_candidates:
             if cand_id == 0 or cand_id in current_sequence_ids:
@@ -42,7 +34,7 @@ def generate_tool_sequence(model, forward_dict, reverse_dict, seed_tool_name, ma
             print(f"Stopping: next_tool_id is None or probability too low.")
             break
 
-        print(f"Selected next tool: ID {next_tool_id}, Name: {reverse_dict.get(str(next_tool_id), '?')}, Prob: {predictions[0][next_tool_id]:.4f}")
+       
         current_sequence_ids.append(next_tool_id)
 
         # Stop if we hit a terminal tool
@@ -57,5 +49,4 @@ def generate_tool_sequence(model, forward_dict, reverse_dict, seed_tool_name, ma
             print(f"⚠️ Warning: Tool ID {next_tool_id} not found in reverse_dict. Skipping.")
             break
 
-    # Only return tool names that exist in reverse_dict
     return [reverse_dict[str(tid)] for tid in current_sequence_ids if str(tid) in reverse_dict]
