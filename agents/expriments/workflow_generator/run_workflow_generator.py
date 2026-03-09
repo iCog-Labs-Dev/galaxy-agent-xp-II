@@ -9,29 +9,42 @@ import h5py
 
 # --- PATH FIX ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
+project_root = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+expriments_root = os.path.abspath(os.path.join(current_dir, ".."))
 from dotenv import load_dotenv
-scripts_path = os.path.join(project_root, "scripts")
+scripts_path = os.path.join(expriments_root, "scripts")
 
 
 if project_root not in sys.path:
-    sys.path.append(project_root)
+    sys.path.insert(0, project_root)
+if expriments_root not in sys.path:
+    sys.path.insert(0, expriments_root)
 if scripts_path not in sys.path:
-    sys.path.append(scripts_path)
+    sys.path.insert(0, scripts_path)
 
 
 # --- IMPORTS ---
 from agents.expriments.Next_Tool_Recommendation.model import build_transformer_model, ModelManager
-from .generator import generate_tool_sequence
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
+try:
+    from .generator import generate_tool_sequence
+    from .generate_ga_file import create_galaxy_workflow
+    from .validator import GalaxyValidator
+except ImportError:
+    from generator import generate_tool_sequence
+    from generate_ga_file import create_galaxy_workflow
+    from validator import GalaxyValidator
+
 load_dotenv(os.path.join(project_root, '.env'))
-from .generate_ga_file import create_galaxy_workflow
-from .validator import GalaxyValidator
 
 # --- CONFIGURATION ---
-MODEL_PATH = os.path.join(project_root, "transformer_model", "model_feb_28_26.h5")
-BRIDGE_DICT_PATH = os.path.join(project_root, "..", "data", "tool_id_dict.txt")
+MODEL_PATH = os.getenv(
+    "WORKFLOW_GENERATOR_MODEL_PATH",
+    os.path.join(expriments_root, "transformer_model", "model_feb_28_26.h5")
+)
+BRIDGE_DICT_PATH = os.getenv(
+    "WORKFLOW_GENERATOR_BRIDGE_DICT_PATH",
+    os.path.join(expriments_root, "data", "tool_id_dict.txt")
+)
 
 SEED_TOOL = "Grep1"
 MAX_STEPS = 15
