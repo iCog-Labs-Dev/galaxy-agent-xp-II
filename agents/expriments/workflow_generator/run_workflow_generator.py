@@ -1,53 +1,45 @@
+
+
 import os
 import sys
 import json
 import numpy as np
 import tensorflow as tf
-
+import h5py
 
 # --- PATH FIX ---
-current_dir = os.path.dirname(os.path.abspath(__file__)) 
-project_root = os.path.dirname(current_dir)             
-scripts_path = os.path.join(project_root, "scripts")     
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+from dotenv import load_dotenv
+scripts_path = os.path.join(project_root, "scripts")
+
 
 if project_root not in sys.path:
     sys.path.append(project_root)
 if scripts_path not in sys.path:
     sys.path.append(scripts_path)
 
+
 # --- IMPORTS ---
-from scripts.train_transformer import create_model
-from generator import generate_tool_sequence
-from generate_ga_file import create_galaxy_workflow
-from validator import GalaxyValidator
+from agents.expriments.Next_Tool_Recommendation.model import build_transformer_model, ModelManager
+from .generator import generate_tool_sequence
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+load_dotenv(os.path.join(project_root, '.env'))
+from .generate_ga_file import create_galaxy_workflow
+from .validator import GalaxyValidator
 
 # --- CONFIGURATION ---
-MODEL_WEIGHTS_PATH = os.path.join(project_root, "log/saved_model/200/tf_model_h5/model.h5")
-F_DICT_PATH = os.path.join(project_root, "log/data/f_dict.txt")
-R_DICT_PATH = os.path.join(project_root, "log/data/rev_dict.txt")
-# The dictionary we created from workflow-connections.csv
-BRIDGE_DICT_PATH = os.path.join(project_root, "log/data/tool_id_dict.txt")
+MODEL_PATH = os.path.join(project_root, "transformer_model", "model_feb_28_26.h5")
+BRIDGE_DICT_PATH = os.path.join(project_root, "..", "data", "tool_id_dict.txt")
 
-CONFIG = {
-    "embedding_dim": 128,
-    "feed_forward_dim": 128,
-    "maximum_path_length": 25,
-    "dropout": 0.1,
-    "n_heads": 4 
-}
 SEED_TOOL = "Grep1"
-MAX_STEPS = 9 # Matches your predicted chain length
+MAX_STEPS = 15
 
-def load_dictionaries(f_path, r_path):
-    with open(f_path, 'r') as f:
-        f_dict = json.load(f)
-    with open(r_path, 'r') as f:
-        r_dict = {int(k): v for k, v in json.load(f).items()}
-    return f_dict, r_dict
 
 def main():
     print("🚀 Initializing Workflow Generator...")
-    
+
     # 1. Load the Bridge Dictionary (Local Source of Truth)
     tool_map = {}
     if os.path.exists(BRIDGE_DICT_PATH):
@@ -57,35 +49,24 @@ def main():
     else:
         print(f"⚠️ Warning: Bridge dictionary not found at {BRIDGE_DICT_PATH}. IDs may be incomplete.")
 
-    # 2. Load AI Data
-    f_dict, r_dict = load_dictionaries(F_DICT_PATH, R_DICT_PATH)
-    vocab_size = len(f_dict) + 1
+    # 2. Load Model and Metadata
+    model_manager = ModelManager(MODEL_PATH)
+    model_manager.load()
 
-    # 3. Reconstruct Model
-    print("Building Transformer architecture...")
-    model = create_model(vocab_size, CONFIG)
+    model = model_manager.get_model()
+    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
 
-    # 4. Load Weights
-    if os.path.exists(MODEL_WEIGHTS_PATH):
-        print(f"Loading weights from: {MODEL_WEIGHTS_PATH}")
-        model.load_weights(MODEL_WEIGHTS_PATH)
-    else:
-        print(f"❌ Error: Weights file not found at {MODEL_WEIGHTS_PATH}")
-        return
-
-    # 5. Predict Sequence
+    # 3. Predict Sequence
     print(f"AI is dreaming up a workflow starting from '{SEED_TOOL}'...")
-    predicted_chain = generate_tool_sequence(model, f_dict, r_dict, SEED_TOOL, max_len=MAX_STEPS)
-    
+    predicted_chain = generate_tool_sequence(model, forward_dict, reverse_dict, SEED_TOOL, max_len=MAX_STEPS)
+
     # --- NEW: VALIDATION LAYER ---
     GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
     API_KEY = os.getenv("GALAXY_API_KEY")
 
     validator = GalaxyValidator(GALAXY_URL, API_KEY)
-    # This confirms the tool exists AND updates our mapping to match the exact version on your server
     final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
 
-    # Update the tool_map with the exact IDs found on the live server
     for name in final_chain:
         tool_map[name] = validator.installed_tools[name]['full_id']
 
@@ -94,15 +75,15 @@ def main():
 
     print("\n✅ AI Predicted Sequence:")
     print(" -> ".join(predicted_chain))
-    
-    # 6. Assemble .ga (Pass the tool_map here!)
-    print("Assembling .ga file using connection-based mapping...")
+
+    # 4. Assemble .ga (Pass only installed tools!)
+    print("Assembling .ga file using installed tools only...")
     workflow_json = create_galaxy_workflow(
-        predicted_chain, 
-        tool_mapping=tool_map, # This tells the builder to use your unique tools
+        final_chain,
+        tool_mapping=tool_map,
         workflow_name="AI_Validated_Workflow"
     )
-    
+
     output_filename = "ai_generated_workflow.ga"
     with open(output_filename, "w") as f:
         json.dump(workflow_json, f, indent=4)
