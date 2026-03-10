@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from config import settings
+from .config import settings
 
 
 def parse_sequence(sequence_str):
