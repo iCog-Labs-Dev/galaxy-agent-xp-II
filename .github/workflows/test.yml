@@ -22,4 +22,4 @@ jobs:
         env:
           GEMINI_API_KEY: dummy
           OPENAI_API_KEY: dummy
-        run: pytest --disable-warnings --cov=agents --cov-report=term-missing
+        run: python3 -m pytest --disable-warnings --cov=agents --cov-report=term-missing
