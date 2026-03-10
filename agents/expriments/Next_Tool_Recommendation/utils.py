@@ -1,8 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from .config import settings
-
+from agents.expriments.Next_Tool_Recommendation.config import settings
 
 def parse_sequence(sequence_str):
     tools = sequence_str.split(",")
