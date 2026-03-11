@@ -52,7 +52,7 @@ DEFAULT_CONFIG = LoaderConfig(
             file="workflow_steps.csv",
             id_fields=["workflow_repository", "file_name", "step_id"],
             id_property="step_uid",
-            prop_fields=["workflow_repository", "file_name", "step_id", "name", "type", "annotation", "tool_id", "tool_version"],
+            prop_fields=["workflow_repository", "file_name", "step_id", "name", "type", "annotation", "tool_id", "tool_version", "subworkflow_name"],
         ),
         # Tools referenced by workflows (basic properties)
         NodeSpec(
@@ -133,15 +133,15 @@ DEFAULT_CONFIG = LoaderConfig(
             to_id_fields=["workflow_repository", "file_name", "step_id"],
             prop_fields=["step_id"],
         ),
-        RelationshipSpec(
-            type="NEXT_STEP",
-            file="step_sequences.csv",
-            from_="Step",
-            to="Step",
-            from_id_fields=["workflow_repository", "file_name", "from_step_id"],
-            to_id_fields=["workflow_repository", "file_name", "to_step_id"],
-            prop_fields=["sequence_index"],
-        ),
+        # RelationshipSpec(
+        #     type="NEXT_STEP",
+        #     file="step_sequences.csv",
+        #     from_="Step",
+        #     to="Step",
+        #     from_id_fields=["workflow_repository", "file_name", "from_step_id"],
+        #     to_id_fields=["workflow_repository", "file_name", "to_step_id"],
+        #     prop_fields=["sequence_index"],
+        # ),
         RelationshipSpec(
             type="STEP_REQUIRES",
             file="step_inputs.csv",
@@ -192,6 +192,14 @@ DEFAULT_CONFIG = LoaderConfig(
             to="Tool",
             from_id_fields=["workflow_repository", "file_name", "step_id"],
             to_id_fields=["tool_id"],
+        ),
+        RelationshipSpec(
+            type="STEP_USES_WORKFLOW",
+            file="workflow_files.csv",
+            from_="Step",
+            to="Workflow",
+            from_id_fields=["workflow_repository", "subworkflow_name", "step_id"],
+            to_id_fields = ["workflow_repository", "name"],
         ),
         RelationshipSpec(
             type="HAS_TOOL",
