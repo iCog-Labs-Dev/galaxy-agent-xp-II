@@ -134,26 +134,42 @@ def parse_ga_file(ga_json):
         steps = ga_json.get("steps", {})
 
         step_list = []
+        subworkflows = []
+        step_data: dict
+        step_id: str
+        
         for step_id, step_data in steps.items():
+            
+            step_type = step_data.get("type", "")
+             
             step_list.append({
                 "step_id": int(step_id),
                 "annotation": step_data.get("annotation", ""),
-                "type": step_data.get("type", ""),
+                "type": step_type,
                 "tool_id": step_data.get("tool_id"),
                 "tool_version": step_data.get("tool_version"),
                 "name": step_data.get("name", ""),
-
+                "subworkflow_name": step_data.get("").get("name") if step_data.get("subworkflow", "") else "",
+                "label": step_data.get("label", ""),
                 "inputs": step_data.get("inputs", []),
                 "outputs": step_data.get("outputs", []),
                 "input_connections": step_data.get("input_connections", {}),
-
                 "tool_shed_repository": step_data.get("tool_shed_repository", {})
             })
+            
+        if step_type == "subworkflow" and "subworkflow" in step_data:
+
+                subwf_json = step_data["subworkflow"]
+                parsed_sub = parse_ga_file(subwf_json)
+
+                if parsed_sub:
+                    subworkflows.append(parsed_sub)
 
         return {
             "workflow_name": workflow_name,
             "number_of_steps": len(steps),
-            "steps": step_list
+            "steps": step_list,
+            "subworkflows": subworkflows
         }
 
     except Exception as e:
@@ -255,12 +271,17 @@ def process_workflowhub_workflow(wf_id):
     #         "category": step.get("type", "unknown"),
     #         "tool_shed_url": step.get("tool_shed_repository", {}).get("url", "")
     #     })
-
-    parsed.update({
-        "file_name": file_name,
-        "raw_download_url": raw_download_url,
-        # "tools_used": tools_used
-    })
+    if parsed:
+        subworkflows = parsed.get("subworkflows", [])
+        parsed.pop("subworkflows")
+        workflow_files = [parsed]
+        workflow_files.extend(subworkflows)
+        
+        parsed.update({
+            "file_name": file_name,
+            "raw_download_url": raw_download_url,
+            # "tools_used": tools_used
+        })
 
     # Use TRS description as readme_content (with cleaning)
     raw_description = trs.get("description", "") or ""
@@ -269,9 +290,9 @@ def process_workflowhub_workflow(wf_id):
 
     # FINAL: Legacy Schema Output
     return {
-        "category": category,
-        "workflow_repository": repo_name,
-        "workflow_files": [parsed],
+        "category": category.lower(),
+        "workflow_repository": repo_name.lower(),
+        "workflow_files": workflow_files,
         "readme_content": readme_content,
     }
 
@@ -314,7 +335,7 @@ def main():
     out_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(out_dir, exist_ok=True)
 
-    output_file = os.path.join(out_dir, f"iwc_full_{timestamp}.json")
+    output_file = os.path.join(out_dir, f"workflowhub_full.json")
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)
