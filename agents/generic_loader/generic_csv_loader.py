@@ -85,6 +85,14 @@ def merge_nodes(driver, nodes_spec: List[NodeSpec], csv_dir: Path, batch_size: i
                             props["name"] = row.get(pf, "")
                         else:
                             props[pf] = row.get(pf, "")
+
+                    content_parts = []
+                    for k, v in props.items():
+                        if v is not None and k != "content" and v != "":
+                           formatted_key = k.replace('_', ' ').title()
+                           content_parts.append(f"The {formatted_key} is {v}.")
+                    props["content"] = " ".join(content_parts)
+
                     payload.append({"node_id": node_id, "props": props})
                 session.execute_write(lambda tx, c=payload: tx.run(cypher, rows=c))
             log.info("[nodes] %s done in %.2fs", spec.name, time.perf_counter() - start)

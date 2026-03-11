@@ -43,6 +43,7 @@ class StepsInWorkflowFileProperties(BaseModel):
     name: str
     type: str
     annotation: str
+    subworkflow_name: str | None = None
     tool_id: str | int | None
     tool_version: str | int | None
     inputs_count: int

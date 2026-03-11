@@ -54,7 +54,7 @@ def _validated_dict(model: Type, payload: Dict[str, Any]) -> Dict[str, Any]:
     return model(**payload).model_dump()
 
 
-def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]: # TODO: Fix worklfow updloading schema!!
     rows = []
     for wf in data:
         rows.append(
@@ -63,12 +63,7 @@ def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 {
                     "category": wf.get("category", ""),
                     "workflow_repository": wf.get("workflow_repository", ""),
-                    # "has_readme": wf.get("has_readme", False),
-                    # "has_dockstore_yml": wf.get("has_dockstore_yml", False),
-                    # "has_test_data": wf.get("has_test_data", False),
-                    # "has_changelog": wf.get("has_changelog", False),
-                    # "planemo_tests": ";".join(wf.get("planemo_tests", [])),
-                    "readme_content": wf.get("readme_content", "") or "",
+                    "readme_content": wf.get("readme_content",  wf.get("description",  wf.get("annotation", ""))) or "",
                 },
             )
         )
@@ -97,7 +92,6 @@ def to_workflow_files_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any
                 )
             )
     return rows
-
 
 def to_tools_used_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     rows = []
@@ -142,6 +136,12 @@ def to_steps_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     for wf in data:
         for wf_file in wf.get("workflow_files", []) or []:
             for step in wf_file.get("steps", []) or []:
+                annotation = step.get("annotation", "")
+                sub_name = step.get("subworkflow_name", "")
+                if step.get("type") == "subworkflow":
+                    booster = f"Executes a composite subworkflow named {sub_name or 'a nested subworkflow'} to perform a multi-step wrapped process."
+                    annotation = f"{annotation} | {booster}" if annotation else booster
+
                 rows.append(
                     _validated_dict(
                         StepsInWorkflowFileProperties,
@@ -153,7 +153,8 @@ def to_steps_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                             "step_id": step.get("step_id"),
                             "type": step.get("type", ""),
                             "name": step.get("name", ""),
-                            "annotation": step.get("annotation", ""),
+                            "annotation": annotation,
+                            "subworkflow_name": sub_name,
                             "tool_id": step.get("tool_id", ""),
                             "tool_version": step.get("tool_version", ""),
                             "inputs_count": len(step.get("inputs", []) or []),

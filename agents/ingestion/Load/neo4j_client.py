@@ -46,6 +46,14 @@ class Neo4jClient:
         if unique_key not in properties or properties[unique_key] is None:
             raise ValueError(f"unique_key '{unique_key}' missing or None in properties: {properties}")
 
+        # Add the 'content' attribute which is a string representation of all properties
+        content_parts = []
+        for k, v in properties.items():
+            if v is not None and k != "content" and v != "":
+                formatted_key = k.replace('_', ' ').title()
+                content_parts.append(f"The {formatted_key} is {v}.")
+        properties["content"] = " ".join(content_parts)
+
         # Use only non-None properties for SET to avoid matching on nulls
         merge_value = properties[unique_key]
         set_props = {k: v for k, v in properties.items() if k != unique_key and v is not None}
