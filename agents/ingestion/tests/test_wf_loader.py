@@ -1,7 +1,7 @@
 import sys
 import pathlib
 import importlib.util
-
+from agents.ingestion.Load.wf_loader import GraphLoader
 
 # Ensure repo root is on sys.path so `agents` package imports resolve during tests
 ROOT = pathlib.Path(__file__).resolve().parents[4]
@@ -16,14 +16,6 @@ for p in cwd.parents:
         break
 if ROOT is None:
     raise RuntimeError("Could not find repository root containing 'agents' directory")
-
-
-# Load GraphLoader from file to avoid package import issues
-wf_loader_path = ROOT / "agents" / "ingestion" / "Load" / "wf_loader.py"
-spec = importlib.util.spec_from_file_location("wf_loader", str(wf_loader_path))
-mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mod)
-GraphLoader = mod.GraphLoader
 
 
 class DummyNeo:

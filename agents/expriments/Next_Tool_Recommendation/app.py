@@ -1,12 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from model import model_manager
-from utils import predict
-from config import settings
+from .model import model_manager
+from .utils import predict
+from .config import settings
+from contextlib import asynccontextmanager
 
 
-app = FastAPI(title="Next Tool Recommendation API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    model_manager.load()
+    yield
+
+app = FastAPI(title="Next Tool Recommendation API", lifespan=lifespan)
 
 
 @app.get("/")
@@ -17,11 +23,6 @@ def health_check():
 class PredictionRequest(BaseModel):
     tool_sequence: str
     topk: int = settings.TOP_K_DEFAULT
-
-
-@app.on_event("startup")
-def startup():
-    model_manager.load()
 
 
 @app.post("/Next Tool Recommendation")

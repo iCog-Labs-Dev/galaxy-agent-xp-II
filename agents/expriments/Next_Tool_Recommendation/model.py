@@ -84,3 +84,13 @@ class ModelManager:
     def get_metadata(self):
         return self.reverse_dict, self.model_dict, self.class_weights
     
+class ModelManager:
+    def __init__(self):
+        pass
+
+    def load(self):
+        pass
+
+
+# create singleton instance
+model_manager = ModelManager()

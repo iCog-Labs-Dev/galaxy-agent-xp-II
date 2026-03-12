@@ -1,10 +1,10 @@
 import json
 from tqdm import tqdm
-from extract.parser import WorkflowParser
-from extract.normalize import Normalizer
-from transform.wf_node_builder import NodeBuilder
-from transform.wf_rel_builder import RelationshipBuilder
-from Load.neo4j_client import Neo4jClient
+from agents.ingestion.extract.parser import WorkflowParser
+from agents.ingestion.extract.normalize import Normalizer
+from agents.ingestion.transform.wf_node_builder import NodeBuilder
+from agents.ingestion.transform.wf_rel_builder import RelationshipBuilder
+from agents.ingestion.Load.neo4j_client import Neo4jClient
 
 class GraphLoader:
     def __init__(self, neo4j: Neo4jClient):
