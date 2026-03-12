@@ -93,3 +93,89 @@ def generate_workflow_transformer(req: WorkflowRequest):
     final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
     return {"Generated Workflow": " -> ".join(final_chain)}
 
+# Endpoint for hybrid mode
+@app.post("/generate-workflow-hybrid")
+def generate_workflow_hybrid(req: WorkflowRequest):
+    tool_map = {}
+    if os.path.exists(BRIDGE_DICT_PATH):
+        with open(BRIDGE_DICT_PATH, 'r') as f:
+            tool_map = json.load(f)
+
+    model_manager = workflow_gen.ModelManager(MODEL_PATH)
+    model_manager.load()
+    model = model_manager.get_model()
+    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
+
+    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
+    API_KEY = os.getenv("GALAXY_API_KEY")
+    validator = workflow_gen.GalaxyValidator(
+        GALAXY_URL,
+        API_KEY,
+        timeout=15,
+        skip_validation=False,
+        cache_file=TOOLS_CACHE_PATH,
+        cache_ttl=1800,
+    )
+
+    predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
+        model=model,
+        forward_dict=forward_dict,
+        reverse_dict=reverse_dict,
+        seed_tool_name=req.seed_tool,
+        max_len=req.max_steps,
+        top_k=8,
+        top_p=0.9,
+        temperature=1.0,
+        repetition_penalty=1.1,
+        use_llm=True,
+        llm_model="gpt-4o-mini",
+        llm_provider="auto",
+        validator=validator,
+        return_trace=True,
+    )
+    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
+    return {"Generated Workflow": " -> ".join(final_chain)}
+
+
+# Endpoint for hybrid mode
+@app.post("/generate-workflow-hybrid")
+def generate_workflow_hybrid(req: WorkflowRequest):
+    tool_map = {}
+    if os.path.exists(BRIDGE_DICT_PATH):
+        with open(BRIDGE_DICT_PATH, 'r') as f:
+            tool_map = json.load(f)
+
+    model_manager = workflow_gen.ModelManager(MODEL_PATH)
+    model_manager.load()
+    model = model_manager.get_model()
+    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
+
+    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
+    API_KEY = os.getenv("GALAXY_API_KEY")
+    validator = workflow_gen.GalaxyValidator(
+        GALAXY_URL,
+        API_KEY,
+        timeout=15,
+        skip_validation=False,
+        cache_file=TOOLS_CACHE_PATH,
+        cache_ttl=1800,
+    )
+
+    predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
+        model=model,
+        forward_dict=forward_dict,
+        reverse_dict=reverse_dict,
+        seed_tool_name=req.seed_tool,
+        max_len=req.max_steps,
+        top_k=8,
+        top_p=0.9,
+        temperature=1.0,
+        repetition_penalty=1.1,
+        use_llm=True,
+        llm_model="gpt-4o-mini",
+        llm_provider="auto",
+        validator=validator,
+        return_trace=True,
+    )
+    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
+    return {"Generated Workflow": " -> ".join(final_chain)}
