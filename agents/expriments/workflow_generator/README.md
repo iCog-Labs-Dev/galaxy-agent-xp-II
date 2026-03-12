@@ -20,12 +20,82 @@ This module generates Galaxy workflows using AI-based tool sequence prediction a
    ```
    GALAXY_URL=http://localhost:8080
    GALAXY_API_KEY=your_api_key
+   OPENAI_API_KEY=your_openai_key      # optional, for OpenAI reranking
+   GEMINI_API_KEY=your_gemini_api_key  # optional, for Gemini reranking
    ```
-3. Run the generator:
+3. Run in hybrid mode (default):
    ```bash
-   python -m agents.expriments.workflow_generator.run_workflow_generator
+   python agents/expriments/workflow_generator/run_workflow_generator.py \
+     --mode hybrid \
+     --seed_tool Grep1 \
+     --max_steps 15 \
+     --top_k 8 \
+     --top_p 0.9 \
+     --temperature 1.0
    ```
-4. Import the generated `ai_generated_workflow.ga` file into Galaxy.
+    Hybrid with Gemini reranking:
+    ```bash
+    python agents/expriments/workflow_generator/run_workflow_generator.py \
+       --mode hybrid \
+       --llm_provider gemini \
+       --llm_model gemini-1.5-flash
+    ```
+4. Run transformer-only mode:
+   ```bash
+   python agents/expriments/workflow_generator/run_workflow_generator.py --mode transformer
+   ```
+5. Disable LLM reranking in hybrid mode:
+   ```bash
+   python agents/expriments/workflow_generator/run_workflow_generator.py --mode hybrid --disable_llm
+   ```
+6. Skip Galaxy validation if your instance is unavailable/slow:
+   ```bash
+   python agents/expriments/workflow_generator/run_workflow_generator.py --mode hybrid --skip_validation
+   ```
+7. Set Galaxy API timeout (seconds):
+   ```bash
+   python agents/expriments/workflow_generator/run_workflow_generator.py --mode hybrid --galaxy_timeout 10
+   ```
+8. Save detailed LLM/score trace (JSON):
+   ```bash
+   python agents/expriments/workflow_generator/run_workflow_generator.py \
+     --mode hybrid \
+     --llm_provider gemini \
+     --llm_model gemini-2.5-flash \
+     --llm_trace_file agents/expriments/reports/workflow_generator/llm_trace.json
+   ```
+9. Print full trace to console:
+    ```bash
+    python agents/expriments/workflow_generator/run_workflow_generator.py \
+       --mode hybrid \
+       --llm_provider gemini \
+       --llm_model gemini-2.5-flash \
+       --console_trace
+    ```
+10. Import the generated `ai_generated_workflow.ga` file into Galaxy.
+
+11. If Galaxy import shows many missing required params, run safe mode:
+    ```bash
+    python agents/expriments/workflow_generator/run_workflow_generator.py \
+       --mode hybrid \
+       --safe_mode
+    ```
+
+## Runtime options
+- `--mode`: `hybrid` (transformer + optional LLM rerank) or `transformer`
+- `--seed_tool`: first tool in the generated workflow
+- `--max_steps`: max generated chain length
+- `--top_k`, `--top_p`, `--temperature`: candidate diversity controls
+- `--repetition_penalty`: discourages repeating already used tools
+- `--llm_provider`: `auto`, `openai`, or `gemini`
+- `--llm_model`: model name for the selected provider (default `gpt-4o-mini`)
+- `--disable_llm`: keeps hybrid loop but uses heuristic reranking only
+- `--skip_validation`: bypasses Galaxy installed-tools verification
+- `--galaxy_timeout`: timeout in seconds for Galaxy API tool fetch
+- `--llm_trace_file`: writes per-step candidates, model probabilities, heuristic scores, LLM pick, and chosen tool
+- `--console_trace`: prints the same detailed per-step trace directly in terminal
+- `--safe_mode`: removes tools likely to fail automatic import due to complex parameters/multi-input requirements
+- `--workflow_name`, `--output_file`: output metadata and filename
 
 ## Directory Structure
 ```

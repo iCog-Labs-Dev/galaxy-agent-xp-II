@@ -286,7 +286,8 @@ def main():
     workflow_json = create_galaxy_workflow(
         final_chain,
         tool_mapping=tool_map,
-        workflow_name=args.workflow_name
+        workflow_name=args.workflow_name,
+        validator=validator,
     )
 
     with open(args.output_file, "w") as f:
