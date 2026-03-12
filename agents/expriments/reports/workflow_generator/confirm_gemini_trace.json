@@ -1,0 +1,278 @@
+{
+  "mode": "hybrid",
+  "seed_tool": "Grep1",
+  "llm_provider": "gemini",
+  "llm_model": "gemini-2.5-flash",
+  "predicted_chain": [
+    "Grep1",
+    "tp_sort_header_tool",
+    "tp_easyjoin_tool",
+    "tp_cut_tool"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "chain": [
+        "Grep1"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "id": 334,
+          "name": "tp_sort_header_tool",
+          "prob": 0.007656026050100096,
+          "heuristic_score": 0.007656026050100096,
+          "selected_by_llm": true
+        },
+        {
+          "rank": 2,
+          "id": 2027,
+          "name": "tp_cat",
+          "prob": 0.008761706161621788,
+          "heuristic_score": 0.008761706161621788,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 3,
+          "id": 2093,
+          "name": "featurecounts",
+          "prob": 0.008353955566400922,
+          "heuristic_score": 0.008353955566400922,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 4,
+          "id": 1817,
+          "name": "cat1",
+          "prob": 0.007896517689712269,
+          "heuristic_score": 0.007896517689712269,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 5,
+          "id": 736,
+          "name": "fastqc",
+          "prob": 0.00733210745348721,
+          "heuristic_score": 0.00733210745348721,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 6,
+          "id": 1597,
+          "name": "bedtools_intersectbed",
+          "prob": 0.007251369885653026,
+          "heuristic_score": 0.007251369885653026,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 7,
+          "id": 1216,
+          "name": "tp_easyjoin_tool",
+          "prob": 0.007217993150628405,
+          "heuristic_score": 0.007217993150628405,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 8,
+          "id": 252,
+          "name": "Cut1",
+          "prob": 0.007149228264282144,
+          "heuristic_score": 0.007149228264282144,
+          "selected_by_llm": false
+        }
+      ],
+      "llm": {
+        "provider_requested": "gemini",
+        "provider_used": "gemini",
+        "model": "gemini-2.5-flash",
+        "picked": "tp_sort_header_tool",
+        "status": "ok",
+        "error": null
+      },
+      "chosen": {
+        "id": 334,
+        "name": "tp_sort_header_tool",
+        "prob": 0.007656026050100096,
+        "heuristic_score": 0.007656026050100096
+      },
+      "stop_reason": null
+    },
+    {
+      "step": 2,
+      "chain": [
+        "Grep1",
+        "tp_sort_header_tool"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "id": 1216,
+          "name": "tp_easyjoin_tool",
+          "prob": 0.007491900076969046,
+          "heuristic_score": 0.007491900076969046,
+          "selected_by_llm": true
+        },
+        {
+          "rank": 2,
+          "id": 2027,
+          "name": "tp_cat",
+          "prob": 0.008758434053772158,
+          "heuristic_score": 0.008758434053772158,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 3,
+          "id": 2093,
+          "name": "featurecounts",
+          "prob": 0.008325498327614528,
+          "heuristic_score": 0.008325498327614528,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 4,
+          "id": 1817,
+          "name": "cat1",
+          "prob": 0.00791594502192947,
+          "heuristic_score": 0.00791594502192947,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 5,
+          "id": 1597,
+          "name": "bedtools_intersectbed",
+          "prob": 0.007371676990169161,
+          "heuristic_score": 0.007371676990169161,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 6,
+          "id": 736,
+          "name": "fastqc",
+          "prob": 0.007326855600496988,
+          "heuristic_score": 0.007326855600496988,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 7,
+          "id": 1003,
+          "name": "join1",
+          "prob": 0.007289659134186151,
+          "heuristic_score": 0.007289659134186151,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 8,
+          "id": 252,
+          "name": "Cut1",
+          "prob": 0.007237500417080931,
+          "heuristic_score": 0.007237500417080931,
+          "selected_by_llm": false
+        }
+      ],
+      "llm": {
+        "provider_requested": "gemini",
+        "provider_used": "gemini",
+        "model": "gemini-2.5-flash",
+        "picked": "tp_easyjoin_tool",
+        "status": "ok",
+        "error": null
+      },
+      "chosen": {
+        "id": 1216,
+        "name": "tp_easyjoin_tool",
+        "prob": 0.007491900076969046,
+        "heuristic_score": 0.007491900076969046
+      },
+      "stop_reason": null
+    },
+    {
+      "step": 3,
+      "chain": [
+        "Grep1",
+        "tp_sort_header_tool",
+        "tp_easyjoin_tool"
+      ],
+      "candidates": [
+        {
+          "rank": 1,
+          "id": 1779,
+          "name": "tp_cut_tool",
+          "prob": 0.007374268631588337,
+          "heuristic_score": 0.007374268631588337,
+          "selected_by_llm": true
+        },
+        {
+          "rank": 2,
+          "id": 2027,
+          "name": "tp_cat",
+          "prob": 0.00880326047610147,
+          "heuristic_score": 0.00880326047610147,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 3,
+          "id": 2093,
+          "name": "featurecounts",
+          "prob": 0.008313443024318402,
+          "heuristic_score": 0.008313443024318402,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 4,
+          "id": 1817,
+          "name": "cat1",
+          "prob": 0.007976478017766608,
+          "heuristic_score": 0.007976478017766608,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 5,
+          "id": 1003,
+          "name": "join1",
+          "prob": 0.007692223880593244,
+          "heuristic_score": 0.007692223880593244,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 6,
+          "id": 1597,
+          "name": "bedtools_intersectbed",
+          "prob": 0.0075590069954155036,
+          "heuristic_score": 0.0075590069954155036,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 7,
+          "id": 252,
+          "name": "Cut1",
+          "prob": 0.007393018553006734,
+          "heuristic_score": 0.007393018553006734,
+          "selected_by_llm": false
+        },
+        {
+          "rank": 8,
+          "id": 736,
+          "name": "fastqc",
+          "prob": 0.007352826661492231,
+          "heuristic_score": 0.007352826661492231,
+          "selected_by_llm": false
+        }
+      ],
+      "llm": {
+        "provider_requested": "gemini",
+        "provider_used": "gemini",
+        "model": "gemini-2.5-flash",
+        "picked": "tp_cut_tool",
+        "status": "ok",
+        "error": null
+      },
+      "chosen": {
+        "id": 1779,
+        "name": "tp_cut_tool",
+        "prob": 0.007374268631588337,
+        "heuristic_score": 0.007374268631588337
+      },
+      "stop_reason": null
+    }
+  ]
+}
