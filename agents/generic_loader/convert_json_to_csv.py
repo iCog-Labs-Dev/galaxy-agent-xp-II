@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Iterable, Type
 
@@ -54,19 +55,53 @@ def _validated_dict(model: Type, payload: Dict[str, Any]) -> Dict[str, Any]:
     return model(**payload).model_dump()
 
 
+def _slugify_repository_name(value: str) -> str:
+    normalized = re.sub(r"\s+", "_", (value or "").strip().lower())
+    normalized = re.sub(r"[^a-z0-9_\-]+", "_", normalized)
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    return normalized
+
+
 def to_workflows_csv_rows(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]: # TODO: Fix worklfow updloading schema!!
     rows = []
-    for wf in data:
+    seen: set[tuple[str, str]] = set()
+
+    def add_workflow_row(category: str, workflow_repository: str, workflow_name: str, readme_content: str):
+        key = (category, workflow_repository)
+        if not workflow_repository or key in seen:
+            return
+        seen.add(key)
         rows.append(
             _validated_dict(
                 WorkflowProperties,
                 {
-                    "category": wf.get("category", ""),
-                    "workflow_repository": wf.get("workflow_repository", ""),
-                    "readme_content": wf.get("readme_content",  wf.get("description",  wf.get("annotation", ""))) or "",
+                    "category": category,
+                    "workflow_repository": workflow_repository,
+                    "workflow_name": workflow_name,
+                    "readme_content": readme_content,
                 },
             )
         )
+
+    for wf in data:
+        category = wf.get("category", "")
+        parent_repo = wf.get("workflow_repository", "")
+        readme_content = wf.get("readme_content",  wf.get("description",  wf.get("annotation", ""))) or ""
+        parent_name = parent_repo
+
+        workflow_files = wf.get("workflow_files", []) or []
+        if workflow_files:
+            parent_name = (workflow_files[0].get("workflow_name") or parent_repo).strip() or parent_repo
+
+        add_workflow_row(category, parent_repo, parent_name, readme_content)
+
+        for wf_file in workflow_files:
+            wf_name = (wf_file.get("workflow_name") or "").strip()
+            if not wf_name:
+                continue
+            standalone_repo = _slugify_repository_name(wf_name)
+            add_workflow_row(category, standalone_repo, wf_name, readme_content)
+
     return rows
 
 

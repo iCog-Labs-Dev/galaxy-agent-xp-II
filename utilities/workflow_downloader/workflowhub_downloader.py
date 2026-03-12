@@ -149,7 +149,7 @@ def parse_ga_file(ga_json):
                 "tool_id": step_data.get("tool_id"),
                 "tool_version": step_data.get("tool_version"),
                 "name": step_data.get("name", ""),
-                "subworkflow_name": step_data.get("").get("name") if step_data.get("subworkflow", "") else "",
+                "subworkflow_name": step_data.get("subworkflow").get("name") if step_data.get("subworkflow", "") else "",
                 "label": step_data.get("label", ""),
                 "inputs": step_data.get("inputs", []),
                 "outputs": step_data.get("outputs", []),
@@ -335,7 +335,7 @@ def main():
     out_dir = os.path.join(os.path.dirname(__file__), "data")
     os.makedirs(out_dir, exist_ok=True)
 
-    output_file = os.path.join(out_dir, f"workflowhub_full.json")
+    output_file = os.path.join(out_dir, f"iwc_full_{timestamp}.json")
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, indent=2, ensure_ascii=False)

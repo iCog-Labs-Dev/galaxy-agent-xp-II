@@ -11,13 +11,36 @@ def build_md5_expression(source_alias: str, fields: List[str]) -> str:
     return f"apoc.util.md5([{joined_fields}])"
 
 
+def _humanize_key(key: str) -> str:
+    return key.replace("_", " ").title()
+
+
+def build_content_expression(content_fields: List[tuple[str, str]]) -> str:
+    parts = []
+    for key, value_expr in content_fields:
+        label = _humanize_key(key)
+        parts.append(
+            f"CASE WHEN coalesce({value_expr}, '') <> '' "
+            f"THEN 'The {label} is ' + toString({value_expr}) + '. ' ELSE '' END"
+        )
+    if not parts:
+        return "''"
+    return " + ".join(parts)
+
+
 def node_statement(spec: NodeSpec, csv_url: str, batch_size: int, parallel: bool, concurrency: int) -> str:
     id_expr = build_md5_expression("row", spec.id_fields)
     props_entries = [f"`{spec.id_property}`: node_id"]
+    content_fields: List[tuple[str, str]] = [(spec.id_property, "node_id")]
     for pf in spec.prop_fields:
         if spec.label == "Category" and pf == "category":
             props_entries.append("`name`: coalesce(row.`category`, '')")
+            content_fields.append(("name", "coalesce(row.`category`, '')"))
         props_entries.append(f"`{pf}`: coalesce(row.`{pf}`, '')")
+        content_fields.append((pf, f"coalesce(row.`{pf}`, '')"))
+
+    content_expr = build_content_expression(content_fields)
+    props_entries.append(f"`content`: trim({content_expr})")
     props_literal = ", ".join(props_entries)
     action_lines = [
         f"WITH row, {id_expr} AS node_id",
@@ -49,12 +72,21 @@ def rel_statement(
         props_entries.append(f"`{pf}`: coalesce(row.`{pf}`, '')")
     props_literal = ", ".join(props_entries)
     props_clause = f"SET r += {{{props_literal}}}" if props_literal else ""
-    action_lines = [
-        f"WITH row, {from_expr} AS from_id, {to_expr} AS to_id",
-        f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: from_id}})",
-        f"MATCH (b:{spec.to} {{{id_prop_by_name[spec.to]}: to_id}})",
-        f"MERGE (a)-[r:{spec.type}]->(b)",
-    ]
+    if spec.type == "STEP_USES_WORKFLOW":
+        action_lines = [
+            f"WITH row, {from_expr} AS from_id",
+            f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: from_id}})",
+            f"MATCH (b:{spec.to} {{workflow_repository: coalesce(row.`workflow_repository`, ''), workflow_name: coalesce(row.`subworkflow_name`, '')}})",
+            "WHERE coalesce(row.`subworkflow_name`, '') <> ''",
+            f"MERGE (a)-[r:{spec.type}]->(b)",
+        ]
+    else:
+        action_lines = [
+            f"WITH row, {from_expr} AS from_id, {to_expr} AS to_id",
+            f"MATCH (a:{spec.from_} {{{id_prop_by_name[spec.from_]}: from_id}})",
+            f"MATCH (b:{spec.to} {{{id_prop_by_name[spec.to]}: to_id}})",
+            f"MERGE (a)-[r:{spec.type}]->(b)",
+        ]
     if props_clause:
         action_lines.append(props_clause)
     if spec.set_source_target:

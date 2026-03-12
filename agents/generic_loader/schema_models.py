@@ -44,7 +44,7 @@ DEFAULT_CONFIG = LoaderConfig(
             file="workflow_files.csv",
             id_fields=["workflow_repository", "file_name"],
             id_property="workflow_id",
-            prop_fields=["workflow_repository", "category", "file_name", "raw_download_url", "number_of_steps", "readme_content"],
+            prop_fields=["workflow_repository", "workflow_name", "category", "file_name", "raw_download_url", "number_of_steps", "readme_content"],
         ),
         NodeSpec(
             name="Step",
@@ -195,11 +195,12 @@ DEFAULT_CONFIG = LoaderConfig(
         ),
         RelationshipSpec(
             type="STEP_USES_WORKFLOW",
-            file="workflow_files.csv",
+            file="workflow_steps.csv",
             from_="Step",
             to="Workflow",
-            from_id_fields=["workflow_repository", "subworkflow_name", "step_id"],
-            to_id_fields = ["workflow_repository", "name"],
+            from_id_fields=["workflow_repository", "file_name", "step_id"],
+            to_id_fields=["workflow_repository", "subworkflow_name"],
+            prop_fields=["subworkflow_name"],
         ),
         RelationshipSpec(
             type="HAS_TOOL",

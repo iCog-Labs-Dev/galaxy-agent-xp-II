@@ -50,3 +50,4 @@ cypher_out
 tool_*.csv
 worflow-connection-*.tsv
 usegalaxy_workflow_connections_*tsv
+workflowhub_full.*json

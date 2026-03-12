@@ -4,6 +4,7 @@ from typing import Any
 class WorkflowProperties(BaseModel):
     category: str
     workflow_repository: str
+    workflow_name: str
     #make has_readme optional
     has_readme: bool | None = None
     has_dockstore_yml: bool | None = None
