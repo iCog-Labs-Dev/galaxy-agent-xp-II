@@ -50,7 +50,7 @@ spec.loader.exec_module(workflow_gen)
 app = FastAPI()
 MODEL_PATH = os.getenv(
     "WORKFLOW_GENERATOR_MODEL_PATH",
-    os.path.join(expriments_root, "models", "workflow_generator", "best_model.pt")
+    os.path.join(expriments_root, "transformer_model", "model_feb_28_26.h5")
 )
 BRIDGE_DICT_PATH = os.getenv(
     "WORKFLOW_GENERATOR_BRIDGE_DICT_PATH",
