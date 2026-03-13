@@ -22,18 +22,18 @@ if scripts_path not in sys.path:
     sys.path.insert(0, scripts_path)
 
 
-# Import the main logic from run_workflow_generator.py
+
 import importlib.util
 import types
 
-# Ensure workflow_generator is in sys.path for relative imports to work
+
 workflow_gen_dir = os.path.join(expriments_root, "workflow_generator")
 if workflow_gen_dir not in sys.path:
     sys.path.insert(0, workflow_gen_dir)
-# Also ensure expriments_root is in sys.path for package imports
+
 if expriments_root not in sys.path:
     sys.path.insert(0, expriments_root)
-# Dynamically import the run_workflow_generator module
+
 workflow_gen_path = os.path.join(expriments_root, "workflow_generator", "run_workflow_generator.py")
 spec = importlib.util.spec_from_file_location("run_workflow_generator", workflow_gen_path)
 workflow_gen = importlib.util.module_from_spec(spec)
@@ -56,7 +56,7 @@ TOOLS_CACHE_PATH = os.getenv(
 )
 
 
-# Shared context setup function
+# Shared context setup function for all API end points
 def get_workflow_context():
     tool_map = {}
     if os.path.exists(BRIDGE_DICT_PATH):
@@ -87,7 +87,6 @@ def get_workflow_context():
         "validator": validator,
     }
 
-# Use the same argument names as in run_workflow_generator.py
 class WorkflowRequest(BaseModel):
     seed_tool: str
     max_steps: Optional[int] = 15
@@ -131,48 +130,6 @@ def generate_workflow_hybrid(req: WorkflowRequest):
     return {"Generated Workflow": " -> ".join(final_chain)}
 
 
-# Endpoint for hybrid mode
-@app.post("/generate-workflow-hybrid")
-def generate_workflow_hybrid(req: WorkflowRequest):
-    tool_map = {}
-    if os.path.exists(BRIDGE_DICT_PATH):
-        with open(BRIDGE_DICT_PATH, 'r') as f:
-            tool_map = json.load(f)
-
-    model_manager = workflow_gen.ModelManager(MODEL_PATH)
-    model_manager.load()
-    model = model_manager.get_model()
-    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
-
-    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
-    API_KEY = os.getenv("GALAXY_API_KEY")
-    validator = workflow_gen.GalaxyValidator(
-        GALAXY_URL,
-        API_KEY,
-        timeout=15,
-        skip_validation=False,
-        cache_file=TOOLS_CACHE_PATH,
-        cache_ttl=1800,
-    )
-
-    predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
-        model=model,
-        forward_dict=forward_dict,
-        reverse_dict=reverse_dict,
-        seed_tool_name=req.seed_tool,
-        max_len=req.max_steps,
-        top_k=8,
-        top_p=0.9,
-        temperature=1.0,
-        repetition_penalty=1.1,
-        use_llm=True,
-        llm_model="gpt-4o-mini",
-        llm_provider="auto",
-        validator=validator,
-        return_trace=True,
-    )
-    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
-    return {"Generated Workflow": " -> ".join(final_chain)}
 
 class DownloadGARequest(BaseModel):
     """
