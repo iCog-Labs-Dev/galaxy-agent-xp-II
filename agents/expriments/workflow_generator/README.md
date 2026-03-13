@@ -116,3 +116,53 @@ workflow_generator/
 
 ## Notes
 - Only tools installed on Galaxy will be included in the generated workflow.
+
+## Backend API Integration
+
+The workflow generator now includes a FastAPI backend for programmatic workflow generation and .ga file download.
+
+### API Endpoints
+- `/generate-workflow-transformer`: Generate a workflow using the transformer model.
+- `/generate-workflow-hybrid`: Generate a workflow using hybrid (transformer + LLM) mode.
+- `/download-workflow-ga`: Generate and download a Galaxy .ga workflow file. Filename includes LLM-generated workflow name, version, and timestamp.
+
+### Features
+- LLM integration (Gemini 2.5 Flash) for workflow naming.
+- .ga file saving with version and timestamp for traceability.
+- Workflow name and version set in JSON.
+
+### Example API Requests and Responses
+
+#### Transformer Mode
+Request:
+```
+POST /generate-workflow-transformer
+{
+  "seed_tool": "Grep1",
+  "max_steps": 15
+}
+```
+Response:
+```
+{
+  "Generated Workflow": "Grep1 -> tp_cat -> tp_easyjoin_tool -> join1 -> tp_sort_header_tool -> Add_a_column1 -> tp_cut_tool -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> bedtools_intersectbed -> Convert characters1 -> Remove beginning1 -> tab2fasta"
+}
+```
+
+#### Hybrid Mode (Transformer + LLM)
+Request:
+```
+POST /generate-workflow-hybrid
+{
+  "seed_tool": "tp_easyjoin_tool",
+  "max_steps": 15
+}
+```
+Response:
+```
+{
+  "Generated Workflow": "tp_easyjoin_tool -> tp_cat -> featurecounts -> tp_sort_header_tool -> join1 -> Add_a_column1 -> tp_cut_tool -> bedtools_intersectbed -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> Convert characters1 -> Remove beginning1"
+}
+```
+
+See `app.py` for implementation details.
