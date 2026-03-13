@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 import tempfile
@@ -55,6 +56,37 @@ TOOLS_CACHE_PATH = os.getenv(
 )
 
 
+# Shared context setup function
+def get_workflow_context():
+    tool_map = {}
+    if os.path.exists(BRIDGE_DICT_PATH):
+        with open(BRIDGE_DICT_PATH, 'r') as f:
+            tool_map = json.load(f)
+
+    model_manager = workflow_gen.ModelManager(MODEL_PATH)
+    model_manager.load()
+    model = model_manager.get_model()
+    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
+
+    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
+    API_KEY = os.getenv("GALAXY_API_KEY")
+    validator = workflow_gen.GalaxyValidator(
+        GALAXY_URL,
+        API_KEY,
+        timeout=15,
+        skip_validation=False,
+        cache_file=TOOLS_CACHE_PATH,
+        cache_ttl=1800,
+    )
+
+    return {
+        "tool_map": tool_map,
+        "model": model,
+        "reverse_dict": reverse_dict,
+        "forward_dict": forward_dict,
+        "validator": validator,
+    }
+
 # Use the same argument names as in run_workflow_generator.py
 class WorkflowRequest(BaseModel):
     seed_tool: str
@@ -64,65 +96,25 @@ class WorkflowRequest(BaseModel):
 # Endpoint for transformer mode
 @app.post("/generate-workflow-transformer")
 def generate_workflow_transformer(req: WorkflowRequest):
-    tool_map = {}
-    if os.path.exists(BRIDGE_DICT_PATH):
-        with open(BRIDGE_DICT_PATH, 'r') as f:
-            tool_map = json.load(f)
-
-    model_manager = workflow_gen.ModelManager(MODEL_PATH)
-    model_manager.load()
-    model = model_manager.get_model()
-    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
-
-    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
-    API_KEY = os.getenv("GALAXY_API_KEY")
-    validator = workflow_gen.GalaxyValidator(
-        GALAXY_URL,
-        API_KEY,
-        timeout=15,
-        skip_validation=False,
-        cache_file=TOOLS_CACHE_PATH,
-        cache_ttl=1800,
-    )
-
+    ctx = get_workflow_context()
     predicted_chain = workflow_gen.generate_tool_sequence(
-        model,
-        forward_dict,
-        reverse_dict,
+        ctx["model"],
+        ctx["forward_dict"],
+        ctx["reverse_dict"],
         req.seed_tool,
         max_len=req.max_steps,
     )
-    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
+    final_chain = ctx["validator"].validate_and_fix_chain(predicted_chain, ctx["tool_map"])
     return {"Generated Workflow": " -> ".join(final_chain)}
 
 # Endpoint for hybrid mode
 @app.post("/generate-workflow-hybrid")
 def generate_workflow_hybrid(req: WorkflowRequest):
-    tool_map = {}
-    if os.path.exists(BRIDGE_DICT_PATH):
-        with open(BRIDGE_DICT_PATH, 'r') as f:
-            tool_map = json.load(f)
-
-    model_manager = workflow_gen.ModelManager(MODEL_PATH)
-    model_manager.load()
-    model = model_manager.get_model()
-    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
-
-    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
-    API_KEY = os.getenv("GALAXY_API_KEY")
-    validator = workflow_gen.GalaxyValidator(
-        GALAXY_URL,
-        API_KEY,
-        timeout=15,
-        skip_validation=False,
-        cache_file=TOOLS_CACHE_PATH,
-        cache_ttl=1800,
-    )
-
+    ctx = get_workflow_context()
     predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
-        model=model,
-        forward_dict=forward_dict,
-        reverse_dict=reverse_dict,
+        model=ctx["model"],
+        forward_dict=ctx["forward_dict"],
+        reverse_dict=ctx["reverse_dict"],
         seed_tool_name=req.seed_tool,
         max_len=req.max_steps,
         top_k=8,
@@ -132,10 +124,10 @@ def generate_workflow_hybrid(req: WorkflowRequest):
         use_llm=True,
         llm_model="gpt-4o-mini",
         llm_provider="auto",
-        validator=validator,
+        validator=ctx["validator"],
         return_trace=True,
     )
-    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
+    final_chain = ctx["validator"].validate_and_fix_chain(predicted_chain, ctx["tool_map"])
     return {"Generated Workflow": " -> ".join(final_chain)}
 
 
@@ -196,35 +188,14 @@ class DownloadGARequest(BaseModel):
     description="Generate and download a Galaxy workflow .ga file.\n\nmode: 1 = transformer (default), 2 = hybrid (transformer + LLM)."
 )
 def download_workflow_ga(req: DownloadGARequest):
-    tool_map = {}
-    if os.path.exists(BRIDGE_DICT_PATH):
-        with open(BRIDGE_DICT_PATH, 'r') as f:
-            tool_map = json.load(f)
-
-    model_manager = workflow_gen.ModelManager(MODEL_PATH)
-    model_manager.load()
-    model = model_manager.get_model()
-    reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
-
-    GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
-    API_KEY = os.getenv("GALAXY_API_KEY")
-    validator = workflow_gen.GalaxyValidator(
-        GALAXY_URL,
-        API_KEY,
-        timeout=15,
-        skip_validation=False,
-        cache_file=TOOLS_CACHE_PATH,
-        cache_ttl=1800,
-    )
-
-    # Map integer mode to string
+    ctx = get_workflow_context()
     mode = "transformer" if req.mode == 1 else "hybrid"
 
     if mode == "hybrid":
         predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
-            model=model,
-            forward_dict=forward_dict,
-            reverse_dict=reverse_dict,
+            model=ctx["model"],
+            forward_dict=ctx["forward_dict"],
+            reverse_dict=ctx["reverse_dict"],
             seed_tool_name=req.seed_tool,
             max_len=req.max_steps,
             top_k=8,
@@ -234,24 +205,24 @@ def download_workflow_ga(req: DownloadGARequest):
             use_llm=True,
             llm_model="gpt-4o-mini",
             llm_provider="auto",
-            validator=validator,
+            validator=ctx["validator"],
             return_trace=True,
         )
     else:
         predicted_chain = workflow_gen.generate_tool_sequence(
-            model,
-            forward_dict,
-            reverse_dict,
+            ctx["model"],
+            ctx["forward_dict"],
+            ctx["reverse_dict"],
             req.seed_tool,
             max_len=req.max_steps,
         )
 
-    final_chain = validator.validate_and_fix_chain(predicted_chain, tool_map)
+    final_chain = ctx["validator"].validate_and_fix_chain(predicted_chain, ctx["tool_map"])
     workflow_json = workflow_gen.create_galaxy_workflow(
         final_chain,
-        tool_mapping=tool_map,
+        tool_mapping=ctx["tool_map"],
         workflow_name="AI_Validated_Workflow",
-        validator=validator,
+        validator=ctx["validator"],
     )
 
     # Save to a temporary file
