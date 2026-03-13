@@ -1,50 +1,56 @@
 
+from dotenv import load_dotenv
+load_dotenv()
+import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 import tempfile
+
+# --- Imports ---
+import os
+import sys
+import json
+import datetime
+import tempfile
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional
-import os
-import json
-import sys
 
-# --- PATH FIX ---
+# --- Environment ---
+load_dotenv()
+
+# --- Path Setup ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
 expriments_root = os.path.abspath(current_dir)
 scripts_path = os.path.join(expriments_root, "scripts")
 
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-if expriments_root not in sys.path:
-    sys.path.insert(0, expriments_root)
-if scripts_path not in sys.path:
-    sys.path.insert(0, scripts_path)
+for path in [project_root, expriments_root, scripts_path]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
 
+workflow_utils_path = os.path.join(current_dir, "workflow_generator")
+if workflow_utils_path not in sys.path:
+    sys.path.append(workflow_utils_path)
+import utils
 
-
+# --- Dynamic Import ---
 import importlib.util
-import types
-
-
 workflow_gen_dir = os.path.join(expriments_root, "workflow_generator")
 if workflow_gen_dir not in sys.path:
     sys.path.insert(0, workflow_gen_dir)
-
-if expriments_root not in sys.path:
-    sys.path.insert(0, expriments_root)
-
 workflow_gen_path = os.path.join(expriments_root, "workflow_generator", "run_workflow_generator.py")
 spec = importlib.util.spec_from_file_location("run_workflow_generator", workflow_gen_path)
 workflow_gen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(workflow_gen)
 
+# --- FastAPI App ---
 app = FastAPI()
-
-# --- CONFIGURATION ---
 MODEL_PATH = os.getenv(
     "WORKFLOW_GENERATOR_MODEL_PATH",
-    os.path.join(expriments_root, "transformer_model", "model_feb_28_26.h5")
+    os.path.join(expriments_root, "models", "workflow_generator", "best_model.pt")
 )
 BRIDGE_DICT_PATH = os.getenv(
     "WORKFLOW_GENERATOR_BRIDGE_DICT_PATH",
@@ -178,9 +184,19 @@ def download_workflow_ga(req: DownloadGARequest):
     workflow_json = workflow_gen.create_galaxy_workflow(
         final_chain,
         tool_mapping=ctx["tool_map"],
-        workflow_name="AI_Validated_Workflow",
-        validator=ctx["validator"],
+        workflow_name="AI_Validated_Workflow"
     )
+
+    # Set workflow version and LLM-generated name using Gemini
+    workflow_version = workflow_json.get("format-version", "1.0")
+    workflow_json["workflow-version"] = workflow_version
+
+    llm_name = utils.generate_workflow_name_llm(workflow_json)
+    workflow_json["name"] = llm_name
+
+    # Build filename: {llm_name}_v{version}_{timestamp}.ga
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{llm_name}_v{workflow_version}_{timestamp}.ga"
 
     # Save to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".ga", mode="w", encoding="utf-8") as tmpfile:
@@ -190,6 +206,6 @@ def download_workflow_ga(req: DownloadGARequest):
     return FileResponse(
         tmpfile_path,
         media_type="application/json",
-        filename="AI_Generated_workflow.ga",
-        headers={"Content-Disposition": "attachment; filename=AI_Generated_workflow.ga"}
+        filename=filename,
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
