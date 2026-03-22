@@ -70,18 +70,17 @@ TOOLS_CACHE_PATH = os.getenv(
 )
 
 
-# Shared context setup function for all API end points
-def get_workflow_context():
+
+# --- Shared workflow context loaded once at startup ---
+def _load_workflow_context():
     tool_map = {}
     if os.path.exists(BRIDGE_DICT_PATH):
         with open(BRIDGE_DICT_PATH, 'r') as f:
             tool_map = json.load(f)
-
     model_manager = workflow_gen.ModelManager(MODEL_PATH)
     model_manager.load()
     model = model_manager.get_model()
     reverse_dict, forward_dict, class_weights = model_manager.get_metadata()
-
     GALAXY_URL = os.getenv("GALAXY_URL", "http://localhost:8080")
     API_KEY = os.getenv("GALAXY_API_KEY")
     validator = workflow_gen.GalaxyValidator(
@@ -92,7 +91,6 @@ def get_workflow_context():
         cache_file=TOOLS_CACHE_PATH,
         cache_ttl=1800,
     )
-
     return {
         "tool_map": tool_map,
         "model": model,
@@ -100,6 +98,12 @@ def get_workflow_context():
         "forward_dict": forward_dict,
         "validator": validator,
     }
+
+# Global shared workflow context
+_workflow_context = _load_workflow_context()
+
+def get_workflow_context():
+    return _workflow_context
 
 class WorkflowRequest(BaseModel):
     seed_tool: str
