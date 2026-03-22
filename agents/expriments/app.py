@@ -1,10 +1,5 @@
 
-from dotenv import load_dotenv
-load_dotenv()
-import datetime
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
-import tempfile
+
 
 # --- Imports ---
 import os
@@ -17,6 +12,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional
+
+# --- Path Setup (for local imports) ---
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+expriments_root = os.path.abspath(current_dir)
+scripts_path = os.path.join(expriments_root, "scripts")
+for path in [project_root, expriments_root, scripts_path]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+import threading
+from agents.suggesting_agent import ToolSuggestionAgent
+from agents.expriments.workflow_generator.utils import extract_short_name_from_id
 
 # --- Environment ---
 load_dotenv()
@@ -209,3 +217,79 @@ def download_workflow_ga(req: DownloadGARequest):
         filename=filename,
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+
+
+_integration_lock = threading.Lock()
+_integration_agent = None
+_integration_tool_id_dict = None
+_integration_metadata = None
+_integration_agent_error = None
+def _load_integration_resources():
+    global _integration_agent, _integration_tool_id_dict, _integration_metadata, _integration_agent_error
+    try:
+        if _integration_agent is None:
+            _integration_agent = ToolSuggestionAgent()
+        if _integration_tool_id_dict is None:
+            tool_id_dict_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'agents', 'data', 'tool_id_dict.txt')
+            with open(tool_id_dict_path, 'r') as f:
+                _integration_tool_id_dict = json.load(f)
+        if _integration_metadata is None:
+            with open(_integration_agent.metadata_path, 'r', encoding='utf-8') as f:
+                _integration_metadata = json.load(f)
+    except Exception as e:
+        _integration_agent_error = str(e)
+
+_load_integration_resources()
+
+
+class IntegrationRequest(BaseModel):
+    query: str
+    max_steps: Optional[int] = 15
+
+
+@app.post("/integrated-workflow")
+def integrated_workflow(req: IntegrationRequest):
+    if _integration_agent_error:
+        raise HTTPException(status_code=500, detail=f"Integration agent/model load error: {_integration_agent_error}")
+    with _integration_lock:
+        agent = _integration_agent
+        tool_id_dict = _integration_tool_id_dict
+        # Step 1: Get tool recommendations (top_k always 5)
+        suggestions = agent.suggest_tools(req.query, 5)
+        if not suggestions:
+            raise HTTPException(status_code=404, detail="No tools found for query.")
+        # Step 2: Find valid seed tool (short name in tool_id_dict)
+        seed_short_name = None
+        for tool in suggestions:
+            short_name = extract_short_name_from_id(tool['id'])
+            if short_name in tool_id_dict:
+                seed_short_name = short_name
+                break
+        if not seed_short_name:
+            raise HTTPException(status_code=400, detail="No recommended tool found in tool_id_dict.")
+        # Step 3: Generate workflow (hybrid mode)
+        ctx = get_workflow_context()
+        predicted_chain, _ = workflow_gen.hybrid_generate_tool_sequence(
+            model=ctx["model"],
+            forward_dict=ctx["forward_dict"],
+            reverse_dict=ctx["reverse_dict"],
+            seed_tool_name=seed_short_name,
+            max_len=req.max_steps,
+            top_k=8,
+            top_p=0.9,
+            temperature=1.0,
+            repetition_penalty=1.1,
+            use_llm=True,
+            llm_model="gpt-4o-mini",
+            llm_provider="auto",
+            validator=ctx["validator"],
+            return_trace=True,
+        )
+        final_chain = ctx["validator"].validate_and_fix_chain(predicted_chain, ctx["tool_map"])
+        return {
+            "query": req.query,
+            "recommended_tool": seed_short_name,
+            "workflow": final_chain,
+            "chain_str": " -> ".join(final_chain),
+        }
