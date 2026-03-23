@@ -252,7 +252,7 @@ class IntegrationRequest(BaseModel):
     max_steps: Optional[int] = 15
 
 
-@app.post("/integrated-workflow")
+@app.post("/Generating-Workflow-from-Query")
 def integrated_workflow(req: IntegrationRequest):
     if _integration_agent_error:
         raise HTTPException(status_code=500, detail=f"Integration agent/model load error: {_integration_agent_error}")
@@ -294,6 +294,5 @@ def integrated_workflow(req: IntegrationRequest):
         return {
             "query": req.query,
             "recommended_tool": seed_short_name,
-            "workflow": final_chain,
-            "chain_str": " -> ".join(final_chain),
+            "workflow": " -> ".join(final_chain)
         }
