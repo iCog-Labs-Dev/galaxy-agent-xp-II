@@ -119,17 +119,60 @@ workflow_generator/
 
 ## Backend API Integration
 
-The workflow generator now includes a FastAPI backend for programmatic workflow generation and .ga file download.
+### How the Integration Works
+
+The integration combines vector-based tool recommendation with transformer+LLM workflow generation:
+
+- A user query is first processed by a sentence-transformer model to recommend the most relevant tool (semantic search).
+- The top recommended tool is used as the **seed tool** for workflow generation.
+- The transformer+LLM model then predicts the next tools in the workflow, step by step, starting from this seed (next-tool prediction principle).
+- This ensures the workflow is both relevant to the query and technically valid.
+
+
+The workflow generator now includes a FastAPI backend for programmatic workflow generation, .ga file download, and direct query-to-workflow integration.
 
 ### API Endpoints
 - `/generate-workflow-transformer`: Generate a workflow using the transformer model.
 - `/generate-workflow-hybrid`: Generate a workflow using hybrid (transformer + LLM) mode.
 - `/download-workflow-ga`: Generate and download a Galaxy .ga workflow file. Filename includes LLM-generated workflow name, version, and timestamp.
 
+- `/Generating-Workflow-from-Query`: **(Integration endpoint)** Generate a workflow directly from a natural language query. Returns the recommended seed tool and the full workflow chain.
+
 ### Features
 - LLM integration (Gemini 2.5 Flash) for workflow naming.
 - .ga file saving with version and timestamp for traceability.
 - Workflow name and version set in JSON.
+
+### Integration Endpoint: Query-to-Workflow
+
+**POST** `/Generating-Workflow-from-Query`
+
+Generate a workflow from a natural language query. The system will:
+- Recommend the most relevant tool for your query
+- Generate a valid workflow starting from that tool
+- Return both the recommended tool and the workflow chain
+
+**Request Example:**
+```json
+{
+   "query": "Align reads into exact matching stacks and identify SNPs",
+   "max_steps": 10
+}
+```
+
+**Response Example:**
+```json
+{
+   "query": "Align reads into exact matching stacks and identify SNPs",
+   "recommended_tool": "stacks_refmap",
+   "workflow": "stacks_refmap -> tp_cat -> featurecounts -> cat1 -> tp_easyjoin_tool -> join1 -> tp_sort_header_tool -> Add_a_column1 -> tp_cut_tool -> Grouping1 -> addValue"
+}
+```
+
+**Notes:**
+- The `recommended_tool` is the seed tool selected for the workflow, based on your query.
+- The `workflow` is a validated, installable tool chain for Galaxy.
+- The endpoint always uses the top-5 tool recommendations and hybrid workflow generation.
 
 ### Example API Requests and Responses
 
@@ -138,14 +181,14 @@ Request:
 ```
 POST /generate-workflow-transformer
 {
-  "seed_tool": "Grep1",
-  "max_steps": 15
+   "seed_tool": "Grep1",
+   "max_steps": 15
 }
 ```
 Response:
 ```
 {
-  "Generated Workflow": "Grep1 -> tp_cat -> tp_easyjoin_tool -> join1 -> tp_sort_header_tool -> Add_a_column1 -> tp_cut_tool -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> bedtools_intersectbed -> Convert characters1 -> Remove beginning1 -> tab2fasta"
+   "Generated Workflow": "Grep1 -> tp_cat -> tp_easyjoin_tool -> join1 -> tp_sort_header_tool -> Add_a_column1 -> tp_cut_tool -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> bedtools_intersectbed -> Convert characters1 -> Remove beginning1 -> tab2fasta"
 }
 ```
 
@@ -154,14 +197,14 @@ Request:
 ```
 POST /generate-workflow-hybrid
 {
-  "seed_tool": "tp_easyjoin_tool",
-  "max_steps": 15
+   "seed_tool": "tp_easyjoin_tool",
+   "max_steps": 15
 }
 ```
 Response:
 ```
 {
-  "Generated Workflow": "tp_easyjoin_tool -> tp_cat -> featurecounts -> tp_sort_header_tool -> join1 -> Add_a_column1 -> tp_cut_tool -> bedtools_intersectbed -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> Convert characters1 -> Remove beginning1"
+   "Generated Workflow": "tp_easyjoin_tool -> tp_cat -> featurecounts -> tp_sort_header_tool -> join1 -> Add_a_column1 -> tp_cut_tool -> bedtools_intersectbed -> Grouping1 -> addValue -> datamash_ops -> tp_replace_in_column -> Convert characters1 -> Remove beginning1"
 }
 ```
 
