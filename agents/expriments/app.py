@@ -1,17 +1,26 @@
 
-
-
 # --- Imports ---
 import os
 import sys
 import json
 import datetime
 import tempfile
+import threading
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional
+from contextlib import asynccontextmanager
+
+# --- Next Tool Recommendation Imports ---
+from agents.expriments.Next_Tool_Recommendation.model import ModelManager as NextToolModelManager
+from agents.expriments.Next_Tool_Recommendation.utils import predict as next_tool_predict
+from agents.expriments.Next_Tool_Recommendation.config import settings as next_tool_settings
+
+# --- Workflow Generator Imports ---
+from agents.suggesting_agent import ToolSuggestionAgent
+from agents.expriments.workflow_generator.utils import extract_short_name_from_id
 
 # --- Path Setup (for local imports) ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,6 +80,13 @@ TOOLS_CACHE_PATH = os.getenv(
 
 
 
+
+# Import model, utils, and settings from Next_Tool_Recommendation
+from agents.expriments.Next_Tool_Recommendation.model import ModelManager as NextToolModelManager
+from agents.expriments.Next_Tool_Recommendation.utils import predict as next_tool_predict
+from agents.expriments.Next_Tool_Recommendation.config import settings as next_tool_settings
+
+
 # --- Shared workflow context loaded once at startup ---
 def _load_workflow_context():
     tool_map = {}
@@ -109,6 +125,28 @@ class WorkflowRequest(BaseModel):
     seed_tool: str
     max_steps: Optional[int] = 15
 
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "Galaxy Recommendation System API"}
+
+# Load the model once at startup
+next_tool_model_manager = NextToolModelManager(next_tool_settings.MODEL_PATH)
+next_tool_model_manager.load()
+class PredictionRequest(BaseModel):
+    tool_sequence: str
+    topk: int = next_tool_settings.TOP_K_DEFAULT
+
+@app.post("/next-tool_recommendation")
+def predict_tools(request: PredictionRequest):
+    try:
+        results = next_tool_predict(next_tool_model_manager, request.tool_sequence, request.topk)
+        return {
+            "Input Sequence Of Tools": request.tool_sequence,
+            "Next Tool Recommendations": results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoint for transformer mode
 @app.post("/generate-workflow-transformer")
@@ -296,3 +334,7 @@ def integrated_workflow(req: IntegrationRequest):
             "recommended_tool": seed_short_name,
             "workflow": " -> ".join(final_chain)
         }
+
+
+
+
