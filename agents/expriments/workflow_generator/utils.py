@@ -40,6 +40,17 @@ Workflow Name:
         print(f"Gemini API exception: {e}")
         return f"AI_Generated_Workflow{str(e)[:20]}"
 
-
-
-        
+def extract_short_name_from_id(tool_id: str) -> str:
+    """
+    Extracts the short tool name from a Galaxy tool ID.
+    Handles IDs like:
+      - testtoolshed.g2.bx.psu.edu/repos/bgruening/graphicsmagick_image_convert/graphicsmagick_image_convert/1.3.31+galaxy1
+      - toolshed.g2.bx.psu.edu/repos/imgteam/projective_transformation/ip_projective_transformation/0.1.0
+    Returns the last segment before the version (e.g., 'graphicsmagick_image_convert', 'ip_projective_transformation').
+    """
+    if not tool_id:
+        return ""
+    parts = tool_id.strip().split("/")
+    if len(parts) < 2:
+        return tool_id
+    return parts[-2]
