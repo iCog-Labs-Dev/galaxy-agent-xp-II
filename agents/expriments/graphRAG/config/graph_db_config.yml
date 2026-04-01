@@ -1,0 +1,9 @@
+# graphRAG/config/graph_db_config.yml
+
+neo4j:
+  uri: #  Neo4j instance URI
+  user:                   # Neo4j username
+  password: # Neo4j password
+
+indexes:
+  create_on_start: true      
